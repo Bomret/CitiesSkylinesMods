@@ -1,0 +1,41 @@
+{
+  "tasks": [
+    {
+      "args": [
+        "build"
+      ],
+      "command": "dotnet",
+      "group": {
+        "isDefault": true,
+        "kind": "build"
+      },
+      "label": "build",
+      "problemMatcher": "$msCompile",
+      "type": "process"
+    },
+    {
+      "command": [
+        "npm install && dotnet restore"
+      ],
+      "group": "none",
+      "label": "Restore Dependencies",
+      "presentation": {
+        "clear": false,
+        "close": true,
+        "echo": true,
+        "focus": false,
+        "panel": "shared",
+        "reveal": "always",
+        "showReuseMessage": false
+      },
+      "problemMatcher": [
+        "$msCompile"
+      ],
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "type": "shell"
+    }
+  ],
+  "version": "2.0.0"
+}

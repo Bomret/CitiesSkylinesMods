@@ -1,0 +1,30 @@
+{
+  "containerEnv": {
+    "GIT_USER_EMAIL": "${localEnv:GIT_USER_EMAIL}",
+    "GIT_USER_NAME": "${localEnv:GIT_USER_NAME}"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "christian-kohler.path-intellisense",
+        "dotjoshjohnson.xml",
+        "EditorConfig.EditorConfig",
+        "josefpihrt-vscode.roslynator",
+        "ms-dotnettools.csdevkit",
+        "pflannery.vscode-versionlens",
+        "tintoy.msbuild-project-tools"
+      ]
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/dotnet:2": {
+      "version": "lts"
+    },
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers/features/powershell:1": {}
+  },
+  "forwardPorts": [],
+  "image": "mcr.microsoft.com/devcontainers/base:debian",
+  "name": ".NET Monorepo",
+  "postCreateCommand": "git config --global --add safe.directory '*' && git config --global pull.rebase true && git config --global user.Name.Value \"$GIT_USER_NAME\" && git config --global user.email \"$GIT_USER_EMAIL\" && ./setup-dev.ps1"
+}

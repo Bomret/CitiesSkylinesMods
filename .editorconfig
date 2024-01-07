@@ -1,0 +1,94 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Don't use tabs for indentation.
+[*]
+indent_style = space
+# (Please don't specify an indent_size here; that has too many unintended consequences.)
+
+[*.{js,cjs,ts,json,vue}]
+indent_size = 2
+
+[*.{yaml,yml}]
+indent_size = 2
+
+[*.{xml,html,csproj,props}]
+indent_size = 2
+
+[nuget.config]
+indent_size = 2
+
+# Dotnet code style settings:
+[*.{cs,vb}]
+indent_style = tab
+
+# IDE0160: Convert to block-scoped namespace
+csharp_style_namespace_declarations = file_scoped:warning
+
+# IDE0010: Add missing cases to switch statement
+dotnet_diagnostic.IDE0010.severity = none
+
+# IDE0046: Use conditional expression for return
+dotnet_diagnostic.IDE0046.severity = none
+
+# IDE0058: Remove unnecessary expression value
+dotnet_diagnostic.IDE0058.severity = none
+
+# IDE0072: Add missing cases to switch expression
+dotnet_diagnostic.IDE0072.severity = none
+
+# IDE0058: Null check can be simplified (if null check)
+dotnet_diagnostic.IDE0270.severity = none
+
+# VSTHRD200: Use "Async" suffix in names of methods that return an awaitable type
+dotnet_diagnostic.VSTHRD200.severity = none
+
+# S103: Split this $LENGTH characters long line (which is greater than 200 authorized)
+dotnet_diagnostic.S103.severity = none
+
+# S3604: Use "Async" suffix in names of methods that return an awaitable type
+dotnet_diagnostic.S3604.severity = none
+
+# CA1031: Modify '$METHODNAME' to catch a more specific allowed exception type, or rethrow the exception 
+dotnet_diagnostic.CA1031.severity = none
+
+# Make nullability problems an error 
+dotnet_diagnostic.CS8602.severity = error
+dotnet_diagnostic.CS8604.severity = error
+
+# RCS1018: Add accessibility modifiers
+dotnet_style_require_accessibility_modifiers = omit_if_default:suggestion
+
+# IDE0022: Use expression body for methods
+csharp_style_expression_bodied_methods = when_on_single_line
+
+# Prefer "var" everywhere
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = true:suggestion
+
+# Use underscores for private fields
+## Define the 'private_fields' symbol group:
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+## Define the 'private_static_fields' symbol group
+dotnet_naming_symbols.private_static_fields.applicable_kinds = field
+dotnet_naming_symbols.private_static_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_static_fields.required_modifiers = static
+
+## Define the 'underscored' naming style
+dotnet_naming_style.underscored.capitalization = camel_case
+dotnet_naming_style.underscored.required_prefix = _
+
+## Define the 'private_fields_underscored' naming rule
+dotnet_naming_rule.private_fields_underscored.symbols = private_fields
+dotnet_naming_rule.private_fields_underscored.style = underscored
+dotnet_naming_rule.private_fields_underscored.severity = error
+
+## Define the 'private_static_fields_none' naming rule
+dotnet_naming_rule.private_static_fields_none.symbols = private_static_fields
+dotnet_naming_rule.private_static_fields_none.style = underscored
+dotnet_naming_rule.private_static_fields_none.severity = none

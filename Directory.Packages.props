@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <!-- Production -->
+  <ItemGroup>
+    <PackageVersion Include="CitiesHarmony.Api" Version="2.2.0"/>
+  </ItemGroup>
+
+  <!-- Tooling -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.Extensions.StaticAnalysis" Version="8.0.0"/>
+  </ItemGroup>
+</Project>

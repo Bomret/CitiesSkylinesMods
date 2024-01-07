@@ -1,0 +1,16 @@
+{
+  "dotnetAcquisitionExtension.enableTelemetry": false,
+  "editor.formatOnType": true,
+  "editor.formatOnSave": true,
+  "editor.semanticHighlighting.enabled": true,
+  "[csharp]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "always",
+      "source.organizeImports": "always"
+    }
+  },
+  "[json]": {
+    "editor.formatOnType": true,
+    "editor.formatOnSave": true
+  }
+}

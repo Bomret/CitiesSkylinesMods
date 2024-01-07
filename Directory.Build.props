@@ -1,0 +1,48 @@
+<Project>
+  <PropertyGroup>
+    <Authors>Bomret</Authors>
+    <RepositoryUrl>https://github.com/Bomret/CitiesSkylinesMods</RepositoryUrl>
+
+    <TargetFramework>net35</TargetFramework>
+
+    <OutputType>Library</OutputType>
+    <IsPublishable>true</IsPublishable>
+    <IsPackable>false</IsPackable>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+
+    <DefaultItemExcludes>$(DefaultItemExcludes);node_modules\**;package.json;packages.lock.json</DefaultItemExcludes>
+
+    <ImplicitUsings>false</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+
+  <!-- Cities: Skylines Assemblies -->
+  <PropertyGroup>
+    <ManagedDLLPath Condition=" '$(OS)' == 'Unix' ">$(LocalAppData)/Steam/steamapps/common/Cities_Skylines/Cities.app/Contents/Resources/Data/Managed</ManagedDLLPath>
+    <ManagedDLLPath Condition=" '$(OS)' == 'Windows_NT' ">$(MSBuildProgramFiles32)/Steam/steamapps/common/Cities_Skylines/Cities_Data/Managed</ManagedDLLPath>
+    <AssemblySearchPaths>
+			$(AssemblySearchPaths);
+			$(ManagedDLLPath)
+    </AssemblySearchPaths>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp" Private="false"/>
+    <Reference Include="ColossalManaged" Private="false"/>
+    <Reference Include="ICities" Private="false"/>
+    <Reference Include="UnityEngine" Private="false" />
+  </ItemGroup>
+
+  <!-- Code Quality  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.StaticAnalysis">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <StaticAnalysisCodeType>ProdLib</StaticAnalysisCodeType>
+  </PropertyGroup>
+</Project> 

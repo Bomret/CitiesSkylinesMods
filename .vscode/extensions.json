@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "christian-kohler.path-intellisense",
+    "dotjoshjohnson.xml",
+    "EditorConfig.EditorConfig",
+    "josefpihrt-vscode.roslynator",
+    "ms-dotnettools.csdevkit",
+    "pflannery.vscode-versionlens",
+    "tintoy.msbuild-project-tools"
+  ]
+}
