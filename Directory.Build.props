@@ -14,6 +14,7 @@
 
     <ImplicitUsings>false</ImplicitUsings>
     <Deterministic>false</Deterministic>
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
