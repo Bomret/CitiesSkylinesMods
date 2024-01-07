@@ -22,6 +22,7 @@ jobs:
         with:
           global-json-file: global.json
           cache: true
+          cache-dependency-path: "**/*/packages.lock.json"
 
       - run: Enable-WindowsOptionalFeature -Online -FeatureName "NetFx3"
         shell: pwsh
