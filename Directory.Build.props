@@ -13,7 +13,7 @@
     <DefaultItemExcludes>$(DefaultItemExcludes);node_modules\**;package.json;packages.lock.json</DefaultItemExcludes>
 
     <ImplicitUsings>false</ImplicitUsings>
-    <Deterministic>true</Deterministic>
+    <Deterministic>false</Deterministic>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
@@ -33,6 +33,22 @@
     <Reference Include="ICities" Private="false"/>
     <Reference Include="UnityEngine" Private="false" />
   </ItemGroup>
+
+  <!-- Deployment to local mod directory on build -->
+  <Target Name="DeployToLocalModDirectory" AfterTargets="Build">
+    <Message Text="Deploying to local CSL Mods directory" />
+
+    <PropertyGroup>
+      <LocalModDir>$(LocalAppData)/Colossal Order/Cities_Skylines/Addons/Mods/$(ProjectName)/</LocalModDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <FilesToCopy Include="$(TargetDir)*.*" />
+    </ItemGroup>
+
+    <RemoveDir Directories="$(LocalModDir)" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(LocalModDir)" />
+  </Target>
 
   <!-- Code Quality  -->
   <ItemGroup>
