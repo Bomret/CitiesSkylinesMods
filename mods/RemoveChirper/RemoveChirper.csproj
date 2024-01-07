@@ -6,4 +6,8 @@
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <FileVersion>1.0.0</FileVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="PreviewImage.png" CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
 </Project>
