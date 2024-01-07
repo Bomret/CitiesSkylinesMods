@@ -7,7 +7,6 @@ on:
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
-  NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
