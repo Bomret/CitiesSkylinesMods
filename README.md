@@ -2,7 +2,7 @@
 
 [![Test](https://github.com/Bomret/CitiesSkylinesMods/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Bomret/CitiesSkylinesMods/actions/workflows/test.yml)
 
-This repository contains the source code of my mods for the game Cities: Skylines by Colossal Order.
+This is a monorepo containing the source code for all my mods and their dependencies for the game Cities: Skylines by Colossal Order.
 
 Currently available mods:
 - [Remove Chirper](https://steamcommunity.com/sharedfiles/filedetails/?id=3134254484): Removes Chirper from the game (the chatty blue bird that displays messages from your citizens).

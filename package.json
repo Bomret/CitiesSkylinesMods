@@ -19,7 +19,6 @@
   },
   "scripts": {
     "build": "dotnet build",
-    "docs:serve": "dotnet tool run docfx docs/docfx.json --serve",
     "prepare": "husky install",
     "publish": "npx turbo publish --concurrency=1",
     "release": "npx turbo release --concurrency=1 -- --no-ci",

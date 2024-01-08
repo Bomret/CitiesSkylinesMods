@@ -114,11 +114,11 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/Bomret
 
 ### Your First Code Contribution
 
-This is a monorepo containing the source code for all my mods and their dependencies. The build system is based on [Node](https://nodejs.org/en) and [Turbo](https://turbo.build/repo).
-
 If you want to contribute to this repository, please [fork it](https://github.com/Bomret/CitiesSkylinesMods/fork), apply your features or fixes and send in a Pull Request.
 
 You can use either [Visual Studio](https://visualstudio.microsoft.com/) or [Visual Studio Code](https://code.visualstudio.com/) to develop. The latter can be used to contribute to this repository on Windows, macOS and Linux. If you use Visual Studio Code, you should install all the extensions that will be recommended by VS Code for an optimal development experience.
+
+The CLI build system is based on [Node](https://nodejs.org/en) and [Turbo](https://turbo.build/repo).
 
 #### Folders
 
@@ -148,9 +148,9 @@ Make sure the following Software Development Kits and utility applications are i
 
 #### npm Scripts
 
-- `npx turbo run build`
+- `npm run build`
     - Compiles all projects
-- `npx turbo run publish`
+- `npm run publish`
     - Compiles all projects in Release mode and packs them neatly into .zip files in a `publish` folder inside the project's folder (requires [7-zip](https://7-zip.org/) to be installed).
 
 ### Improving The Documentation
