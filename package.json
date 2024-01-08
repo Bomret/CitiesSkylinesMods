@@ -22,7 +22,7 @@
     "docs:serve": "dotnet tool run docfx docs/docfx.json --serve",
     "prepare": "husky install",
     "publish": "npx turbo publish --concurrency=1",
-    "release": "npx turbo release --concurrency=1",
+    "release": "npx turbo release --concurrency=1 -- --no-ci",
     "restore": "dotnet restore"
   },
   "version": "0.0.0",
