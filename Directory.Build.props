@@ -6,6 +6,7 @@
     <TargetFramework>net35</TargetFramework>
 
     <OutputType>Library</OutputType>
+    <DebugType>embedded</DebugType>
     <IsPublishable>true</IsPublishable>
     <IsPackable>false</IsPackable>
     <EnableDynamicLoading>true</EnableDynamicLoading>
