@@ -24,7 +24,12 @@ jobs:
         with:
           global-json-file: global.json
           cache: true
+          cache-dependency-path: "**/*/packages.lock.json"
 
-      - run: npm ci
+      - run: Enable-WindowsOptionalFeature -Online -FeatureName "NetFx3"
+        shell: pwsh
 
-      - run: dotnet test
+      - run: ./setup-dev.ps1
+        shell: pwsh
+
+      - run: dotnet test --nologo

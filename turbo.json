@@ -19,11 +19,6 @@
         "restore"
       ]
     },
-    "test": {
-      "dependsOn": [
-        "restore"
-      ]
-    },
     "release": {
       "dependsOn": [
         "restore"
