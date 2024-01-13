@@ -1,5 +1,8 @@
 ﻿using System;
+using ColossalFramework;
+using ColossalFramework.Plugins;
 using ICities;
+using UnityEngine;
 
 namespace Bomret.RemoveChirper
 {
@@ -14,7 +17,17 @@ namespace Bomret.RemoveChirper
 
 			base.OnCreated(c);
 
-			c.DestroyBuiltinChirper();
+			Debug.Log("[RemoveChirper] Removing Chirper");
+
+			try
+			{
+				c.DestroyBuiltinChirper();
+			}
+			catch (Exception err)
+			{
+				Debug.Log("[RemoveChirper] Error removing Chirper");
+				Debug.LogException(err);
+			}
 		}
 	}
 }
