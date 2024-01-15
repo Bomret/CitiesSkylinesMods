@@ -10,6 +10,6 @@
 
   <!-- Tooling -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.Extensions.StaticAnalysis" Version="8.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.StaticAnalysis" Version="8.1.0"/>
   </ItemGroup>
 </Project>
