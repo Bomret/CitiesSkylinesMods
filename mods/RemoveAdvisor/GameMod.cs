@@ -39,6 +39,7 @@ namespace Bomret.RemoveAdvisor
 				Debug.Log("[RemoveAdvisor] Could not find Advisor button");
 			}
 
+			// FIXME: The TutorialAdvisorPanel is used for ALL info views -.-, so removing it botches the game. Need to find a different way.
 			if (TutorialAdvisorPanel.instance != null)
 			{
 				Debug.Log("[RemoveAdvisor] Removing Advisor panel");
