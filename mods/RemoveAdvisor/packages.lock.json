@@ -4,9 +4,9 @@
     ".NETFramework,Version=v3.5": {
       "Microsoft.Extensions.StaticAnalysis": {
         "type": "Direct",
-        "requested": "[8.0.0, )",
-        "resolved": "8.0.0",
-        "contentHash": "V70lz9VIbAGFybhqmOkHbwDY0sac8+oQR/aprNbnoEyDPEi+pBM2UDKxR4lr1QphJrrHyfss24ZBzb0JRifviA=="
+        "requested": "[8.1.0, )",
+        "resolved": "8.1.0",
+        "contentHash": "p/Wo3BLQLohUsEVBccD2Cln0ReLP+U6eI9KdHv2RpmlJelAvNqAyziDaNpTPZHWM31lE8gtlEv9xnh6pDL5xyw=="
       },
       "Microsoft.NETFramework.ReferenceAssemblies": {
         "type": "Direct",
