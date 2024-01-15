@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Language UniqueName="zh" ReadableName="正體中文" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Translations>
+    <Translation ID="DC_DESCRIPTION" String="经典日照色彩" />
+    <!-- OPTIONS -->
+    <Translation ID="DC_OPTIONS_BASIC" String="基础功能（推荐功能）" />
+    <Translation ID="DC_OPTIONS_ADVANCED" String="高级功能（对画面或会有副作用）" />
+    <Translation ID="DC_OPTION_LUTS" String="经典滤镜色调" />
+    <Translation ID="DC_OPTION_SUN_COLOR" String="经典日光色彩" />
+    <Translation ID="DC_OPTION_SUN_INTENSITY" String="经典日光强度" />
+    <Translation ID="DC_OPTION_SUN_POSITION" String="经典太阳轨迹" />
+    <Translation ID="DC_OPTION_FOG_EFFECT" String="经典雾效果" />
+    <Translation ID="DC_OPTION_FOG_COLOR" String="经典夜间雾效果色彩" />
+    <Translation ID="DC_OPTION_CLASSIC_EFFECT_IF_CYCLE_ENABLED" String="Allow Classic fog effect if day/night cycle is on" />
+    <!-- ACTIONS -->
+    <Translation ID="DC_ACTIONS_SHORTCUTS" String="所有选项一键选择" />
+    <Translation ID="DC_ACTION_TO_CLASSIC" String="切换到经典风格" />
+    <Translation ID="DC_ACTION_TO_AD" String="复原至初始画面" />
+  </Translations>
+</Language>

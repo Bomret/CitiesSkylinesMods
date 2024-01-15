@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Author>Bomret</Author>
+    <PackageDescription>A Cities: Skylines mod that completely removes Chirper from the game.</PackageDescription>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1</AssemblyVersion>
+    <FileVersion>1.0.1</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="PreviewImage.png" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="README.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="CHANGELOG.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="lut\BorealClassic.png" />
+    <EmbeddedResource Include="lut\EuropeanClassic.png" />
+    <EmbeddedResource Include="lut\TemperateClassic.png" />
+    <EmbeddedResource Include="lut\TropicalClassic.png" />
+    <EmbeddedResource Include="lut\WinterClassic.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Locale\english.xml" />
+    <Content Include="Locale\korean.xml" />
+    <Content Include="Locale\russian.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Locale\chinese.xml" />
+    <Content Include="Locale\simplified-chinese.xml" />
+    <Content Include="Locale\traditional-chinese.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OptionsFrameworkRevived\OptionsFrameworkRevived.csproj" />
+  </ItemGroup>
+
+  <!-- Deployment to local mod directory on build -->
+  <Target Name="DeployToLocalModDirectory" AfterTargets="Build">
+    <Message Text="Deploying to local CSL Mods directory" />
+
+    <PropertyGroup>
+      <LocalModDir>$(LocalAppData)/Colossal Order/Cities_Skylines/Addons/Mods/$(ProjectName)/</LocalModDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <FilesToCopy Include="$(TargetDir)*.*" />
+    </ItemGroup>
+
+    <RemoveDir Directories="$(LocalModDir)" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(LocalModDir)" />
+  </Target>
+</Project>

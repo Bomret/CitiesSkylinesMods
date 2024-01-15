@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language UniqueName="ko" ReadableName="Korean" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Translations>
+    <Translation ID="DC_DESCRIPTION" String="이전의 클래식 흰색 햇빛을 불러옵니다" />
+	<!-- OPTIONS -->
+		<Translation ID="DC_OPTIONS_BASIC" String="기본 기능 (모두에게 권장함)" />
+		<Translation ID="DC_OPTIONS_ADVANCED" String="고급 기능 (부작용 있을 수 있음)" />
+		<Translation ID="DC_OPTION_LUTS" String="클래식 색보정 사용" />
+		<Translation ID="DC_OPTION_SUN_COLOR" String="클래식 햇빛 색상" />
+		<Translation ID="DC_OPTION_SUN_INTENSITY" String="클래식 햇빛 강도" />
+		<Translation ID="DC_OPTION_SUN_POSITION" String="클래식 태양 위치" />
+		<Translation ID="DC_OPTION_FOG_EFFECT" String="클래식 안개 효과" />
+		<Translation ID="DC_OPTION_FOG_COLOR" String="애프터 다크를 위한 클래식 안개 효과" />
+    <Translation ID="DC_OPTION_CLASSIC_EFFECT_IF_CYCLE_ENABLED" String="주/야간 기능 사용중에 클래식 안개기능을 허용합니다" />
+  <!-- ACTIONS -->
+  	<Translation ID="DC_ACTIONS_SHORTCUTS" String="빠른 설정" />
+    <Translation ID="DC_ACTION_TO_CLASSIC" String="클래식 세팅 불러오기" />
+    <Translation ID="DC_ACTION_TO_AD" String="애프터 다크 세팅 불러오기" />
+  </Translations>
+</Language>

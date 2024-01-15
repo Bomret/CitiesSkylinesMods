@@ -12,20 +12,4 @@
     <None Update="README.md" CopyToOutputDirectory="PreserveNewest"/>
     <None Update="CHANGELOG.md" CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
-
-  <!-- Deployment to local mod directory on build -->
-  <Target Name="DeployToLocalModDirectory" AfterTargets="Build">
-    <Message Text="Deploying to local CSL Mods directory" />
-
-    <PropertyGroup>
-      <LocalModDir>$(LocalAppData)/Colossal Order/Cities_Skylines/Addons/Mods/$(ProjectName)/</LocalModDir>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <FilesToCopy Include="$(TargetDir)*.*" />
-    </ItemGroup>
-
-    <RemoveDir Directories="$(LocalModDir)" />
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(LocalModDir)" />
-  </Target>
 </Project>

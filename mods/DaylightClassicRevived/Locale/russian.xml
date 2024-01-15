@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language UniqueName="ru" ReadableName="Русский" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Translations>
+    <Translation ID="DC_DESCRIPTION" String="Возвращает белый дневной свет, как это было до выхода After Dark" />
+    <!-- OPTIONS -->
+    <Translation ID="DC_OPTIONS_BASIC" String="Базовые опции" />
+    <Translation ID="DC_OPTIONS_ADVANCED" String="Расширенные опции" />
+    <Translation ID="DC_OPTION_LUTS" String="Классические стандартные LUT" />
+    <Translation ID="DC_OPTION_SUN_COLOR" String="Классический цвет дневного света" />
+    <Translation ID="DC_OPTION_SUN_INTENSITY" String="Классическая яркость дневного света" />
+    <Translation ID="DC_OPTION_SUN_POSITION" String="Классические долгота/широта" />
+    <Translation ID="DC_OPTION_FOG_EFFECT" String="Классический эффект тумана" />
+    <Translation ID="DC_OPTION_FOG_COLOR" String="Классический цвет тумана для нового эффекта" />
+    <Translation ID="DC_OPTION_CLASSIC_EFFECT_IF_CYCLE_ENABLED" String="Разрешить классический эффект тумана если смена дня и ночи включена" />
+    <!-- ACTIONS -->
+    <Translation ID="DC_ACTIONS_SHORTCUTS" String="Быстрая настройка" />
+    <Translation ID="DC_ACTION_TO_CLASSIC" String="Включить все опции" />
+    <Translation ID="DC_ACTION_TO_AD" String="Выключить все опции" /> 
+  </Translations>
+</Language>
