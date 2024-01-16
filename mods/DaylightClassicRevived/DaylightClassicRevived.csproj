@@ -14,22 +14,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Locale/english.xml"/>
+    <Content Include="Locale/korean.xml"/>
+    <Content Include="Locale/russian.xml" />
+    <Content Include="Locale/chinese.xml" />
+    <Content Include="Locale/simplified-chinese.xml"/>
+    <Content Include="Locale/traditional-chinese.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="lut\BorealClassic.png" />
     <EmbeddedResource Include="lut\EuropeanClassic.png" />
     <EmbeddedResource Include="lut\TemperateClassic.png" />
     <EmbeddedResource Include="lut\TropicalClassic.png" />
     <EmbeddedResource Include="lut\WinterClassic.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Locale\english.xml" />
-    <Content Include="Locale\korean.xml" />
-    <Content Include="Locale\russian.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Locale\chinese.xml" />
-    <Content Include="Locale\simplified-chinese.xml" />
-    <Content Include="Locale\traditional-chinese.xml" />
   </ItemGroup>
 
   <ItemGroup>

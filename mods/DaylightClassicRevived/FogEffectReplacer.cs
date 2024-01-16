@@ -2,17 +2,17 @@
 using OptionsFramework;
 using UnityEngine;
 
-namespace DaylightClassic
+namespace DaylightClassicRevived
 {
-	public class FogEffectReplacer : MonoBehaviour
+	sealed class FogEffectReplacer : MonoBehaviour
 	{
-		private bool _previousFogColorState;
-		private bool _cachedNight;
-		private bool _cachedDisableOption;
-		private bool _cachedDayNightCycleState;
+		bool _previousFogColorState;
+		bool _cachedNight;
+		bool _cachedDisableOption;
+		bool _cachedDayNightCycleState;
 
-		private FogEffect _classicEffect;
-		private DayNightFogEffect _newEffect;
+		FogEffect _classicEffect;
+		DayNightFogEffect _newEffect;
 
 		public void Awake()
 		{
@@ -31,10 +31,11 @@ namespace DaylightClassic
 			SetUpEffects(false);
 		}
 
-		private void SetupEffectsIfNeeded(bool forceSetup)
+		void SetupEffectsIfNeeded(bool forceSetup)
 		{
 			var dayNightEnabled = Singleton<SimulationManager>.instance.m_enableDayNight;
 			var disableClassicFogEffectIfDayNightIsOn = !XmlOptionsWrapper<Options>.Options.AllowClassicFogEffectIfDayNightIsOn;
+
 			if (!forceSetup && disableClassicFogEffectIfDayNightIsOn == _cachedDisableOption && dayNightEnabled == _cachedDayNightCycleState &&
 				_cachedNight == SimulationManager.instance.m_isNightTime && _previousFogColorState == XmlOptionsWrapper<Options>.Options.FogColor)
 			{
@@ -56,7 +57,7 @@ namespace DaylightClassic
 			_previousFogColorState = XmlOptionsWrapper<Options>.Options.FogColor;
 		}
 
-		private void SetUpEffects(bool toClassic)
+		void SetUpEffects(bool toClassic)
 		{
 			if (_classicEffect == null || _newEffect == null)
 			{

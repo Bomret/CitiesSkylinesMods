@@ -1,10 +1,10 @@
 ﻿using System.Xml.Serialization;
 using OptionsFramework.Attibutes;
 
-namespace DaylightClassic
+namespace DaylightClassicRevived
 {
 	[XmlOptions("CSL-DaylightClassic", "CSL-DaylightClassic")]
-	public class Options
+	public sealed class Options
 	{
 		const string BASIC = "DC_OPTIONS_BASIC";
 		const string ADVANCED = "DC_OPTIONS_ADVANCED";

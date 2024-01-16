@@ -1,9 +1,9 @@
 using OptionsFramework;
 using UnityEngine;
 
-namespace DaylightClassic
+namespace DaylightClassicRevived
 {
-	public class FogColorReplacer : MonoBehaviour
+	sealed class FogColorReplacer : MonoBehaviour
 	{
 		static readonly Color SkyTintClassic = new Color(0.4078431372549019607843137254902f,
 			0.65098039215686274509803921568627f, 0.82745098039215686274509803921569f,
