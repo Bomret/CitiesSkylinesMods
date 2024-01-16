@@ -2,7 +2,7 @@ using System;
 using ColossalFramework;
 using UnityEngine;
 
-namespace DaylightClassicRevived
+namespace DaylightClassicReborn
 {
 	enum GameEnvironment
 	{

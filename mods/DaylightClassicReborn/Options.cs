@@ -1,7 +1,7 @@
 ﻿using System.Xml.Serialization;
 using OptionsFramework.Attibutes;
 
-namespace DaylightClassicRevived
+namespace DaylightClassicReborn
 {
 	[XmlOptions("CSL-DaylightClassic", "CSL-DaylightClassic")]
 	public sealed class Options
@@ -29,6 +29,10 @@ namespace DaylightClassicRevived
 		[XmlElement("fogEffect")]
 		[Checkbox("DC_OPTION_FOG_EFFECT", ADVANCED, typeof(DaylightClassic), nameof(DaylightClassic.ReplaceFogEffect))]
 		public bool FogEffect { set; get; } = true;
+
+		[XmlElement("softerShadows")]
+		[Checkbox("DC_OPTION_SOFTERSHADOWS", ADVANCED, typeof(DaylightClassic))]
+		public bool SofterShadows { set; get; } = true;
 
 		[XmlElement("fogColor")]
 		[Checkbox("DC_OPTION_FOG_COLOR", ADVANCED, typeof(DaylightClassic))]

@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Language UniqueName="zh" ReadableName="正體中文" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<Language UniqueName="zh-tw" ReadableName="正體中文"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Translations>
     <Translation ID="DC_DESCRIPTION" String="经典日照色彩" />
     <!-- OPTIONS -->
@@ -11,6 +13,7 @@
     <Translation ID="DC_OPTION_SUN_POSITION" String="经典太阳轨迹" />
     <Translation ID="DC_OPTION_FOG_EFFECT" String="经典雾效果" />
     <Translation ID="DC_OPTION_FOG_COLOR" String="经典夜间雾效果色彩" />
+    <Translation ID="DC_OPTION_SOFTERSHADOWS" String="Use softer shadows" />
     <Translation ID="DC_OPTION_CLASSIC_EFFECT_IF_CYCLE_ENABLED" String="Allow Classic fog effect if day/night cycle is on" />
     <!-- ACTIONS -->
     <Translation ID="DC_ACTIONS_SHORTCUTS" String="所有选项一键选择" />

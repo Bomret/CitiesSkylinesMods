@@ -7,7 +7,7 @@ using ColossalFramework.Globalization;
 using System.Xml;
 using UnityEngine;
 
-namespace DaylightClassicRevived
+namespace DaylightClassicReborn
 {
 	/// <summary>
 	/// Provides translations read from external xml files.
@@ -71,7 +71,7 @@ namespace DaylightClassicRevived
 		{
 			_languages.Clear();
 
-			var languagePath = Path.Combine(PluginInfoProvider.GetOrResolvePluginInfo().modPath, "Locale");
+			var languagePath = Path.Combine(Path.Combine(PluginInfoProvider.GetOrResolvePluginInfo().modPath, "Assets"), "Locales");
 			var languagesDir = new DirectoryInfo(languagePath);
 
 			if (!languagesDir.Exists)

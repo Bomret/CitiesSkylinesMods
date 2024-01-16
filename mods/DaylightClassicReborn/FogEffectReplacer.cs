@@ -2,7 +2,7 @@
 using OptionsFramework;
 using UnityEngine;
 
-namespace DaylightClassicRevived
+namespace DaylightClassicReborn
 {
 	sealed class FogEffectReplacer : MonoBehaviour
 	{

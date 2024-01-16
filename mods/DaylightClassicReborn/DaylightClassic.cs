@@ -2,7 +2,7 @@
 using OptionsFramework;
 using UnityEngine;
 
-namespace DaylightClassicRevived
+namespace DaylightClassicReborn
 {
 	static class DaylightClassic
 	{
@@ -18,19 +18,19 @@ namespace DaylightClassicRevived
 		static Texture3DWrapper _tropicalClassic;
 		static Texture3DWrapper _winterClassic;
 
-		static Texture3DWrapper _europeanAd;
-		static Texture3DWrapper _sunnyAd;
-		static Texture3DWrapper _northAd;
-		static Texture3DWrapper _tropicalAd;
-		static Texture3DWrapper _winterAd;
+		static Texture3DWrapper _europeanAfterDark;
+		static Texture3DWrapper _sunnyAfterDark;
+		static Texture3DWrapper _northAfterDark;
+		static Texture3DWrapper _tropicalAfterDark;
+		static Texture3DWrapper _winterAfterDark;
 
 		const float IntensityClassic = 3.318695f;
 		const float ExposureClassic = 1.0f;
 
-		static float _intensityAd = -1.0f;
-		static float _exposureAd = -1.0f;
-		static float _lonAd = -1.0f;
-		static float _latAd = -1.0f;
+		static float _intensityAfterDark = -1.0f;
+		static float _exposureAfterDark = -1.0f;
+		static float _lonAfterDark = -1.0f;
+		static float _latAfterDark = -1.0f;
 
 		static readonly Gradient ColorClassic = new Gradient()
 		{
@@ -52,10 +52,9 @@ namespace DaylightClassicRevived
 			}
 		};
 
-		static Gradient _colorAd;
+		static Gradient _colorAfterDark;
 		static DayNightProperties _dayNightProperties;
 		static GameObject _gameObject;
-
 
 		public static void SetUp()
 		{
@@ -76,6 +75,20 @@ namespace DaylightClassicRevived
 			ReplaceSunlightIntensity(XmlOptionsWrapper<Options>.Options.SunlightIntensity);
 			ReplaceLuts(XmlOptionsWrapper<Options>.Options.StockLuts);
 			ReplaceLatLong(XmlOptionsWrapper<Options>.Options.SunPosition);
+			ReplaceShadows();
+		}
+
+		static void ReplaceShadows()
+		{
+			if (!InGame)
+			{
+				return;
+			}
+
+			if (_gameObject.GetComponent<ShadowReplacer>() == null)
+			{
+				_gameObject.AddComponent<ShadowReplacer>();
+			}
 		}
 
 		public static void CleanUp()
@@ -87,6 +100,11 @@ namespace DaylightClassicRevived
 			ReplaceSunlightIntensity(false);
 			ReplaceLuts(false);
 			ReplaceLatLong(false);
+
+			if (_gameObject.GetComponent<ShadowReplacer>() != null)
+			{
+				Object.Destroy(_gameObject.GetComponent<ShadowReplacer>());
+			}
 
 			if (_gameObject != null)
 			{
@@ -131,14 +149,14 @@ namespace DaylightClassicRevived
 				_winterClassic = null;
 			}
 
-			_europeanAd = null;
-			_tropicalAd = null;
-			_northAd = null;
-			_sunnyAd = null;
-			_winterAd = null;
-			_intensityAd = -1.0f;
-			_lonAd = -1.0f;
-			_latAd = -1.0f;
+			_europeanAfterDark = null;
+			_tropicalAfterDark = null;
+			_northAfterDark = null;
+			_sunnyAfterDark = null;
+			_winterAfterDark = null;
+			_intensityAfterDark = -1.0f;
+			_lonAfterDark = -1.0f;
+			_latAfterDark = -1.0f;
 		}
 
 		public static void ReplaceLuts(bool toClassic)
@@ -181,69 +199,69 @@ namespace DaylightClassicRevived
 			switch (existingLut.name)
 			{
 				case Europe:
-					if (_europeanAd == null)
+					if (_europeanAfterDark == null)
 					{
-						_europeanAd = existingLut;
+						_europeanAfterDark = existingLut;
 					}
 
 					if (_europeanClassic == null)
 					{
-						_europeanClassic = TextureLoader.LoadTextureFromEmbeddedResource("DaylightClassicRevived.lut.EuropeanClassic.png", Europe);
+						_europeanClassic = TextureLoader.LoadTextureFromEmbeddedResource("DaylightClassicReborn.Assets.Luts.EuropeanClassic.png", Europe);
 					}
 
-					return toClassic ? _europeanClassic : _europeanAd;
+					return toClassic ? _europeanClassic : _europeanAfterDark;
 
 				case Tropical:
-					if (_tropicalAd == null)
+					if (_tropicalAfterDark == null)
 					{
-						_tropicalAd = existingLut;
+						_tropicalAfterDark = existingLut;
 					}
 
 					if (_tropicalClassic == null)
 					{
-						_tropicalClassic = TextureLoader.LoadTextureFromEmbeddedResource("DaylightClassicRevived.lut.TropicalClassic.png", Tropical);
+						_tropicalClassic = TextureLoader.LoadTextureFromEmbeddedResource("DaylightClassicReborn.Assets.Luts.TropicalClassic.png", Tropical);
 					}
 
-					return toClassic ? _tropicalClassic : _tropicalAd;
+					return toClassic ? _tropicalClassic : _tropicalAfterDark;
 
 				case North:
-					if (_northAd == null)
+					if (_northAfterDark == null)
 					{
-						_northAd = existingLut;
+						_northAfterDark = existingLut;
 					}
 
 					if (_northClassic == null)
 					{
-						_northClassic = TextureLoader.LoadTextureFromEmbeddedResource("DaylightClassicRevived.lut.BorealClassic.png", North);
+						_northClassic = TextureLoader.LoadTextureFromEmbeddedResource("DaylightClassicReborn.Assets.Luts.BorealClassic.png", North);
 					}
 
-					return toClassic ? _northClassic : _northAd;
+					return toClassic ? _northClassic : _northAfterDark;
 
 				case Sunny:
-					if (_sunnyAd == null)
+					if (_sunnyAfterDark == null)
 					{
-						_sunnyAd = existingLut;
+						_sunnyAfterDark = existingLut;
 					}
 
 					if (_sunnyClassic == null)
 					{
-						_sunnyClassic = TextureLoader.LoadTextureFromEmbeddedResource("DaylightClassicRevived.lut.TemperateClassic.png", Sunny);
+						_sunnyClassic = TextureLoader.LoadTextureFromEmbeddedResource("DaylightClassicReborn.Assets.Luts.TemperateClassic.png", Sunny);
 					}
 
-					return toClassic ? _sunnyClassic : _sunnyAd;
+					return toClassic ? _sunnyClassic : _sunnyAfterDark;
 
 				case Winter:
-					if (_winterAd == null)
+					if (_winterAfterDark == null)
 					{
-						_winterAd = existingLut;
+						_winterAfterDark = existingLut;
 					}
 
 					if (_winterClassic == null)
 					{
-						_winterClassic = TextureLoader.LoadTextureFromEmbeddedResource("DaylightClassicRevived.lut.WinterClassic.png", Winter);
+						_winterClassic = TextureLoader.LoadTextureFromEmbeddedResource("DaylightClassicReborn.Assets.Luts.WinterClassic.png", Winter);
 					}
 
-					return toClassic ? _winterClassic : _winterAd;
+					return toClassic ? _winterClassic : _winterAfterDark;
 
 				default:
 					return null;
@@ -257,18 +275,18 @@ namespace DaylightClassicRevived
 				return;
 			}
 
-			if (_intensityAd < 0)
+			if (_intensityAfterDark < 0)
 			{
-				_intensityAd = _dayNightProperties.m_SunIntensity;
+				_intensityAfterDark = _dayNightProperties.m_SunIntensity;
 			}
 
-			if (_exposureAd < 0)
+			if (_exposureAfterDark < 0)
 			{
-				_exposureAd = _dayNightProperties.m_Exposure;
+				_exposureAfterDark = _dayNightProperties.m_Exposure;
 			}
 
-			_dayNightProperties.m_SunIntensity = toClassic ? IntensityClassic : _intensityAd;
-			_dayNightProperties.m_Exposure = toClassic ? ExposureClassic : _exposureAd;
+			_dayNightProperties.m_SunIntensity = toClassic ? IntensityClassic : _intensityAfterDark;
+			_dayNightProperties.m_Exposure = toClassic ? ExposureClassic : _exposureAfterDark;
 		}
 
 		public static void ReplaceSunlightColor(bool toClassic)
@@ -278,12 +296,12 @@ namespace DaylightClassicRevived
 				return;
 			}
 
-			if (_colorAd == null)
+			if (_colorAfterDark == null)
 			{
-				_colorAd = _dayNightProperties.m_LightColor;
+				_colorAfterDark = _dayNightProperties.m_LightColor;
 			}
 
-			_dayNightProperties.m_LightColor = toClassic ? ColorClassic : _colorAd;
+			_dayNightProperties.m_LightColor = toClassic ? ColorClassic : _colorAfterDark;
 		}
 
 		public static void ReplaceFogEffect(bool toClassic)
@@ -316,14 +334,14 @@ namespace DaylightClassicRevived
 				return;
 			}
 
-			if (_lonAd < 0.0f)
+			if (_lonAfterDark < 0.0f)
 			{
-				_lonAd = _dayNightProperties.m_Longitude;
+				_lonAfterDark = _dayNightProperties.m_Longitude;
 			}
 
-			if (_latAd < 0.0f)
+			if (_latAfterDark < 0.0f)
 			{
-				_latAd = _dayNightProperties.m_Latitude;
+				_latAfterDark = _dayNightProperties.m_Latitude;
 			}
 
 			var env = GameEnvironmentProvider.GetInGameEnvironment();
@@ -352,8 +370,8 @@ namespace DaylightClassicRevived
 			}
 			else
 			{
-				_dayNightProperties.m_Latitude = _latAd;
-				_dayNightProperties.m_Longitude = _lonAd;
+				_dayNightProperties.m_Latitude = _latAfterDark;
+				_dayNightProperties.m_Longitude = _lonAfterDark;
 			}
 		}
 

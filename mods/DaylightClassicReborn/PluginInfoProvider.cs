@@ -3,7 +3,7 @@ using System.Linq;
 using ColossalFramework.Plugins;
 using ICities;
 
-namespace DaylightClassicRevived
+namespace DaylightClassicReborn
 {
 	public static class PluginInfoProvider
 	{
@@ -31,7 +31,7 @@ namespace DaylightClassicRevived
 				}
 			}
 
-			throw new InvalidOperationException("[DaylighClassicRevived] Failed to find DaylightClassicRevived assembly");
+			throw new InvalidOperationException("[DaylighClassicRevived] Failed to find DaylightClassicReborn assembly");
 		}
 	}
 }

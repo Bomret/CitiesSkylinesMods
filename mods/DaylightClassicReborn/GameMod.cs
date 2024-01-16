@@ -6,7 +6,7 @@ using OptionsFramework;
 using UnityEngine;
 using System;
 
-namespace DaylightClassicRevived
+namespace DaylightClassicReborn
 {
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
 	public sealed class GameMod : LoadingExtensionBase, IUserMod
@@ -18,7 +18,6 @@ namespace DaylightClassicRevived
 		const string Version = "1.13.0";
 		readonly TranslationProvider _translationProvider;
 		static UICheckBox[] _checkBoxes;
-		static bool _crashed;
 
 		public GameMod()
 		{
@@ -27,8 +26,6 @@ namespace DaylightClassicRevived
 
 		public static void AllToClassic()
 		{
-			if (_crashed) return;
-
 			foreach (var uiCheckBox in _checkBoxes)
 			{
 				uiCheckBox.isChecked = true;
@@ -37,8 +34,6 @@ namespace DaylightClassicRevived
 
 		public static void AllToAfterDark()
 		{
-			if (_crashed) return;
-
 			foreach (var uiCheckBox in _checkBoxes)
 			{
 				uiCheckBox.isChecked = false;
@@ -49,8 +44,6 @@ namespace DaylightClassicRevived
 		{
 			base.OnLevelLoaded(mode);
 
-			if (_crashed) return;
-
 			DaylightClassic.SetUp();
 		}
 
@@ -58,23 +51,17 @@ namespace DaylightClassicRevived
 		{
 			base.OnLevelUnloading();
 
-			if (_crashed) return;
-
 			DaylightClassic.CleanUp();
 		}
 
 		public void OnSettingsUI(UIHelperBase helper)
 		{
-			if (_crashed) return;
-
 			var components = helper.AddOptionsGroup(XmlOptionsWrapper<Options>.Instance, s => _translationProvider.GetTranslation(s));
 			_checkBoxes = components.OfType<UICheckBox>().ToArray();
 		}
 
 		public void OnDisabled()
 		{
-			if (_crashed) return;
-
 			_translationProvider.Dispose();
 		}
 	}

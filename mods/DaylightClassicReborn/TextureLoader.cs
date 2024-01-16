@@ -2,7 +2,7 @@
 using ColossalFramework;
 using UnityEngine;
 
-namespace DaylightClassicRevived
+namespace DaylightClassicReborn
 {
 	public static class TextureLoader
 	{
