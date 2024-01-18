@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Reference Include="ICities" Private="false"/>
+    <Reference Include="UnityEngine" Private="false"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -17,8 +18,8 @@
     <None Update="CHANGELOG.md" CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
 
-  <!-- Deployment to local mod directory on build -->
-  <Target Name="DeployToLocalModDirectory" AfterTargets="Build">
+  <!-- Deployment to local mod directory after publish -->
+  <Target Name="DeployToLocalModDirectory" AfterTargets="Publish">
     <Message Text="Deploying to local CSL Mods directory" />
 
     <PropertyGroup>
