@@ -21,10 +21,6 @@
     <None Update="Locales/*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\OptionsFrameworkRevived\OptionsFrameworkRevived.csproj" />
-  </ItemGroup>
-
   <!-- Deployment to local mod directory after publish -->
   <Target Name="DeployToLocalModDirectory" AfterTargets="Publish">
     <Message Text="Deploying to local CSL Mods directory" />

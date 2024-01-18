@@ -19,7 +19,7 @@ namespace NaturalLighting
 	/// </summary>
 	sealed class Translator : ITranslator, IDisposable
 	{
-		const string FallbackLanguage = "en-US";
+		const string FallbackLanguage = "en";
 
 		readonly List<Language> _languages = new List<Language>();
 		readonly XmlSerializer _xmlSerializer;
@@ -30,28 +30,31 @@ namespace NaturalLighting
 
 		public Translator(DirectoryInfo localesDirectory)
 		{
-			_xmlSerializer = new XmlSerializer(typeof(Language));
-			LocaleManager.eventLocaleChanged += SetCurrentLanguage;
 			_localesDirectory = localesDirectory;
+			_xmlSerializer = new XmlSerializer(typeof(Language));
+
+			LocaleManager.eventLocaleChanged += SetCurrentLanguage;
 		}
 
 		public string GetTranslation(string translationId)
 		{
-			LoadLanguages();
-
-			if (_currentLanguage == null)
+			if (_currentLanguage is null && _languages.Count == 0)
 			{
-				Debug.LogWarningFormat("[NaturalLighting] Translator: Can't get a translation for {0} as no language is defined", translationId);
+				LoadLanguages();
+				SetCurrentLanguage();
+			}
 
+			if (_currentLanguage is null)
+			{
 				return translationId;
 			}
 
 			var translation = _currentLanguage.Translations.SingleOrDefault(x =>
-				x.Key.Equals(translationId, StringComparison.OrdinalIgnoreCase));
+				x.ID.Equals(translationId, StringComparison.OrdinalIgnoreCase));
 
 			if (translation is null)
 			{
-				Debug.LogWarningFormat("[NaturalLighting] Translator: Returned translation for language {0} ({1}) doesn't contain a suitable translation for {2}", _currentLanguage.ReadableName, _currentLanguage.UniqueName, translationId);
+				Debug.LogWarningFormat("[NaturalLighting] Translator.GetTranslation: Could not find a translation for '{0}' in language '{0}' ({1})", translationId, _currentLanguage.Name, _currentLanguage.Tag);
 
 				return translationId;
 			}
@@ -59,21 +62,9 @@ namespace NaturalLighting
 			return translation.Value;
 		}
 
+
 		void LoadLanguages()
 		{
-			if (_languages.Count > 0)
-			{
-				return;
-			}
-
-			RefreshLanguages();
-			SetCurrentLanguage();
-		}
-
-		void RefreshLanguages()
-		{
-			_languages.Clear();
-
 			if (!_localesDirectory.Exists)
 			{
 				Debug.LogWarning("[NaturalLighting] Translator: Can't find any language files");
@@ -83,7 +74,6 @@ namespace NaturalLighting
 			foreach (var languageFile in _localesDirectory.GetFiles("*.xml", SearchOption.TopDirectoryOnly))
 			{
 				var language = DeserializeLanguageFile(languageFile);
-
 				if (language != null)
 				{
 					_languages.Add(language);
@@ -99,8 +89,8 @@ namespace NaturalLighting
 			}
 
 			_currentLanguage = _languages.Find(l =>
-				l.UniqueName.Equals(LocaleManager.instance.language, StringComparison.OrdinalIgnoreCase) ||
-				l.UniqueName.Equals(FallbackLanguage, StringComparison.OrdinalIgnoreCase));
+				l.Tag.Equals(LocaleManager.instance.language, StringComparison.OrdinalIgnoreCase) ||
+				l.Tag.Equals(FallbackLanguage, StringComparison.OrdinalIgnoreCase));
 		}
 
 		Language DeserializeLanguageFile(FileInfo languageFile)
@@ -111,7 +101,7 @@ namespace NaturalLighting
 				{
 					var language = (Language)_xmlSerializer.Deserialize(xmlReader);
 
-					Debug.LogFormat("[NaturalLighting] Translator: Loaded language {0} ({1})", language.ReadableName, language.UniqueName);
+					Debug.LogFormat("[NaturalLighting] Translator: Loaded language {0} ({1})", language.Name, language.Tag);
 
 					return language;
 				}

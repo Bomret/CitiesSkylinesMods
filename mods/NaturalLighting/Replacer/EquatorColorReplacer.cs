@@ -24,55 +24,44 @@ namespace NaturalLighting.Replacer
 		};
 		FieldInfo _equatorColorField;
 		Gradient _defaultEquatorColor;
-
 		bool _currentUseSofterShadows;
 
 		public void Awake()
 		{
-			Debug.Log("[NaturalLighting] EquatorColorReplacer.Awake");
-
 			_defaultEquatorColor = FindObjectOfType<DayNightProperties>().m_AmbientColor.equatorColor;
 			_equatorColorField = typeof(DayNightProperties.AmbientColor)
 				.GetField("m_EquatorColor", BindingFlags.Instance | BindingFlags.NonPublic);
 
-			var options = OptionsStore.GetOrLoadOptions();
-			_currentUseSofterShadows = options.UseSofterShadows;
+			var settings = ModSettingsStore.GetOrLoadSettings();
+
+			_currentUseSofterShadows = settings.UseSofterShadows;
 		}
 
 		public void Start()
 		{
-			Debug.Log("[NaturalLighting] EquatorColorReplacer.Start");
+			if (!_currentUseSofterShadows) return;
 
-			if (_currentUseSofterShadows)
-			{
-				ReplaceEquatorColor(true);
-			}
+			ReplaceEquatorColor(true);
 		}
 
 		public void Update()
 		{
-			var options = OptionsStore.GetOrLoadOptions();
+			var settings = ModSettingsStore.GetOrLoadSettings();
 
-			if (_currentUseSofterShadows != options.UseSofterShadows)
-			{
-				ReplaceEquatorColor(options.UseSofterShadows);
+			if (_currentUseSofterShadows == settings.UseSofterShadows) return;
 
-				_currentUseSofterShadows = options.UseSofterShadows;
-			}
+			ReplaceEquatorColor(settings.UseSofterShadows);
+
+			_currentUseSofterShadows = settings.UseSofterShadows;
 		}
 
-		public void OnDestroy()
+		public void OnDestroy() => ReplaceEquatorColor(false);
+
+		void ReplaceEquatorColor(bool useNatural)
 		{
-			Debug.Log("[NaturalLighting] EquatorColorReplacer.OnDestroy");
+			var equatorColor = useNatural ? SofterShadowsEquatorColor : _defaultEquatorColor;
 
-			ReplaceEquatorColor(false);
-		}
-
-		void ReplaceEquatorColor(bool replace)
-		{
-			var equatorColor = replace ? SofterShadowsEquatorColor : _defaultEquatorColor;
-
-			Debug.LogFormat("[NaturalLighting] EquatorColorReplacer.ReplaceEquatorColor: {0}", replace ? "Natural" : "Default");
+			Debug.LogFormat("[NaturalLighting] EquatorColorReplacer.ReplaceEquatorColor: {0}", useNatural ? "Natural" : "Default");
 
 			_equatorColorField
 				.SetValue(DayNightProperties.instance.m_AmbientColor, equatorColor);

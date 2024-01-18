@@ -1,8 +1,8 @@
-﻿using OptionsFramework.Extensions;
+﻿using System;
 using ICities;
-using OptionsFramework;
 using UnityEngine;
 using NaturalLighting.Replacer;
+using NaturalLighting.Settings;
 
 namespace NaturalLighting
 {
@@ -15,14 +15,14 @@ namespace NaturalLighting
 		const string Version = "1.0.0";
 
 		readonly TranslatorProvider _translatorProvider;
-		readonly IOptionsStore<Options> _optionsStore;
+		readonly ModSettingsStore _settingsStore;
 
 		GameObject _gameObject;
 
 		public GameMod()
 		{
 			_translatorProvider = new TranslatorProvider();
-			_optionsStore = XmlOptionsStoreProvider.Instance.GetOrCreate<Options>();
+			_settingsStore = ModSettingsStore.GetOrCreate();
 		}
 
 		public override void OnLevelLoaded(LoadMode mode)
@@ -44,15 +44,30 @@ namespace NaturalLighting
 
 			Debug.Log("[NaturalLighting] Tearing down...");
 
-			_optionsStore.SaveOptions();
+			_settingsStore.SaveSettings();
 
 			UnityEngine.Object.Destroy(_gameObject);
 			_gameObject = null;
 		}
 
-		public void OnSettingsUI(UIHelperBase helper)
+		public void OnSettingsUI(UIHelperBase settingsUi)
 		{
-			helper.AddOptionsGroup(_optionsStore, _translatorProvider.GetOrCreate());
+			if (settingsUi is null) throw new ArgumentNullException(nameof(settingsUi));
+
+			var translator = _translatorProvider.GetOrCreate();
+			var settings = _settingsStore.GetOrLoadSettings();
+
+			settingsUi.AddCheckbox(translator.GetTranslation("NL_USE_NATURAL_SUNLIGHT"), settings.UseNaturalSunlight, b =>
+			{
+				settings.UseNaturalSunlight = b;
+				_settingsStore.SaveSettings();
+			});
+
+			settingsUi.AddCheckbox(translator.GetTranslation("NL_USE_SOFTER_SHADOWS"), settings.UseNaturalSunlight, b =>
+			{
+				settings.UseSofterShadows = b;
+				_settingsStore.SaveSettings();
+			});
 		}
 
 		public void OnDisabled() => _translatorProvider.Dispose();

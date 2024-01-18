@@ -11,10 +11,7 @@ namespace NaturalLighting
 
 		public static PluginManager.PluginInfo GetOrResolvePluginInfo()
 		{
-			if (_info != null)
-			{
-				return _info;
-			}
+			if (_info != null) return _info;
 
 			return ResolveMod();
 		}

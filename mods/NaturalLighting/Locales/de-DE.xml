@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Tag="de-DE" Name="Deutsch (Deutschland)">
+  <Translations>
+    <Translation ID="NL_USE_NATURAL_SUNLIGHT" Value="Natürliches Sonnenlicht verwenden" />
+    <Translation ID="NL_USE_SOFTER_SHADOWS" Value="Weichere Schatten verwenden" />
+  </Translations>
+</Language>

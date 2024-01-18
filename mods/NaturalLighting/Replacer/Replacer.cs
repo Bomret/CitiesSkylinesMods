@@ -1,15 +1,15 @@
-using OptionsFramework;
+using NaturalLighting.Settings;
 using UnityEngine;
 
 namespace NaturalLighting.Replacer
 {
 	abstract class Replacer : MonoBehaviour
 	{
-		protected IOptionsStore<Options> OptionsStore { get; }
+		protected ModSettingsStore ModSettingsStore { get; }
 
 		protected Replacer()
 		{
-			OptionsStore = XmlOptionsStoreProvider.Instance.GetOrCreate<Options>();
+			ModSettingsStore = ModSettingsStore.GetOrCreate();
 		}
 	}
 }

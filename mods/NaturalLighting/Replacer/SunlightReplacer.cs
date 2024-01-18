@@ -25,26 +25,21 @@ namespace NaturalLighting.Replacer
 		};
 
 		DayNightProperties _dayNightProperties;
-
 		Gradient _defaultColor;
-
 		bool _currentUseNaturalSunlight;
 
 		public void Awake()
 		{
-			Debug.Log("[NaturalLighting] SunlightReplacer.Awake");
-
 			_dayNightProperties = FindObjectOfType<DayNightProperties>();
 			_defaultColor = _dayNightProperties.m_LightColor;
 
-			var options = OptionsStore.GetOrLoadOptions();
-			_currentUseNaturalSunlight = options.UseNaturalSunlight;
+			var settings = ModSettingsStore.GetOrLoadSettings();
+
+			_currentUseNaturalSunlight = settings.UseNaturalSunlight;
 		}
 
 		public void Start()
 		{
-			Debug.Log("[NaturalLighting] SunlightReplacer.Start");
-
 			if (_currentUseNaturalSunlight)
 			{
 				ReplaceSunlight(true);
@@ -53,29 +48,23 @@ namespace NaturalLighting.Replacer
 
 		public void Update()
 		{
-			var options = OptionsStore.GetOrLoadOptions();
+			var settings = ModSettingsStore.GetOrLoadSettings();
 
-			if (_currentUseNaturalSunlight != options.UseNaturalSunlight)
-			{
-				ReplaceSunlight(options.UseNaturalSunlight);
+			if (_currentUseNaturalSunlight == settings.UseNaturalSunlight) return;
 
-				_currentUseNaturalSunlight = options.UseNaturalSunlight;
-			}
+			ReplaceSunlight(settings.UseNaturalSunlight);
+
+			_currentUseNaturalSunlight = settings.UseNaturalSunlight;
 		}
 
-		void ReplaceSunlight(bool replace)
+		public void OnDestroy() => ReplaceSunlight(false);
+
+		void ReplaceSunlight(bool useNatural)
 		{
-			var sunlightColor = replace ? NaturalColor : _defaultColor;
+			var sunlightColor = useNatural ? NaturalColor : _defaultColor;
 			_dayNightProperties.m_LightColor = sunlightColor;
 
-			Debug.Log("[NaturalLighting] SunlightReplacer.ReplaceSunlight: " + (replace ? "Natural" : "Default"));
-		}
-
-		public void OnDestroy()
-		{
-			Debug.Log("[NaturalLighting] SunlightReplacer.OnDestroy");
-
-			ReplaceSunlight(false);
+			Debug.Log("[NaturalLighting] SunlightReplacer.ReplaceSunlight: " + (useNatural ? "Natural" : "Default"));
 		}
 	}
 }
