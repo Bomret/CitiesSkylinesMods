@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Tag="en" Name="English">
+  <Translations>
+    <Translation ID="NL_GENERAL_SETTINGS" Value="General Settings" />
+    <Translation ID="NL_USE_NATURAL_SUNLIGHT" Value="Use natural sunlight" />
+    <Translation ID="NL_USE_SOFTER_SHADOWS" Value="Use softer shadows" />
+  </Translations>
+</Language>
