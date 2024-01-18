@@ -68,7 +68,7 @@ namespace NaturalLighting.Replacer
 			var sunlightColor = replace ? NaturalColor : _defaultColor;
 			_dayNightProperties.m_LightColor = sunlightColor;
 
-			Debug.Log("[NaturalLighting] SunlightReplacer.ReplaceSunlightColor: " + (replace ? "Natural" : "Default"));
+			Debug.Log("[NaturalLighting] SunlightReplacer.ReplaceSunlight: " + (replace ? "Natural" : "Default"));
 		}
 
 		public void OnDestroy()

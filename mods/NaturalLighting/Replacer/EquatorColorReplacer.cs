@@ -23,9 +23,7 @@ namespace NaturalLighting.Replacer
 			}
 		};
 
-		DayNightProperties _dayNightProperties;
 		Gradient _defaultEquatorColor;
-		FieldInfo _equatorColorField;
 
 		bool _currentUseSofterShadows;
 
@@ -33,11 +31,7 @@ namespace NaturalLighting.Replacer
 		{
 			Debug.Log("[NaturalLighting] EquatorColorReplacer.Awake");
 
-			_dayNightProperties = FindObjectOfType<DayNightProperties>();
-			_defaultEquatorColor = _dayNightProperties.m_AmbientColor.equatorColor;
-			_equatorColorField = _dayNightProperties.m_AmbientColor
-				.GetType()
-				.GetField("m_EquatorColor", BindingFlags.Instance | BindingFlags.NonPublic);
+			_defaultEquatorColor = FindObjectOfType<DayNightProperties>().m_AmbientColor.equatorColor;
 
 			var options = OptionsStore.GetOrLoadOptions();
 			_currentUseSofterShadows = options.UseSofterShadows;
@@ -78,7 +72,9 @@ namespace NaturalLighting.Replacer
 
 			Debug.LogFormat("[NaturalLighting] EquatorColorReplacer.ReplaceEquatorColor: {0}", replace ? "Natural" : "Default");
 
-			_equatorColorField.SetValue(_dayNightProperties.m_AmbientColor, equatorColor);
+			typeof(DayNightProperties.AmbientColor)
+				.GetField("m_EquatorColor", BindingFlags.Instance | BindingFlags.NonPublic)
+				.SetValue(DayNightProperties.instance.m_AmbientColor, equatorColor);
 		}
 	}
 }
