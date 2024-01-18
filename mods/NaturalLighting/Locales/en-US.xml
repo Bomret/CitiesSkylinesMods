@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Language Tag="en-US" Name="English (US)">
-  <Translations>
-    <Translation ID="NL_USE_NATURAL_SUNLIGHT" Value="Use natural sunlight" />
-    <Translation ID="NL_USE_SOFTER_SHADOWS" Value="Use softer shadows" />
-  </Translations>
-</Language>

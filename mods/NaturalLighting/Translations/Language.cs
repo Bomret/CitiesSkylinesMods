@@ -1,6 +1,5 @@
 ﻿#pragma warning disable CA1819 // Properties should not return arrays
 
-using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 
 namespace NaturalLighting

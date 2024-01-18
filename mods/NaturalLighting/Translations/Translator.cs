@@ -44,10 +44,7 @@ namespace NaturalLighting
 				SetCurrentLanguage();
 			}
 
-			if (_currentLanguage is null)
-			{
-				return translationId;
-			}
+			if (_currentLanguage is null) return translationId;
 
 			var translation = _currentLanguage.Translations.SingleOrDefault(x =>
 				x.ID.Equals(translationId, StringComparison.OrdinalIgnoreCase));

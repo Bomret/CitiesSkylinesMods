@@ -57,13 +57,15 @@ namespace NaturalLighting
 			var translator = _translatorProvider.GetOrCreate();
 			var settings = _settingsStore.GetOrLoadSettings();
 
-			settingsUi.AddCheckbox(translator.GetTranslation("NL_USE_NATURAL_SUNLIGHT"), settings.UseNaturalSunlight, b =>
+			var generalSettings = settingsUi.AddGroup(translator.GetTranslation("NL_GENERAL_SETTINGS"));
+
+			generalSettings.AddCheckbox(translator.GetTranslation("NL_USE_NATURAL_SUNLIGHT"), settings.UseNaturalSunlight, b =>
 			{
 				settings.UseNaturalSunlight = b;
 				_settingsStore.SaveSettings();
 			});
 
-			settingsUi.AddCheckbox(translator.GetTranslation("NL_USE_SOFTER_SHADOWS"), settings.UseNaturalSunlight, b =>
+			generalSettings.AddCheckbox(translator.GetTranslation("NL_USE_SOFTER_SHADOWS"), settings.UseSofterShadows, b =>
 			{
 				settings.UseSofterShadows = b;
 				_settingsStore.SaveSettings();
