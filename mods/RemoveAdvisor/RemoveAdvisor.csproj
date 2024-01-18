@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="ICities" Private="false"/>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="PreviewImage.png" CopyToOutputDirectory="PreserveNewest"/>
     <None Update="README.md" CopyToOutputDirectory="PreserveNewest"/>
     <None Update="CHANGELOG.md" CopyToOutputDirectory="PreserveNewest"/>
