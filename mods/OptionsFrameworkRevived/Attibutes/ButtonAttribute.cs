@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace OptionsFramework.Attibutes
+namespace OptionsFramework.Attributes
 {
 	[AttributeUsage(AttributeTargets.Property)]
 	public sealed class ButtonAttribute : AbstractOptionsAttribute
 	{
-		public ButtonAttribute(string description, string group, Type actionClass = null, string actionMethod = null) :
-			base(description, group, actionClass, actionMethod)
+		public ButtonAttribute(string description, string group) : base(description, group)
 		{
 
 		}

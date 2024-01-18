@@ -1,5 +1,5 @@
 ﻿using System;
-using OptionsFramework.Attibutes;
+using OptionsFramework.Attributes;
 
 namespace OptionsFramework.Extensions
 {

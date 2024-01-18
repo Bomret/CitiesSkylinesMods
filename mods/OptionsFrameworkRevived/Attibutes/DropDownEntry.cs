@@ -1,11 +1,11 @@
-﻿namespace OptionsFramework.Attibutes
+﻿namespace OptionsFramework.Attributes
 {
-	public readonly struct DropDownEntry<TKey>
+	public sealed class DropDownEntry
 	{
-		public TKey Code { get; }
+		public string Code { get; }
 		public string Description { get; }
 
-		public DropDownEntry(TKey code, string description)
+		public DropDownEntry(string code, string description)
 		{
 			Code = code;
 			Description = description;

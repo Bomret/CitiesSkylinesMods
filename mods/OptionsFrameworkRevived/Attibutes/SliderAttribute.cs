@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OptionsFramework.Attibutes
+namespace OptionsFramework.Attributes
 {
 	[AttributeUsage(AttributeTargets.Property)]
 	public sealed class SliderAttribute : AbstractOptionsAttribute
@@ -9,7 +9,7 @@ namespace OptionsFramework.Attibutes
 		public float Max { get; }
 		public float Step { get; }
 
-		public SliderAttribute(string description, float min, float max, float step, string group = null, Type actionClass = null, string actionMethod = null) : base(description, group, actionClass, actionMethod)
+		public SliderAttribute(string description, float min, float max, float step, string group = null) : base(description, group)
 		{
 			Min = min;
 			Max = max;

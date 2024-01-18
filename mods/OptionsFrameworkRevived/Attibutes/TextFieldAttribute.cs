@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace OptionsFramework.Attibutes
+namespace OptionsFramework.Attributes
 {
 	[AttributeUsage(AttributeTargets.Property)]
 	public sealed class TextfieldAttribute : AbstractOptionsAttribute
 	{
-		public TextfieldAttribute(string description, string group = null, Type actionClass = null,
-			string actionMethod = null) : base(description, group, actionClass, actionMethod)
+		public TextfieldAttribute(string description, string group = null) : base(description, group)
 		{
 		}
 	}

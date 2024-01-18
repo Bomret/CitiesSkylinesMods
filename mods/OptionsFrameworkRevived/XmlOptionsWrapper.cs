@@ -2,151 +2,73 @@
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using ColossalFramework.IO;
-using OptionsFramework.Attibutes;
-using UnityEngine;
 
 namespace OptionsFramework
 {
-	public sealed class XmlOptionsWrapper<T> : IOptionsWrapper<T>
+	public sealed class XmlOptionsStore<T> : IOptionsStore<T> where T : class, new()
 	{
+		readonly string _fileName;
+		readonly XmlSerializer _xmlSerializer;
+
 		T _options;
 
-		static readonly XmlOptionsWrapper<T> _instance = new XmlOptionsWrapper<T>();
-		public static XmlOptionsWrapper<T> Instance { get { return _instance; } }
-
-		public static T Options => Instance.GetOptions();
-
-		public T GetOptions()
+		public XmlOptionsStore(string optionsFileName)
 		{
-			try
-			{
-				Ensure();
-			}
-			catch (XmlException e)
-			{
-				Debug.LogError("Error reading options XML file");
-				Debug.LogException(e);
-			}
+			_fileName = optionsFileName;
+			_xmlSerializer = new XmlSerializer(typeof(T));
+		}
+
+		public T GetOrLoadOptions()
+		{
+			Ensure();
+
 			return _options;
 		}
 
 		public void SaveOptions()
 		{
-			try
+			using (var streamWriter = new StreamWriter(_fileName))
 			{
-				var xmlSerializer = new XmlSerializer(typeof(T));
-				using (var streamWriter = new StreamWriter(GetFileName()))
-				{
-					xmlSerializer.Serialize(streamWriter, _options);
-				}
+				_xmlSerializer.Serialize(streamWriter, _options);
 			}
-			catch (Exception e)
-			{
-				Debug.LogException(e);
-			}
-		}
-
-		XmlOptionsWrapper()
-		{
-
 		}
 
 		void Ensure()
 		{
-			if (_options != null)
-			{
-				return;
-			}
-			var type = typeof(T);
-			var attrs = type.GetCustomAttributes(typeof(XmlOptionsAttribute), false);
-			if (attrs.Length != 1)
-			{
-				throw new Exception($"Type {type.FullName} is not an options type!");
-			}
+			if (_options != null) return;
+
 			_options = (T)Activator.CreateInstance(typeof(T));
+
 			LoadOptions();
 		}
 
 		void LoadOptions()
 		{
-			try
+			if (!File.Exists(_fileName))
 			{
-				if (GetLegacyFileName() != string.Empty)
-				{
-					try
-					{
-						ReadOptionsFile(GetLegacyFileName());
-						try
-						{
-							File.Delete(GetLegacyFileName());
-						}
-						catch (Exception e)
-						{
-							UnityEngine.Debug.LogException(e);
-						}
-						SaveOptions();
-					}
-					catch (FileNotFoundException)
-					{
-						ReadOptionsFile(GetFileName());
-					}
-				}
-				else
-				{
-					ReadOptionsFile(GetFileName());
-				}
+				SaveOptions();
 			}
-			catch (FileNotFoundException)
-			{
-				SaveOptions();// No options file yet
-			}
+
+			ReadOptionsFile();
 		}
 
-		void ReadOptionsFile(string fileName)
+		void ReadOptionsFile()
 		{
-			var xmlSerializer = new XmlSerializer(typeof(T));
-			using (var streamReader = new StreamReader(fileName))
+			using (var reader = XmlReader.Create(_fileName))
 			{
-				var options = (T)xmlSerializer.Deserialize(streamReader);
+				var options = (T)_xmlSerializer.Deserialize(reader);
+
 				foreach (var propertyInfo in typeof(T).GetProperties())
 				{
 					if (!propertyInfo.CanWrite)
 					{
 						continue;
 					}
+
 					var value = propertyInfo.GetValue(options, null);
 					propertyInfo.SetValue(_options, value, null);
 				}
 			}
-		}
-
-		string GetFileName()
-		{
-			var type = _options.GetType();
-			var attrs = type.GetCustomAttributes(typeof(XmlOptionsAttribute), false);
-			var fileName = Path.Combine(DataLocation.localApplicationData, ((XmlOptionsAttribute)attrs[0]).FileName);
-			if (!fileName.EndsWith(".xml"))
-			{
-				fileName = fileName + ".xml";
-			}
-			return fileName;
-		}
-
-		string GetLegacyFileName()
-		{
-			var type = _options.GetType();
-			var attrs = type.GetCustomAttributes(typeof(XmlOptionsAttribute), false);
-			var fileName = ((XmlOptionsAttribute)attrs[0]).LegacyFileName;
-			if (fileName == string.Empty)
-			{
-				return fileName;
-			}
-			if (!fileName.EndsWith(".xml"))
-			{
-				fileName = fileName + ".xml";
-			}
-			return fileName;
 		}
 	}
 }

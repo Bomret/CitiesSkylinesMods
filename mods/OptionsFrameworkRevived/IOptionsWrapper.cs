@@ -1,8 +1,8 @@
 ﻿namespace OptionsFramework
 {
-    public interface IOptionsWrapper<out T>
-    {
-        T GetOptions();
-        void SaveOptions();
-    }
+	public interface IOptionsStore<out T> where T : class
+	{
+		T GetOrLoadOptions();
+		void SaveOptions();
+	}
 }

@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace OptionsFramework.Attibutes
+namespace OptionsFramework.Attributes
 {
 	[AttributeUsage(AttributeTargets.Property)]
 	public abstract class DropDownAttribute : AbstractOptionsAttribute
 	{
-		protected DropDownAttribute(string description, string group, Type actionClass, string actionMethod) : base(
-			description, group, actionClass, actionMethod)
+		protected DropDownAttribute(string description, string group) : base(
+			description, group)
 		{
 		}
 	}

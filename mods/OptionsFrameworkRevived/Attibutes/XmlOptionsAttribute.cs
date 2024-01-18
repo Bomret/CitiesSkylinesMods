@@ -1,20 +1,15 @@
 ﻿using System;
 
-namespace OptionsFramework.Attibutes
+namespace OptionsFramework.Attributes
 {
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-	public sealed class XmlOptionsAttribute : Attribute
+	public sealed class ModOptionsAttribute : Attribute
 	{
-		//file name in local app data
-		public string FileName { get; }
+		public string ModName { get; }
 
-		//file name in Cities: Skylines folder
-		public string LegacyFileName { get; }
-
-		public XmlOptionsAttribute(string fileName, string legacyFileName = "")
+		public ModOptionsAttribute(string modName)
 		{
-			FileName = fileName;
-			LegacyFileName = legacyFileName;
+			ModName = modName;
 		}
 	}
 }
