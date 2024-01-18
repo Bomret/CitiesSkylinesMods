@@ -3,9 +3,9 @@ using System.Linq;
 using ColossalFramework.Plugins;
 using ICities;
 
-namespace DaylightClassicReborn
+namespace NaturalLighting
 {
-	public static class PluginInfoProvider
+	static class PluginInfoProvider
 	{
 		static PluginManager.PluginInfo _info;
 
@@ -31,7 +31,7 @@ namespace DaylightClassicReborn
 				}
 			}
 
-			throw new InvalidOperationException("[DaylighClassicRevived] Failed to find DaylightClassicReborn assembly");
+			throw new InvalidOperationException("[NaturalLighting] Failed to find NaturalLighting assembly");
 		}
 	}
 }

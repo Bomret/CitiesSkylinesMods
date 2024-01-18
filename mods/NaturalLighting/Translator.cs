@@ -7,27 +7,32 @@ using ColossalFramework.Globalization;
 using System.Xml;
 using UnityEngine;
 
-namespace DaylightClassicReborn
+namespace NaturalLighting
 {
+	public interface ITranslator
+	{
+		string GetTranslation(string translationId);
+	}
+
 	/// <summary>
 	/// Provides translations read from external xml files.
 	/// </summary>
-	sealed class TranslationProvider : IDisposable
+	sealed class Translator : ITranslator, IDisposable
 	{
-		const string FallbackLanguage = "en";
+		const string FallbackLanguage = "en-US";
 
 		readonly List<Language> _languages = new List<Language>();
 		readonly XmlSerializer _xmlSerializer;
+		readonly DirectoryInfo _localesDirectory;
 
 		Language _currentLanguage;
 		bool _isDisposed;
 
-		public TranslationProvider()
+		public Translator(DirectoryInfo localesDirectory)
 		{
-			Debug.Log("[DaylighClassicRevived] Initializing TranslationProvider");
-
 			_xmlSerializer = new XmlSerializer(typeof(Language));
 			LocaleManager.eventLocaleChanged += SetCurrentLanguage;
+			_localesDirectory = localesDirectory;
 		}
 
 		public string GetTranslation(string translationId)
@@ -36,7 +41,7 @@ namespace DaylightClassicReborn
 
 			if (_currentLanguage == null)
 			{
-				Debug.LogWarningFormat("[DaylighClassicRevived] Can't get a translation for \"{0}\" as there is not a language defined", translationId);
+				Debug.LogWarningFormat("[NaturalLighting] Translator: Can't get a translation for {0} as no language is defined", translationId);
 
 				return translationId;
 			}
@@ -46,7 +51,7 @@ namespace DaylightClassicReborn
 
 			if (translation is null)
 			{
-				Debug.LogWarningFormat("[DaylighClassicRevived] Returned translation for language \"{0}\" doesn't contain a suitable translation for \"{1}\"", _currentLanguage.UniqueName, translationId);
+				Debug.LogWarningFormat("[NaturalLighting] Translator: Returned translation for language {0} ({1}) doesn't contain a suitable translation for {2}", _currentLanguage.ReadableName, _currentLanguage.UniqueName, translationId);
 
 				return translationId;
 			}
@@ -61,8 +66,6 @@ namespace DaylightClassicReborn
 				return;
 			}
 
-			Debug.Log("[DaylighClassicRevived] Loading Languages");
-
 			RefreshLanguages();
 			SetCurrentLanguage();
 		}
@@ -71,16 +74,13 @@ namespace DaylightClassicReborn
 		{
 			_languages.Clear();
 
-			var languagePath = Path.Combine(Path.Combine(PluginInfoProvider.GetOrResolvePluginInfo().modPath, "Assets"), "Locales");
-			var languagesDir = new DirectoryInfo(languagePath);
-
-			if (!languagesDir.Exists)
+			if (!_localesDirectory.Exists)
 			{
-				Debug.LogWarning("[DaylighClassicRevived] Can't find any language files");
+				Debug.LogWarning("[NaturalLighting] Translator: Can't find any language files");
 				return;
 			}
 
-			foreach (var languageFile in languagesDir.GetFiles("*.xml", SearchOption.TopDirectoryOnly))
+			foreach (var languageFile in _localesDirectory.GetFiles("*.xml", SearchOption.TopDirectoryOnly))
 			{
 				var language = DeserializeLanguageFile(languageFile);
 
@@ -111,14 +111,14 @@ namespace DaylightClassicReborn
 				{
 					var language = (Language)_xmlSerializer.Deserialize(xmlReader);
 
-					Debug.LogFormat("[DaylighClassicRevived] Loaded language {0} ({1})", language.ReadableName, language.UniqueName);
+					Debug.LogFormat("[NaturalLighting] Translator: Loaded language {0} ({1})", language.ReadableName, language.UniqueName);
 
 					return language;
 				}
 			}
 			catch (Exception err)
 			{
-				Debug.LogErrorFormat("[DaylighClassicRevived] Error deserializing language file {0}: {1}", languageFile.Name, err);
+				Debug.LogErrorFormat("[NaturalLighting] Translator: Error deserializing language file {0}: {1}", languageFile.Name, err);
 			}
 
 			return null;

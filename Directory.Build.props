@@ -29,13 +29,6 @@
     </AssemblySearchPaths>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Reference Include="Assembly-CSharp" Private="false"/>
-    <Reference Include="ColossalManaged" Private="false"/>
-    <Reference Include="ICities" Private="false"/>
-    <Reference Include="UnityEngine" Private="false" />
-  </ItemGroup>
-
   <!-- Code Quality  -->
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.StaticAnalysis">

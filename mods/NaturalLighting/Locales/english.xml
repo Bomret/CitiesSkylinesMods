@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language UniqueName="en-US" ReadableName="American English"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Translations>
+    <!-- CATEGORIES -->
+    <Translation ID="NL_SUNLIGHT_OPTIONS" String="Sunlight options" />
+    <Translation ID="NL_SHADOW_OPTIONS" String="Shadow options" />
+
+    <!-- SUNLIGHT OPTIONS -->
+    <Translation ID="NL_USE_NATURAL_SUNLIGHT_COLOR" String="Use natural sunlight color" />
+    <Translation ID="NL_USE_NATURAL_SUNLIGHT_INTENSITY" String="Use natural sunlight intensity" />
+    <Translation ID="NL_USE_NATURAL_SUNLIGHT_EXPOSURE" String="Use natural sunlight exposure" />
+
+    <!-- SHADOW OPTIONS -->
+    <Translation ID="NL_USE_SOFTER_SHADOWS" String="Use softer shadows" />
+  </Translations>
+</Language>

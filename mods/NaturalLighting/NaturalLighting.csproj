@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Author>Bomret</Author>
+    <PackageDescription>A Cities: Skylines mod that adjusts in-game lighting to look more natural.</PackageDescription>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp" Private="false"/>
+    <Reference Include="ColossalManaged" Private="false"/>
+    <Reference Include="ICities" Private="false"/>
+    <Reference Include="UnityEngine" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="PreviewImage.png" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="README.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="CHANGELOG.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Locales/*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OptionsFrameworkRevived\OptionsFrameworkRevived.csproj" />
+  </ItemGroup>
+
+  <!-- Deployment to local mod directory after publish -->
+  <Target Name="DeployToLocalModDirectory" AfterTargets="Publish">
+    <Message Text="Deploying to local CSL Mods directory" />
+
+    <PropertyGroup>
+      <LocalModDir>$(LocalAppData)/Colossal Order/Cities_Skylines/Addons/Mods/$(ProjectName)/</LocalModDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <FilesToCopy Include="$(TargetDir)*.*" />
+    </ItemGroup>
+
+    <RemoveDir Directories="$(LocalModDir)" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(LocalModDir)" />
+  </Target>
+</Project>

@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace DaylightClassicReborn
+namespace NaturalLighting
 {
 	[XmlRoot(ElementName = "Language", Namespace = "", IsNullable = false)]
 	public sealed class Language
