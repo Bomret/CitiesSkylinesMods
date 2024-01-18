@@ -8,9 +8,7 @@
     <Translation ID="NL_SHADOW_OPTIONS" String="Shadow options" />
 
     <!-- SUNLIGHT OPTIONS -->
-    <Translation ID="NL_USE_NATURAL_SUNLIGHT_COLOR" String="Use natural sunlight color" />
-    <Translation ID="NL_USE_NATURAL_SUNLIGHT_INTENSITY" String="Use natural sunlight intensity" />
-    <Translation ID="NL_USE_NATURAL_SUNLIGHT_EXPOSURE" String="Use natural sunlight exposure" />
+    <Translation ID="NL_USE_NATURAL_SUNLIGHT" String="Use natural sunlight" />
 
     <!-- SHADOW OPTIONS -->
     <Translation ID="NL_USE_SOFTER_SHADOWS" String="Use softer shadows" />
