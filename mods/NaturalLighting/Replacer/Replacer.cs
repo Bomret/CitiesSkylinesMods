@@ -1,10 +1,5 @@
 using System;
 
-interface ISetting
-{
-	string Name { get; }
-}
-
 namespace NaturalLighting.Replacer
 {
 	abstract class Replacer<TSettings> : IDisposable
@@ -40,6 +35,4 @@ namespace NaturalLighting.Replacer
 			GC.SuppressFinalize(this);
 		}
 	}
-
-
 }

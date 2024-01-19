@@ -8,16 +8,16 @@ namespace NaturalLighting.Replacer
 	{
 		static readonly Gradient SofterShadowsEquatorColor = new Gradient
 		{
-			colorKeys = new GradientColorKey[]
+			colorKeys = new GradientColorKey[6]
 				{
 					new GradientColorKey(new Color32(20, 25, 36, byte.MaxValue), 0.225f),
 					new GradientColorKey(new Color32(80, 70, 50, byte.MaxValue), 0.25f),
-					new GradientColorKey(new Color32(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue), 0.28f),
-					new GradientColorKey(new Color32(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue), 0.72f),
+					new GradientColorKey(new Color32(152, 188, 218, byte.MaxValue), 0.28f),
+					new GradientColorKey(new Color32(152, 188, 218, byte.MaxValue), 0.72f),
 					new GradientColorKey(new Color32(80, 70, 50, byte.MaxValue), 0.75f),
 					new GradientColorKey(new Color32(20, 25, 36, byte.MaxValue), 0.775f)
 				},
-			alphaKeys = new GradientAlphaKey[]
+			alphaKeys = new GradientAlphaKey[2]
 			{
 				new GradientAlphaKey(1f, 0f),
 				new GradientAlphaKey(1f, 1f)

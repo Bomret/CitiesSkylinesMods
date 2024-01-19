@@ -12,7 +12,7 @@ namespace NaturalLighting
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
 	{
 		public string Name => "Natural Lighting";
-		public string Description => $"Adjusts in-game lighting to look more natural, version {Version}\n- by Bomret";
+		public string Description => $"Adjusts in-game lighting to look more natural, version {Version}\nby Bomret";
 		const string Version = "1.0.0";
 
 		readonly List<Replacer<NaturalLightingSettings>> _replacers;
@@ -32,21 +32,6 @@ namespace NaturalLighting
 			};
 		}
 
-		public override void OnLevelLoaded(LoadMode mode)
-		{
-			base.OnLevelLoaded(mode);
-			_inGame = true;
-
-			Debug.Log("[NaturalLighting] Starting...");
-
-			var settings = _settingsStore.GetOrLoadSettings();
-
-			foreach (var replacer in _replacers)
-			{
-				replacer.OnLoaded(settings);
-			}
-		}
-
 		public void OnSettingsUI(UIHelperBase settingsUi)
 		{
 			if (settingsUi is null) throw new ArgumentNullException(nameof(settingsUi));
@@ -59,35 +44,32 @@ namespace NaturalLighting
 			generalSettings.AddCheckbox(translator.GetTranslation("NL_USE_NATURAL_SUNLIGHT"), settings.UseNaturalSunlight, b =>
 			{
 				settings.UseNaturalSunlight = b;
-				_settingsStore.SaveSettings();
-
-				if (!_inGame) return;
-
-				foreach (var replacer in _replacers)
-				{
-					replacer.OnSettingsChanged(settings);
-				}
-
+				NotifySettingChanged(settings);
 			});
 
 			generalSettings.AddCheckbox(translator.GetTranslation("NL_USE_SOFTER_SHADOWS"), settings.UseSofterShadows, b =>
 			{
 				settings.UseSofterShadows = b;
-				_settingsStore.SaveSettings();
-
-				if (!_inGame) return;
-
-				foreach (var replacer in _replacers)
-				{
-					replacer.OnSettingsChanged(settings);
-				}
+				NotifySettingChanged(settings);
 			});
+		}
+
+		public override void OnLevelLoaded(LoadMode mode)
+		{
+			Debug.Log("[NaturalLighting] Starting...");
+
+			var settings = _settingsStore.GetOrLoadSettings();
+
+			foreach (var replacer in _replacers)
+			{
+				replacer.OnLoaded(settings);
+			}
+
+			_inGame = true;
 		}
 
 		public override void OnLevelUnloading()
 		{
-			base.OnLevelUnloading();
-
 			Debug.Log("[NaturalLighting] Tearing down...");
 
 			foreach (var replacer in _replacers)
@@ -96,6 +78,8 @@ namespace NaturalLighting
 			}
 
 			_settingsStore.SaveSettings();
+
+			_inGame = false;
 		}
 
 		public void OnDisabled()
@@ -105,6 +89,18 @@ namespace NaturalLighting
 			foreach (var replacer in _replacers)
 			{
 				replacer.Dispose();
+			}
+		}
+
+		void NotifySettingChanged(NaturalLightingSettings settings)
+		{
+			_settingsStore.SaveSettings();
+
+			if (!_inGame) return;
+
+			foreach (var replacer in _replacers)
+			{
+				replacer.OnSettingsChanged(settings);
 			}
 		}
 	}
