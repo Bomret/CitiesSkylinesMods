@@ -12,11 +12,11 @@ namespace NaturalLighting.Replacer
 				new GradientColorKey(new Color32( 55,  66,  77, byte.MaxValue), 0.23f),
 				new GradientColorKey(new Color32( 245,  173,  84, byte.MaxValue), 0.26f),
 				new GradientColorKey(new Color32( 252,  222,  186, byte.MaxValue), 0.29f),
-				new GradientColorKey(new Color32( byte.MaxValue,  byte.MaxValue,  byte.MaxValue, byte.MaxValue), 0.35f),
-				new GradientColorKey(new Color32( byte.MaxValue,  byte.MaxValue,  byte.MaxValue, byte.MaxValue), 0.65f),
-				new GradientColorKey(new Color32( 252,  222,  186, byte.MaxValue), 0.71f),
-				new GradientColorKey(new Color32( 245,  173,  84, byte.MaxValue), 0.74f),
-				new GradientColorKey(new Color32( 55,  66,  77, byte.MaxValue), 0.77f)
+				new GradientColorKey(new Color32( byte.MaxValue,  byte.MaxValue,  byte.MaxValue, byte.MaxValue), 0.33f),
+				new GradientColorKey(new Color32( byte.MaxValue,  byte.MaxValue,  byte.MaxValue, byte.MaxValue), 0.63f),
+				new GradientColorKey(new Color32( 252,  222,  186, byte.MaxValue), 0.72f),
+				new GradientColorKey(new Color32( 245,  173,  84, byte.MaxValue), 0.75f),
+				new GradientColorKey(new Color32( 55,  66,  77, byte.MaxValue), 0.78f)
 			},
 			alphaKeys = new GradientAlphaKey[2]
 			{
