@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using ColossalFramework.Plugins;
-using ICities;
 
 namespace NaturalLighting
 {
@@ -18,17 +16,13 @@ namespace NaturalLighting
 
 		static PluginManager.PluginInfo ResolveMod()
 		{
-			foreach (var plugin in PluginManager.instance.GetPluginsInfo())
+			_info = PluginManager.instance.FindPluginInfo(typeof(GameMod).Assembly);
+			if (_info is null)
 			{
-				if (plugin.GetInstances<IUserMod>().Any(mod => mod is GameMod))
-				{
-					_info = plugin;
-
-					return _info;
-				}
+				throw new InvalidOperationException("[NaturalLighting] Failed to find NaturalLighting assembly");
 			}
 
-			throw new InvalidOperationException("[NaturalLighting] Failed to find NaturalLighting assembly");
+			return _info;
 		}
 	}
 }
