@@ -1,8 +1,9 @@
+using NaturalLighting.Settings;
 using UnityEngine;
 
 namespace NaturalLighting.Replacer
 {
-	sealed class SunlightReplacer : Replacer
+	sealed class SunlightReplacer : Replacer<NaturalLightingSettings>
 	{
 		static readonly Gradient NaturalColor = new Gradient()
 		{
@@ -24,32 +25,31 @@ namespace NaturalLighting.Replacer
 			}
 		};
 
+		readonly ILogger _logger;
+
 		DayNightProperties _dayNightProperties;
 		Gradient _defaultColor;
 		bool _currentUseNaturalSunlight;
 
-		public void Awake()
+		public SunlightReplacer(ILogger logger)
 		{
-			_dayNightProperties = FindObjectOfType<DayNightProperties>();
-			_defaultColor = _dayNightProperties.m_LightColor;
-
-			var settings = ModSettingsStore.GetOrLoadSettings();
-
-			_currentUseNaturalSunlight = settings.UseNaturalSunlight;
+			_logger = logger;
 		}
 
-		public void Start()
+		public override void OnLoaded(NaturalLightingSettings settings)
 		{
+			_dayNightProperties = Object.FindObjectOfType<DayNightProperties>();
+			_defaultColor = _dayNightProperties.m_LightColor;
+
+			_currentUseNaturalSunlight = settings.UseNaturalSunlight;
 			if (_currentUseNaturalSunlight)
 			{
 				ReplaceSunlight(true);
 			}
 		}
 
-		public void Update()
+		public override void OnSettingsChanged(NaturalLightingSettings settings)
 		{
-			var settings = ModSettingsStore.GetOrLoadSettings();
-
 			if (_currentUseNaturalSunlight == settings.UseNaturalSunlight) return;
 
 			ReplaceSunlight(settings.UseNaturalSunlight);
@@ -57,14 +57,16 @@ namespace NaturalLighting.Replacer
 			_currentUseNaturalSunlight = settings.UseNaturalSunlight;
 		}
 
-		public void OnDestroy() => ReplaceSunlight(false);
+		public override void OnUnloading() => ReplaceSunlight(false);
+
+		protected override void OnDispose() => ReplaceSunlight(false);
 
 		void ReplaceSunlight(bool useNatural)
 		{
 			var sunlightColor = useNatural ? NaturalColor : _defaultColor;
 			_dayNightProperties.m_LightColor = sunlightColor;
 
-			Debug.Log("[NaturalLighting] SunlightReplacer.ReplaceSunlight: " + (useNatural ? "Natural" : "Default"));
+			_logger.LogFormat(LogType.Log, "[NaturalLighting] SunlightReplacer.ReplaceSunlight: " + (useNatural ? "Natural" : "Default"));
 		}
 	}
 }

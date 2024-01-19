@@ -1,15 +1,45 @@
-using NaturalLighting.Settings;
-using UnityEngine;
+using System;
+
+interface ISetting
+{
+	string Name { get; }
+}
 
 namespace NaturalLighting.Replacer
 {
-	abstract class Replacer : MonoBehaviour
+	abstract class Replacer<TSettings> : IDisposable
+		where TSettings : class
 	{
-		protected ModSettingsStore ModSettingsStore { get; }
+		bool _isDisposed;
 
-		protected Replacer()
+		public virtual void OnLoaded(TSettings initialSettings) { }
+		public abstract void OnSettingsChanged(TSettings currentSettings);
+		public virtual void OnUnloading() { }
+
+		protected virtual void OnDispose() { }
+
+		void Dispose(bool disposing)
 		{
-			ModSettingsStore = ModSettingsStore.GetOrCreate();
+			if (_isDisposed)
+			{
+				return;
+			}
+
+			if (disposing)
+			{
+				OnDispose();
+			}
+
+			_isDisposed = true;
+		}
+
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+			Dispose(disposing: true);
+			GC.SuppressFinalize(this);
 		}
 	}
+
+
 }

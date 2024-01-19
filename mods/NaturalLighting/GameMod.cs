@@ -3,6 +3,7 @@ using ICities;
 using UnityEngine;
 using NaturalLighting.Replacer;
 using NaturalLighting.Settings;
+using System.Collections.Generic;
 
 namespace NaturalLighting
 {
@@ -14,40 +15,36 @@ namespace NaturalLighting
 		public string Description => $"Adjusts in-game lighting to look more natural, version {Version}\n- by Bomret";
 		const string Version = "1.0.0";
 
+		readonly List<Replacer<NaturalLightingSettings>> _replacers;
 		readonly TranslatorProvider _translatorProvider;
 		readonly ModSettingsStore _settingsStore;
 
-		GameObject _gameObject;
+		bool _inGame;
 
 		public GameMod()
 		{
 			_translatorProvider = new TranslatorProvider();
 			_settingsStore = ModSettingsStore.GetOrCreate();
+
+			_replacers = new List<Replacer<NaturalLightingSettings>>() {
+				new SunlightReplacer(Debug.logger),
+				new EquatorColorReplacer(Debug.logger)
+			};
 		}
 
 		public override void OnLevelLoaded(LoadMode mode)
 		{
 			base.OnLevelLoaded(mode);
+			_inGame = true;
 
-			Debug.Log("[NaturalLighting] Initializing...");
+			Debug.Log("[NaturalLighting] Starting...");
 
-			_gameObject = new GameObject("NaturalLighting");
-			AddChild<EquatorColorReplacer>(_gameObject);
-			AddChild<SunlightReplacer>(_gameObject);
-		}
+			var settings = _settingsStore.GetOrLoadSettings();
 
-		public override void OnLevelUnloading()
-		{
-			base.OnLevelUnloading();
-
-			if (_gameObject is null) return;
-
-			Debug.Log("[NaturalLighting] Tearing down...");
-
-			_settingsStore.SaveSettings();
-
-			UnityEngine.Object.Destroy(_gameObject);
-			_gameObject = null;
+			foreach (var replacer in _replacers)
+			{
+				replacer.OnLoaded(settings);
+			}
 		}
 
 		public void OnSettingsUI(UIHelperBase settingsUi)
@@ -63,26 +60,52 @@ namespace NaturalLighting
 			{
 				settings.UseNaturalSunlight = b;
 				_settingsStore.SaveSettings();
+
+				if (!_inGame) return;
+
+				foreach (var replacer in _replacers)
+				{
+					replacer.OnSettingsChanged(settings);
+				}
+
 			});
 
 			generalSettings.AddCheckbox(translator.GetTranslation("NL_USE_SOFTER_SHADOWS"), settings.UseSofterShadows, b =>
 			{
 				settings.UseSofterShadows = b;
 				_settingsStore.SaveSettings();
+
+				if (!_inGame) return;
+
+				foreach (var replacer in _replacers)
+				{
+					replacer.OnSettingsChanged(settings);
+				}
 			});
 		}
 
-		public void OnDisabled() => _translatorProvider.Dispose();
-
-		static T AddChild<T>(GameObject gameObject) where T : Component
+		public override void OnLevelUnloading()
 		{
-			var child = gameObject.GetComponent<T>();
-			if (child is null)
+			base.OnLevelUnloading();
+
+			Debug.Log("[NaturalLighting] Tearing down...");
+
+			foreach (var replacer in _replacers)
 			{
-				return gameObject.AddComponent<T>();
+				replacer.OnUnloading();
 			}
 
-			return child;
+			_settingsStore.SaveSettings();
+		}
+
+		public void OnDisabled()
+		{
+			Debug.Log("[NaturalLighting] Disabling...");
+
+			foreach (var replacer in _replacers)
+			{
+				replacer.Dispose();
+			}
 		}
 	}
 }
