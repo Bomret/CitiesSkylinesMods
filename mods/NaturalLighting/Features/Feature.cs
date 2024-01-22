@@ -1,8 +1,8 @@
 using System;
 
-namespace NaturalLighting.Replacer
+namespace NaturalLighting.Features
 {
-	abstract class Replacer<TSettings> : IDisposable
+	abstract class Feature<TSettings> : IDisposable
 		where TSettings : class
 	{
 		bool _isDisposed;

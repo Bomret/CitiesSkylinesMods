@@ -9,31 +9,25 @@ namespace NaturalLighting.Settings
 {
 	public sealed class ModSettingsStore
 	{
-		static ModSettingsStore _instance;
-
 		readonly string _settingsFilePath;
 		readonly XmlSerializer _xmlSerializer;
 
-		NaturalLightingSettings _settings;
+		ModSettings _settings;
 
 		public ModSettingsStore(string settingsFilePath)
 		{
 			_settingsFilePath = settingsFilePath;
-			_xmlSerializer = new XmlSerializer(typeof(NaturalLightingSettings));
+			_xmlSerializer = new XmlSerializer(typeof(ModSettings));
 		}
 
-		public static ModSettingsStore GetOrCreate()
+		public static ModSettingsStore Create(string modName)
 		{
-			if (_instance != null) return _instance;
+			var settingsFile = Path.Combine(DataLocation.localApplicationData, $"{modName}.xml");
 
-			var fullPath = Path.Combine(DataLocation.localApplicationData, "NaturalLighting.xml");
-
-			_instance = new ModSettingsStore(fullPath);
-
-			return _instance;
+			return new ModSettingsStore(settingsFile);
 		}
 
-		public NaturalLightingSettings GetOrLoadSettings()
+		public ModSettings GetOrLoadSettings()
 		{
 			if (_settings != null) return _settings;
 
@@ -47,7 +41,7 @@ namespace NaturalLighting.Settings
 				{
 					using (var reader = XmlReader.Create(_settingsFilePath))
 					{
-						_settings = (NaturalLightingSettings)_xmlSerializer.Deserialize(reader);
+						_settings = (ModSettings)_xmlSerializer.Deserialize(reader);
 					}
 				}
 				catch (Exception err)
@@ -74,7 +68,7 @@ namespace NaturalLighting.Settings
 
 		void ResetSettings()
 		{
-			_settings = new NaturalLightingSettings();
+			_settings = new ModSettings();
 
 			SaveSettings();
 		}

@@ -1,0 +1,4 @@
+GENERAL_SETTINGS=General Settings
+INCOMPATIBLE_MOD_DETECTED=Detected incompatible mod '{0}'. Natural Lighting is disabled.
+USE_NATURAL_SUNLIGHT=Use natural sunlight
+USE_SOFTER_SHADOWS_ON_BUILDINGS=Use softer shadows on buildings

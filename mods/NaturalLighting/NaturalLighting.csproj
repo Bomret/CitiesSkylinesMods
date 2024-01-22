@@ -15,25 +15,34 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="PreviewImage.png" CopyToOutputDirectory="PreserveNewest" />
-    <None Update="README.md" CopyToOutputDirectory="PreserveNewest" />
-    <None Update="CHANGELOG.md" CopyToOutputDirectory="PreserveNewest" />
-    <None Update="Locales/*" CopyToOutputDirectory="PreserveNewest" />
+    <TextResource Include="langs/*.restext" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="PreviewImage.png" CopyToPublishDirectory="PreserveNewest" />
+    <None Update="README.md" CopyToPublishDirectory="PreserveNewest" />
+    <None Update="CHANGELOG.md" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Deployment to local mod directory after publish -->
   <Target Name="DeployToLocalModDirectory" AfterTargets="Publish">
-    <Message Text="Deploying to local CSL Mods directory" />
-
     <PropertyGroup>
       <LocalModDir>$(LocalAppData)/Colossal Order/Cities_Skylines/Addons/Mods/$(ProjectName)/</LocalModDir>
     </PropertyGroup>
 
+    <RemoveDir Directories="$(LocalModDir)" />
+    <MakeDir Directories="$(PublishDir)Locale" />
+
+    <GenerateResource ExecuteAsTool="false" Sources="@(TextResource)" OutputResources="@(TextResource->'$(PublishDir)Locale/%(Filename).resources')">
+      <Output TaskParameter="OutputResources" ItemName="TextXmlResources" />
+    </GenerateResource>
+
     <ItemGroup>
-      <FilesToCopy Include="$(TargetDir)*.*" />
+      <ModFiles Include="$(PublishDir)*.*" />
+      <ResourceFiles Include="$(PublishDir)Locale/*.resources" />
     </ItemGroup>
 
-    <RemoveDir Directories="$(LocalModDir)" />
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(LocalModDir)" />
+    <Copy SourceFiles="@(ModFiles)" DestinationFolder="$(LocalModDir)" />
+    <Copy SourceFiles="@(ResourceFiles)" DestinationFolder="$(LocalModDir)Locale" />
   </Target>
 </Project>

@@ -1,9 +1,9 @@
 using NaturalLighting.Settings;
 using UnityEngine;
 
-namespace NaturalLighting.Replacer
+namespace NaturalLighting.Features
 {
-	sealed class SunlightReplacer : Replacer<NaturalLightingSettings>
+	sealed class NaturalSunlight : Feature<ModSettings>
 	{
 		static readonly Gradient NaturalColor = new Gradient()
 		{
@@ -31,12 +31,13 @@ namespace NaturalLighting.Replacer
 		Gradient _defaultColor;
 		bool _currentUseNaturalSunlight;
 
-		public SunlightReplacer(ILogger logger)
+		public NaturalSunlight(ILogger logger)
 		{
 			_logger = logger;
 		}
 
-		public override void OnLoaded(NaturalLightingSettings settings)
+
+		public override void OnLoaded(ModSettings settings)
 		{
 			_dayNightProperties = Object.FindObjectOfType<DayNightProperties>();
 			_defaultColor = _dayNightProperties.m_LightColor;
@@ -48,7 +49,7 @@ namespace NaturalLighting.Replacer
 			}
 		}
 
-		public override void OnSettingsChanged(NaturalLightingSettings settings)
+		public override void OnSettingsChanged(ModSettings settings)
 		{
 			if (_currentUseNaturalSunlight == settings.UseNaturalSunlight) return;
 
@@ -63,10 +64,9 @@ namespace NaturalLighting.Replacer
 
 		void ReplaceSunlight(bool useNatural)
 		{
-			var sunlightColor = useNatural ? NaturalColor : _defaultColor;
-			_dayNightProperties.m_LightColor = sunlightColor;
+			_logger.LogFormat(LogType.Log, "[NaturalLighting] NaturalSunlight.ReplaceSunlight: " + (useNatural ? "Natural" : "Default"));
 
-			_logger.LogFormat(LogType.Log, "[NaturalLighting] SunlightReplacer.ReplaceSunlight: " + (useNatural ? "Natural" : "Default"));
+			_dayNightProperties.m_LightColor = useNatural ? NaturalColor : _defaultColor;
 		}
 	}
 }

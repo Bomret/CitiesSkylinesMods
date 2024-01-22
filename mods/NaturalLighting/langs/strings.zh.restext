@@ -1,0 +1,4 @@
+GENERAL_SETTINGS=常规设置
+INCOMPATIBLE_MOD_DETECTED=检测到不兼容的模组“{0}”。 Natural Lighting 已停用。
+USE_NATURAL_SUNLIGHT=利用自然阳光
+USE_SOFTER_SHADOWS_ON_BUILDINGS=在建筑物上使用更柔和的阴影

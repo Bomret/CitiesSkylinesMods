@@ -1,9 +1,13 @@
 ﻿using System;
 using ICities;
 using UnityEngine;
-using NaturalLighting.Replacer;
+using NaturalLighting.Features;
 using NaturalLighting.Settings;
 using System.Collections.Generic;
+using System.Linq;
+using System.Collections.ObjectModel;
+using ColossalFramework.Globalization;
+using System.Resources;
 
 namespace NaturalLighting
 {
@@ -13,95 +17,172 @@ namespace NaturalLighting
 	{
 		public string Name => "Natural Lighting";
 		public string Description => $"Adjusts in-game lighting to look more natural, version {Version}\nby Bomret";
+
 		const string Version = "1.0.0";
 
-		readonly List<Replacer<NaturalLightingSettings>> _replacers;
-		readonly TranslatorProvider _translatorProvider;
+		static readonly Dictionary<string, string> IncompatibleMods = new Dictionary<string, string>
+		{
+			{"530871278", "Daylight Classic"},
+			{"1794015399", "Render It!"},
+			{"2983036781", "Lumina"},
+			{"1899640536", "Theme Mixer 2"},
+			{"3031623332", "Theme Mixer 2.5"},
+		};
+		readonly ModProvider<GameMod> _modProvider;
 		readonly ModSettingsStore _settingsStore;
+		readonly List<Feature<ModSettings>> _features;
 
-		bool _inGame;
+		bool _isInGame;
+		bool _isModSetup;
+		private ResourceManager _rm;
 
 		public GameMod()
 		{
-			_translatorProvider = new TranslatorProvider();
-			_settingsStore = ModSettingsStore.GetOrCreate();
+			_modProvider = new ModProvider<GameMod>();
+			_settingsStore = ModSettingsStore.Create(Name);
 
-			_replacers = new List<Replacer<NaturalLightingSettings>>() {
-				new SunlightReplacer(Debug.logger),
-				new EquatorColorReplacer(Debug.logger)
+			_features = new List<Feature<ModSettings>>() {
+				new NaturalSunlight(Debug.logger),
+				new SofterShadowsOnBuildings(Debug.logger)
 			};
+
+			LocaleManager.eventLocaleChanged += NotifyLanguageChanged;
+		}
+
+		public void OnEnabled()
+		{
+			var mod = _modProvider.GetCurrentMod();
+			Debug.LogFormat("[NaturalLighting] mod path {0}", mod.Directory.FullName);
+
+			_rm = ResourceManager.CreateFileBasedResourceManager("strings", mod.Directory.CreateSubdirectory("Locale").FullName, null);
 		}
 
 		public void OnSettingsUI(UIHelperBase settingsUi)
 		{
+			Debug.Log("[NaturalLighting] OnSettingsUI");
+
 			if (settingsUi is null) throw new ArgumentNullException(nameof(settingsUi));
 
-			var translator = _translatorProvider.GetOrCreate();
 			var settings = _settingsStore.GetOrLoadSettings();
 
-			var generalSettings = settingsUi.AddGroup(translator.GetTranslation("NL_GENERAL_SETTINGS"));
+			var incompatibleMods = DetectIncompatibleMods();
+			if (incompatibleMods.Count > 0)
+			{
+				Debug.LogFormat("[NaturalLighting] Detected incompatible mods {0}.", string.Join(", ", incompatibleMods.ToArray()));
 
-			generalSettings.AddCheckbox(translator.GetTranslation("NL_USE_NATURAL_SUNLIGHT"), settings.UseNaturalSunlight, b =>
+				var warningMessage = _rm.GetString(LocaleStrings.IncompatibleModDetected);
+				var warning = settingsUi.AddGroup(warningMessage);
+
+				return;
+			}
+
+			Debug.Log("[NaturalLighting] OnSettingsUI build");
+
+			var generalSettings = settingsUi.AddGroup(_rm.GetString(LocaleStrings.GeneralSettings));
+			generalSettings.AddCheckbox(_rm.GetString(LocaleStrings.UseNaturalSunlight), settings.UseNaturalSunlight, b =>
 			{
 				settings.UseNaturalSunlight = b;
 				NotifySettingChanged(settings);
 			});
 
-			generalSettings.AddCheckbox(translator.GetTranslation("NL_USE_SOFTER_SHADOWS"), settings.UseSofterShadows, b =>
+			generalSettings.AddCheckbox(_rm.GetString(LocaleStrings.UseSofterShadowsOnBuildings), settings.UseSofterShadowsOnBuildings, b =>
 			{
-				settings.UseSofterShadows = b;
+				settings.UseSofterShadowsOnBuildings = b;
 				NotifySettingChanged(settings);
 			});
 		}
 
 		public override void OnLevelLoaded(LoadMode mode)
 		{
+			_isInGame = true;
+
+			Debug.Log("[NaturalLighting] OnLevelLoaded");
+
+			var incompatibleMods = DetectIncompatibleMods();
+			if (incompatibleMods.Count > 0)
+			{
+				Debug.LogFormat("[NaturalLighting] Detected incompatible mods {0}.", string.Join(", ", incompatibleMods.ToArray()));
+				return;
+			}
+
 			Debug.Log("[NaturalLighting] Starting...");
 
 			var settings = _settingsStore.GetOrLoadSettings();
 
-			foreach (var replacer in _replacers)
+			foreach (var feature in _features)
 			{
-				replacer.OnLoaded(settings);
+				feature.OnLoaded(settings);
 			}
 
-			_inGame = true;
+			_isModSetup = true;
 		}
 
 		public override void OnLevelUnloading()
 		{
+			_isInGame = false;
+
+			Debug.Log("[NaturalLighting] OnLevelUnloading");
+
+			if (!_isModSetup) return;
+
 			Debug.Log("[NaturalLighting] Tearing down...");
 
-			foreach (var replacer in _replacers)
+			foreach (var feature in _features)
 			{
-				replacer.OnUnloading();
+				feature.OnUnloading();
 			}
 
 			_settingsStore.SaveSettings();
-
-			_inGame = false;
 		}
 
 		public void OnDisabled()
 		{
+			Debug.Log("[NaturalLighting] OnDisabled");
+
+			LocaleManager.eventLocaleChanged -= NotifyLanguageChanged;
+
+			if (!_isModSetup) return;
+
 			Debug.Log("[NaturalLighting] Disabling...");
 
-			foreach (var replacer in _replacers)
+			foreach (var feature in _features)
 			{
-				replacer.Dispose();
+				feature.Dispose();
 			}
 		}
 
-		void NotifySettingChanged(NaturalLightingSettings settings)
+		void NotifySettingChanged(ModSettings settings)
 		{
 			_settingsStore.SaveSettings();
 
-			if (!_inGame) return;
+			if (!_isInGame) return;
 
-			foreach (var replacer in _replacers)
+			foreach (var feature in _features)
 			{
-				replacer.OnSettingsChanged(settings);
+				feature.OnSettingsChanged(settings);
 			}
+		}
+
+		void NotifyLanguageChanged()
+		{
+			Debug.Log("[NaturalLighting] NotifyLanguageChanged");
+		}
+
+		ReadOnlyCollection<string> DetectIncompatibleMods()
+		{
+			var incompatibleMods = new List<string>();
+
+			foreach (var mod in _modProvider.GetLoadedMods())
+			{
+				Debug.logger.LogFormat(LogType.Log, "[NaturalLighting] Found mod {0}", mod.NameOrSteamId);
+
+				if (IncompatibleMods.TryGetValue(mod.NameOrSteamId, out var clearName))
+				{
+					incompatibleMods.Add(clearName);
+				}
+			}
+
+			return incompatibleMods.AsReadOnly();
 		}
 	}
 }

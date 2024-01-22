@@ -1,0 +1,4 @@
+GENERAL_SETTINGS=Configurações Gerais
+INCOMPATIBLE_MOD_DETECTED=Modificação incompatível '{0}' detectada. X está desativada.
+USE_NATURAL_SUNLIGHT=Use luz solar natural
+USE_SOFTER_SHADOWS_ON_BUILDINGS=Use sombras mais suaves em edifícios

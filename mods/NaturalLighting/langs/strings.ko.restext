@@ -1,0 +1,4 @@
+GENERAL_SETTINGS=일반 설정
+INCOMPATIBLE_MOD_DETECTED=호환되지 않는 수정 '{0}'이(가) 감지되었습니다. Natural Lighting가 비활성화되었습니다.
+USE_NATURAL_SUNLIGHT=자연광을 활용하다
+USE_SOFTER_SHADOWS_ON_BUILDINGS=건물에 더 부드러운 그림자 사용

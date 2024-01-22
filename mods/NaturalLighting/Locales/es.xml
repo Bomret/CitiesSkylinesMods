@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Language Tag="es" Name="Espagnol">
-  <Translations>
-    <Translation ID="NL_GENERAL_SETTINGS" Value="Configuración General" />
-    <Translation ID="NL_USE_NATURAL_SUNLIGHT" Value="Utilice la luz solar natural" />
-    <Translation ID="NL_USE_SOFTER_SHADOWS" Value="Usa sombras más suaves" />
-  </Translations>
-</Language>
