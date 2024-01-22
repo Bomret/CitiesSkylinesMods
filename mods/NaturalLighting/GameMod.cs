@@ -51,8 +51,7 @@ namespace NaturalLighting
 		{
 			var mod = _modProvider.GetCurrentMod();
 
-			var _rm = ResourceManager.CreateFileBasedResourceManager("strings", mod.Directory.CreateSubdirectory("Locales").FullName, null);
-			_translator = new Translator(_rm);
+			_translator = new Translator(mod);
 		}
 
 		public void OnSettingsUI(UIHelperBase settingsUi)

@@ -15,9 +15,9 @@ namespace NaturalLighting
 		readonly ResourceManager _resources;
 		string _currentLanguage = "en";
 
-		public Translator(ResourceManager resources)
+		public Translator(ModInfo mod)
 		{
-			_resources = resources;
+			_resources = ResourceManager.CreateFileBasedResourceManager("strings", mod.Directory.CreateSubdirectory("Locales").FullName, null);
 		}
 
 		public void SetCurrentLanguage(string languageTag)
@@ -27,18 +27,14 @@ namespace NaturalLighting
 				languageTag = "zh-cn";
 			}
 
-			UnityEngine.Debug.LogFormat("[NaturalLighting] SetCurrentLanguage {0}", languageTag);
-
 			_currentLanguage = languageTag;
 		}
 
 		public string GetTranslation(string translationId)
 		{
-			var c = CultureInfo.GetCultureInfoByIetfLanguageTag(_currentLanguage);
+			var culture = CultureInfo.GetCultureInfoByIetfLanguageTag(_currentLanguage);
 
-			UnityEngine.Debug.LogFormat("[NaturalLighting] GetTranslation {0} for language {1} ({2})", translationId, c.Name, _currentLanguage);
-
-			return _resources.GetString(translationId, c);
+			return _resources.GetString(translationId, culture);
 		}
 	}
 }
