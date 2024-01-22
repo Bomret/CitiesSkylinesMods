@@ -16,6 +16,7 @@ But you can of course any other LUT you like.
 
 [h2]Compatibility[/h2]
 [b]Game Version[/b]: 1.17.1-f4
+[b]Uses Harmony[/b]: no
 
 This mod has a built-in check for the presence of the following mods that provide similar functionality or would break it:
 [list]
@@ -28,6 +29,8 @@ If one of these is detected, Natural Lighting will disable itself and show a mes
 
 [h2]Why not just use Render It! or Lumina?[/h2]
 I like both mods. I used them for quite some time as Daylight Classic and Softer Shadows are very old and have their quirks with the current version of the game. But I could never get exactly the look I wanted and both mods mods gave me option paralysis. I just wanted a no-config, instant improvement for the game's very yellow tinted lighting. So I created Natural Lighting for myself and decided to share it here.
+
+The second reason is that both mods use the [b]Harmony[/b] patching library which might cause issues for people who play the game on Apple Silicon Hardware as it has some outstanding issues with plattform support. Natural Lighting does not make use of [b]Harmony[/b].
 
 [h2]Source Code[/h2]
 The source code of all my mods is available on [url=https://github.com/Bomret/CitiesSkylinesMods/tree/main/mods/NaturalLighting]GitHub[/url]. Feel free to report any issues and feedback there or here on Steam.
