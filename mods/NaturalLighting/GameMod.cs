@@ -34,7 +34,7 @@ namespace NaturalLighting
 
 		bool _isInGame;
 		bool _isModSetup;
-		private ResourceManager _rm;
+		Translator _translator;
 
 		public GameMod()
 		{
@@ -45,16 +45,14 @@ namespace NaturalLighting
 				new NaturalSunlight(Debug.logger),
 				new SofterShadowsOnBuildings(Debug.logger)
 			};
-
-			LocaleManager.eventLocaleChanged += NotifyLanguageChanged;
 		}
 
 		public void OnEnabled()
 		{
 			var mod = _modProvider.GetCurrentMod();
-			Debug.LogFormat("[NaturalLighting] mod path {0}", mod.Directory.FullName);
 
-			_rm = ResourceManager.CreateFileBasedResourceManager("strings", mod.Directory.CreateSubdirectory("Locale").FullName, null);
+			var _rm = ResourceManager.CreateFileBasedResourceManager("strings", mod.Directory.CreateSubdirectory("Locales").FullName, null);
+			_translator = new Translator(_rm);
 		}
 
 		public void OnSettingsUI(UIHelperBase settingsUi)
@@ -63,6 +61,7 @@ namespace NaturalLighting
 
 			if (settingsUi is null) throw new ArgumentNullException(nameof(settingsUi));
 
+			_translator.SetCurrentLanguage(LocaleManager.instance.language);
 			var settings = _settingsStore.GetOrLoadSettings();
 
 			var incompatibleMods = DetectIncompatibleMods();
@@ -70,7 +69,7 @@ namespace NaturalLighting
 			{
 				Debug.LogFormat("[NaturalLighting] Detected incompatible mods {0}.", string.Join(", ", incompatibleMods.ToArray()));
 
-				var warningMessage = _rm.GetString(LocaleStrings.IncompatibleModDetected);
+				var warningMessage = _translator.GetTranslation(LocaleStrings.IncompatibleModDetected);
 				var warning = settingsUi.AddGroup(warningMessage);
 
 				return;
@@ -78,14 +77,14 @@ namespace NaturalLighting
 
 			Debug.Log("[NaturalLighting] OnSettingsUI build");
 
-			var generalSettings = settingsUi.AddGroup(_rm.GetString(LocaleStrings.GeneralSettings));
-			generalSettings.AddCheckbox(_rm.GetString(LocaleStrings.UseNaturalSunlight), settings.UseNaturalSunlight, b =>
+			var generalSettings = settingsUi.AddGroup(_translator.GetTranslation(LocaleStrings.GeneralSettings));
+			generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseNaturalSunlight), settings.UseNaturalSunlight, b =>
 			{
 				settings.UseNaturalSunlight = b;
 				NotifySettingChanged(settings);
 			});
 
-			generalSettings.AddCheckbox(_rm.GetString(LocaleStrings.UseSofterShadowsOnBuildings), settings.UseSofterShadowsOnBuildings, b =>
+			generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseSofterShadowsOnBuildings), settings.UseSofterShadowsOnBuildings, b =>
 			{
 				settings.UseSofterShadowsOnBuildings = b;
 				NotifySettingChanged(settings);
@@ -139,8 +138,6 @@ namespace NaturalLighting
 		{
 			Debug.Log("[NaturalLighting] OnDisabled");
 
-			LocaleManager.eventLocaleChanged -= NotifyLanguageChanged;
-
 			if (!_isModSetup) return;
 
 			Debug.Log("[NaturalLighting] Disabling...");
@@ -161,11 +158,6 @@ namespace NaturalLighting
 			{
 				feature.OnSettingsChanged(settings);
 			}
-		}
-
-		void NotifyLanguageChanged()
-		{
-			Debug.Log("[NaturalLighting] NotifyLanguageChanged");
 		}
 
 		ReadOnlyCollection<string> DetectIncompatibleMods()

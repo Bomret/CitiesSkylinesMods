@@ -8,14 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Assembly-CSharp" Private="false"/>
-    <Reference Include="ColossalManaged" Private="false"/>
-    <Reference Include="ICities" Private="false"/>
+    <Reference Include="Assembly-CSharp" Private="false" />
+    <Reference Include="ColossalManaged" Private="false" />
+    <Reference Include="ICities" Private="false" />
     <Reference Include="UnityEngine" Private="false" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TextResource Include="langs/*.restext" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,25 +20,35 @@
     <None Update="CHANGELOG.md" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <!-- Deployment to local mod directory after publish -->
+  <ItemGroup>
+    <Translations Include="Locales/*.restext" />
+  </ItemGroup>
+
+  <Target Name="CreateDefaultTranslation" BeforeTargets="BeforeBuild">
+    <!-- Use a copy of en-US-specific text resource file for neutral-language resource generation -->
+    <Copy SourceFiles="Locales/strings.en.restext" DestinationFiles="Locales/strings.restext" />
+  </Target>
+
   <Target Name="DeployToLocalModDirectory" AfterTargets="Publish">
+    <!-- Deployment to local mod directory after publish -->
     <PropertyGroup>
+      <PublishLocalesDir>$(PublishDir)Locales/</PublishLocalesDir>
       <LocalModDir>$(LocalAppData)/Colossal Order/Cities_Skylines/Addons/Mods/$(ProjectName)/</LocalModDir>
     </PropertyGroup>
 
-    <RemoveDir Directories="$(LocalModDir)" />
-    <MakeDir Directories="$(PublishDir)Locale" />
+    <MakeDir Directories="$(PublishLocalesDir)" />
 
-    <GenerateResource ExecuteAsTool="false" Sources="@(TextResource)" OutputResources="@(TextResource->'$(PublishDir)Locale/%(Filename).resources')">
+    <GenerateResource ExecuteAsTool="false" Sources="@(Translations)" OutputResources="@(Translations->'$(PublishLocalesDir)%(Filename).resources')">
       <Output TaskParameter="OutputResources" ItemName="TextXmlResources" />
     </GenerateResource>
 
     <ItemGroup>
       <ModFiles Include="$(PublishDir)*.*" />
-      <ResourceFiles Include="$(PublishDir)Locale/*.resources" />
+      <ResourceFiles Include="$(PublishLocalesDir)*.resources" />
     </ItemGroup>
 
+    <RemoveDir Directories="$(LocalModDir)" />
     <Copy SourceFiles="@(ModFiles)" DestinationFolder="$(LocalModDir)" />
-    <Copy SourceFiles="@(ResourceFiles)" DestinationFolder="$(LocalModDir)Locale" />
+    <Copy SourceFiles="@(ResourceFiles)" DestinationFolder="$(LocalModDir)Locales" />
   </Target>
 </Project>

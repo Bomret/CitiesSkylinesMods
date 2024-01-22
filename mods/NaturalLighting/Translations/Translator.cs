@@ -1,7 +1,6 @@
 ﻿using System.Resources;
 using System.Globalization;
-using System.Diagnostics;
-using ColossalFramework.Globalization;
+using System;
 
 namespace NaturalLighting
 {
@@ -13,8 +12,8 @@ namespace NaturalLighting
 
 	sealed class Translator : ITranslator
 	{
-		string _currentLanguage;
 		readonly ResourceManager _resources;
+		string _currentLanguage = "en";
 
 		public Translator(ResourceManager resources)
 		{
@@ -23,6 +22,11 @@ namespace NaturalLighting
 
 		public void SetCurrentLanguage(string languageTag)
 		{
+			if (languageTag.Equals("zh", StringComparison.OrdinalIgnoreCase))
+			{
+				languageTag = "zh-cn";
+			}
+
 			UnityEngine.Debug.LogFormat("[NaturalLighting] SetCurrentLanguage {0}", languageTag);
 
 			_currentLanguage = languageTag;
@@ -30,9 +34,11 @@ namespace NaturalLighting
 
 		public string GetTranslation(string translationId)
 		{
-			UnityEngine.Debug.LogFormat("[NaturalLighting] GetTranslation {0}", translationId);
+			var c = CultureInfo.GetCultureInfoByIetfLanguageTag(_currentLanguage);
 
-			return _resources.GetString(translationId);
+			UnityEngine.Debug.LogFormat("[NaturalLighting] GetTranslation {0} for language {1} ({2})", translationId, c.Name, _currentLanguage);
+
+			return _resources.GetString(translationId, c);
 		}
 	}
 }
