@@ -69,7 +69,7 @@ namespace NaturalLighting
 				Debug.LogFormat("[NaturalLighting] Detected incompatible mods {0}.", string.Join(", ", incompatibleMods.ToArray()));
 
 				var warningMessage = _translator.GetTranslation(LocaleStrings.IncompatibleModDetected);
-				var warning = settingsUi.AddGroup(warningMessage);
+				var warning = settingsUi.AddGroup(string.Format(warningMessage, incompatibleMods[0]));
 
 				return;
 			}
