@@ -1,3 +1,10 @@
+# [naturallighting-v1.0.1](https://github.com/Bomret/CitiesSkylinesMods/compare/naturallighting-v1.0.0...naturallighting-v1.0.1) (2024-01-24)
+
+
+### Bug Fixes
+
+* correctly display incompatible mod in options ([400b517](https://github.com/Bomret/CitiesSkylinesMods/commit/400b517c0ccbfa3baf1a6b4e8c385c8230b99b14))
+
 # naturallighting-v1.0.0 (2024-01-22)
 
 

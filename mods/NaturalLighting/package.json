@@ -4,8 +4,8 @@
   "scripts": {
     "build": "dotnet build --nologo --no-dependencies --no-restore",
     "publish": "rimraf ./publish && dotnet publish --configuration Release --no-dependencies --nologo --output ./publish",
-    "release": "semantic-release -e semantic-release-monorepo",
+    "release": "semantic-release -e semantic-release-monorepo --no-ci",
     "restore": "dotnet restore --no-dependencies"
   },
-  "version": "1.0.0"
+  "version": "1.0.1"
 }
