@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "LatLon": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7079",
+      "launchBrowser": false
+    }
+  }
+}
