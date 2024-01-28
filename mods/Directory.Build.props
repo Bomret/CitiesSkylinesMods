@@ -1,0 +1,81 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <TargetFramework>net35</TargetFramework>
+
+    <OutputType>Library</OutputType>
+    <DebugType>none</DebugType>
+    <IsPublishable>true</IsPublishable>
+    <IsPackable>false</IsPackable>
+
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <ImplicitUsings>false</ImplicitUsings>
+    <Deterministic>false</Deterministic>
+
+    <StaticAnalysisCodeType>ProdLib</StaticAnalysisCodeType>
+  </PropertyGroup>
+
+  <!-- Cities: Skylines Assemblies -->
+  <PropertyGroup>
+    <ManagedDLLPath Condition=" '$(OS)' == 'Unix' ">$(LocalAppData)/Steam/steamapps/common/Cities_Skylines/Cities.app/Contents/Resources/Data/Managed</ManagedDLLPath>
+    <ManagedDLLPath Condition=" '$(OS)' == 'Windows_NT' ">$(MSBuildProgramFiles32)/Steam/steamapps/common/Cities_Skylines/Cities_Data/Managed</ManagedDLLPath>
+    <AssemblySearchPaths>
+			$(AssemblySearchPaths);
+			$(ManagedDLLPath)
+    </AssemblySearchPaths>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp" Private="false" />
+    <Reference Include="ColossalManaged" Private="false" />
+    <Reference Include="ICities" Private="false" />
+    <Reference Include="UnityEngine" Private="false" />
+  </ItemGroup>
+
+  <!-- Logo and Documentation -->
+  <ItemGroup>
+    <None Update="PreviewImage.png" CopyToPublishDirectory="PreserveNewest" />
+    <None Update="README.md" CopyToPublishDirectory="PreserveNewest" />
+    <None Update="CHANGELOG.md" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- Assets -->
+  <ItemGroup>
+    <Luts Include="Assets/Luts/*.png" />
+    <Translations Include="Assets/Locales/*.restext" />
+  </ItemGroup>
+
+  <Target Name="CreateDefaultTranslation" BeforeTargets="BeforeBuild" Condition="Exists(Locales)">
+    <!-- Use a copy of en-US-specific text resource file for neutral-language resource generation -->
+    <Copy SourceFiles="Assets/Locales/strings.en.restext" DestinationFiles="Assets/Locales/strings.restext" />
+  </Target>
+
+  <!-- Deployment to local mod directory after publish -->
+  <Target Name="DeployToLocalModDirectory" AfterTargets="Publish">
+    <PropertyGroup>
+      <PublishLocalesDir>$(PublishDir)Assets/Locales/</PublishLocalesDir>
+      <PublishLutsDir>$(PublishDir)Assets/Luts/</PublishLutsDir>
+      <LocalModDir>$(LocalAppData)/Colossal Order/Cities_Skylines/Addons/Mods/$(ProjectName)/</LocalModDir>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(PublishLocalesDir)" />
+    <MakeDir Directories="$(PublishLutsDir)" />
+    <Copy SourceFiles="@(Luts)" DestinationFolder="$(PublishLutsDir)" />
+
+    <GenerateResource ExecuteAsTool="false" Sources="@(Translations)" OutputResources="@(Translations->'$(PublishLocalesDir)%(Filename).resources')">
+      <Output TaskParameter="OutputResources" ItemName="TextXmlResources" />
+    </GenerateResource>
+
+    <ItemGroup>
+      <ModFiles Include="$(PublishDir)*.*" />
+      <LocalesFiles Include="$(PublishDir)Assets/Locales/*.*" />
+      <LutFiles Include="$(PublishDir)Assets/Luts/*.*" />
+    </ItemGroup>
+
+    <RemoveDir Directories="$(LocalModDir)" />
+    <Copy SourceFiles="@(ModFiles)" DestinationFolder="$(LocalModDir)" />
+    <Copy SourceFiles="@(LocalesFiles)" DestinationFolder="$(LocalModDir)Assets/Locales" />
+    <Copy SourceFiles="@(LutFiles)" DestinationFolder="$(LocalModDir)Assets/Luts" />
+  </Target>
+</Project> 
