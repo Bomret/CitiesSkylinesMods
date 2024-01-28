@@ -56,7 +56,7 @@ module.exports = {
     [
       '@semantic-release/exec',
       {
-        publishCmd: 'rimraf ./publish && npm run publish'
+        publishCmd: 'npm run publish'
       },
     ],
     [

@@ -35,9 +35,9 @@
 
   <!-- Logo and Documentation -->
   <ItemGroup>
-    <None Update="PreviewImage.png" CopyToPublishDirectory="PreserveNewest" />
-    <None Update="README.md" CopyToPublishDirectory="PreserveNewest" />
-    <None Update="CHANGELOG.md" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="PreviewImage.png" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="README.md" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="CHANGELOG.md" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Assets -->

@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "dotnet build --nologo --no-dependencies --no-restore",
-    "publish": "dotnet publish --configuration Release --no-dependencies --nologo --output ./publish",
+    "publish": "rimraf ./publish && dotnet publish --configuration Release --no-dependencies --nologo --output ./publish",
     "release": "semantic-release -e semantic-release-monorepo",
     "restore": "dotnet restore --no-dependencies"
   },
