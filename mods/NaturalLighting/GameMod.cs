@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
 using ColossalFramework.Globalization;
+using System.Globalization;
 
 namespace NaturalLighting
 {
@@ -69,7 +70,7 @@ namespace NaturalLighting
 				Debug.LogFormat("[NaturalLighting] Detected incompatible mods {0}.", string.Join(", ", incompatibleMods.ToArray()));
 
 				var warningMessage = _translator.GetTranslation(LocaleStrings.IncompatibleModDetected);
-				var warning = settingsUi.AddGroup(string.Format(warningMessage, incompatibleMods[0]));
+				var warning = settingsUi.AddGroup(string.Format(CultureInfo.InvariantCulture, warningMessage, incompatibleMods[0]));
 
 				return;
 			}
@@ -89,7 +90,7 @@ namespace NaturalLighting
 				NotifySettingChanged(settings);
 			});
 
-			generalSettings.AddCheckbox("USE_OWN_LUT", settings.UseOwnLut, b =>
+			generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseOwnLut), settings.UseOwnLut, b =>
 			{
 				settings.UseOwnLut = b;
 				NotifySettingChanged(settings);
