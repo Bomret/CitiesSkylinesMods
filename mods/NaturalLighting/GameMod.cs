@@ -8,6 +8,7 @@ using System.Linq;
 using System.Collections.ObjectModel;
 using ColossalFramework.Globalization;
 using System.Globalization;
+using System.Reflection;
 
 namespace NaturalLighting
 {
@@ -15,10 +16,10 @@ namespace NaturalLighting
 	public sealed class GameMod : LoadingExtensionBase, IUserMod
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
 	{
-		public string Name => "Natural Lighting";
-		public string Description => $"Adjusts in-game lighting to look more natural, version {Version}\nby Bomret";
+		public string Name => $"Natural Lighting {_version}";
+		public string Description => $"Adjusts in-game lighting to look more natural.\nby Bomret";
 
-		const string Version = "1.0.0";
+		readonly string _version = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
 
 		static readonly Dictionary<string, string> IncompatibleMods = new Dictionary<string, string>
 		{

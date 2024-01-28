@@ -46,7 +46,7 @@
     <Translations Include="Assets/Locales/*.restext" />
   </ItemGroup>
 
-  <Target Name="CreateDefaultTranslation" BeforeTargets="BeforeBuild" Condition="Exists(Locales)">
+  <Target Name="CreateDefaultTranslation" BeforeTargets="BeforeBuild" Condition="Exists('Assets/Locales/strings.en.restext')">
     <!-- Use a copy of en-US-specific text resource file for neutral-language resource generation -->
     <Copy SourceFiles="Assets/Locales/strings.en.restext" DestinationFiles="Assets/Locales/strings.restext" />
   </Target>

@@ -8,15 +8,12 @@ It is a replacement for Daylight Classic and Softer Shadows but made for the cur
 The mod provides translations for all it's settings menu items in all the languages supported by the game. If you find an incorrect translation, please leave a comment below or open an issue on GitHub, linked below.
 
 [h2]Natural Lighting LUT[/h2]
-I created a dedicated Natural Lighting LUT that goes very well with this mod but can also be used without it. All the screenshots you see above were made having that LUT enabled.
-
-https://steamcommunity.com/sharedfiles/filedetails/?id=3145337893
-
-But you can of course use any other LUT you like.
+The current version 1.1.0 of this mod includes the option to use this mod's own LUT for the best experience. You can enable/disable that option anytime in-game. But you can of course also use any other LUT you like.
 
 [h2]Compatibility[/h2]
 [b]Game Version[/b]: 1.17.1-f4
 [b]Uses Harmony[/b]: no
+[b]Changes Save Files[/b]: no
 
 This mod has a built-in check for the presence of the following mods that provide similar functionality or would break it:
 [list]
