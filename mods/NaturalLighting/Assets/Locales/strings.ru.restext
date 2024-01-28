@@ -2,3 +2,4 @@ GENERAL_SETTINGS=общие настройки
 INCOMPATIBLE_MOD_DETECTED=Обнаружен несовместимый мод «{0}». Natural Lighting деактивирован.
 USE_NATURAL_SUNLIGHT=Используйте естественный солнечный свет
 USE_SOFTER_SHADOWS_ON_BUILDINGS=Используйте более мягкие тени на зданиях
+USE_OWN_LUT=Используйте LUT мода

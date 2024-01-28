@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
 using ColossalFramework.Globalization;
-using System.Resources;
 
 namespace NaturalLighting
 {
@@ -43,7 +42,8 @@ namespace NaturalLighting
 
 			_features = new List<Feature<ModSettings>>() {
 				new NaturalSunlight(Debug.logger),
-				new SofterShadowsOnBuildings(Debug.logger)
+				new SofterShadowsOnBuildings(Debug.logger),
+				new LutReplacer(_modProvider, Debug.logger)
 			};
 		}
 
@@ -86,6 +86,12 @@ namespace NaturalLighting
 			generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseSofterShadowsOnBuildings), settings.UseSofterShadowsOnBuildings, b =>
 			{
 				settings.UseSofterShadowsOnBuildings = b;
+				NotifySettingChanged(settings);
+			});
+
+			generalSettings.AddCheckbox("USE_OWN_LUT", settings.UseOwnLut, b =>
+			{
+				settings.UseOwnLut = b;
 				NotifySettingChanged(settings);
 			});
 		}
@@ -165,8 +171,6 @@ namespace NaturalLighting
 
 			foreach (var mod in _modProvider.GetLoadedMods())
 			{
-				Debug.logger.LogFormat(LogType.Log, "[NaturalLighting] Found mod {0}", mod.NameOrSteamId);
-
 				if (IncompatibleMods.TryGetValue(mod.NameOrSteamId, out var clearName))
 				{
 					incompatibleMods.Add(clearName);

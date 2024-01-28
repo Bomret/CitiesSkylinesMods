@@ -17,7 +17,7 @@ namespace NaturalLighting
 
 		public Translator(ModInfo mod)
 		{
-			_resources = ResourceManager.CreateFileBasedResourceManager("strings", mod.Directory.CreateSubdirectory("Locales").FullName, null);
+			_resources = ResourceManager.CreateFileBasedResourceManager("strings", mod.Directory.CreateSubdirectory("Assets").CreateSubdirectory("Locales").FullName, null);
 		}
 
 		public void SetCurrentLanguage(string languageTag)
