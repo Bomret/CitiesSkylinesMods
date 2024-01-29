@@ -1,3 +1,10 @@
+# [naturallighting-v1.2.0](https://github.com/Bomret/CitiesSkylinesMods/compare/naturallighting-v1.1.1...naturallighting-v1.2.0) (2024-01-29)
+
+
+### Features
+
+* new "Enable anyway mode" implemented ([b42af53](https://github.com/Bomret/CitiesSkylinesMods/commit/b42af53db1ee088dd66cf4c35048c2445414aceb))
+
 # [naturallighting-v1.2.0-beta.1](https://github.com/Bomret/CitiesSkylinesMods/compare/naturallighting-v1.1.1...naturallighting-v1.2.0-beta.1) (2024-01-29)
 
 
