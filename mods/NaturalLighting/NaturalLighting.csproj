@@ -3,8 +3,8 @@
     <Author>Bomret</Author>
     <PackageDescription>A Cities: Skylines mod that adjusts in-game lighting to look more natural.</PackageDescription>
 
-    <Version>1.0.1</Version>
-    <AssemblyVersion>1.0.1</AssemblyVersion>
-    <FileVersion>1.0.1</FileVersion>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0</AssemblyVersion>
+    <FileVersion>1.1.0</FileVersion>
   </PropertyGroup>
 </Project>

@@ -2,6 +2,7 @@
 {
 	public sealed class ModSettings
 	{
+		public bool IgnoreIncompatibleMods { get; set; }
 		public bool UseNaturalSunlight { get; set; } = true;
 		public bool UseSofterShadowsOnBuildings { get; set; } = true;
 		public bool UseOwnLut { get; set; } = true;

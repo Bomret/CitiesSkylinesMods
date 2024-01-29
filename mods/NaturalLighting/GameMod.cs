@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using ColossalFramework.Globalization;
 using System.Globalization;
 using System.Reflection;
+using ColossalFramework.UI;
 
 namespace NaturalLighting
 {
@@ -16,9 +17,10 @@ namespace NaturalLighting
 	public sealed class GameMod : LoadingExtensionBase, IUserMod
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
 	{
-		public string Name => $"Natural Lighting {_version}";
+		public string Name => $"{_modName} {_version} - BETA";
 		public string Description => $"Adjusts in-game lighting to look more natural.\nby Bomret";
 
+		readonly string _modName = "Natural Lighting";
 		readonly string _version = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
 
 		static readonly Dictionary<string, string> IncompatibleMods = new Dictionary<string, string>
@@ -40,7 +42,7 @@ namespace NaturalLighting
 		public GameMod()
 		{
 			_modProvider = new ModProvider<GameMod>();
-			_settingsStore = ModSettingsStore.Create(Name);
+			_settingsStore = ModSettingsStore.Create(_modName);
 
 			_features = new List<Feature<ModSettings>>() {
 				new NaturalSunlight(Debug.logger),
@@ -73,10 +75,16 @@ namespace NaturalLighting
 				var warningMessage = _translator.GetTranslation(LocaleStrings.IncompatibleModDetected);
 				var warning = settingsUi.AddGroup(string.Format(CultureInfo.InvariantCulture, warningMessage, incompatibleMods[0]));
 
-				return;
-			}
+				var button = (UIButton)warning.AddButton("IGNORE", () =>
+				{
+					settings.IgnoreIncompatibleMods = true;
+					OnSettingsUI(settingsUi);
+				});
 
-			Debug.Log("[NaturalLighting] OnSettingsUI build");
+				if (!settings.IgnoreIncompatibleMods) return;
+
+				button.isEnabled = false;
+			}
 
 			var generalSettings = settingsUi.AddGroup(_translator.GetTranslation(LocaleStrings.GeneralSettings));
 			generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseNaturalSunlight), settings.UseNaturalSunlight, b =>
