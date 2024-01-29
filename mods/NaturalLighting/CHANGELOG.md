@@ -1,3 +1,10 @@
+# [naturallighting-v1.2.1](https://github.com/Bomret/CitiesSkylinesMods/compare/naturallighting-v1.2.0...naturallighting-v1.2.1) (2024-01-29)
+
+
+### Bug Fixes
+
+* remove incompat with Theme Mixer ([786cf3a](https://github.com/Bomret/CitiesSkylinesMods/commit/786cf3a9b252848f1b0c95e86e024c01be7f2919))
+
 # [naturallighting-v1.2.0](https://github.com/Bomret/CitiesSkylinesMods/compare/naturallighting-v1.1.1...naturallighting-v1.2.0) (2024-01-29)
 
 
