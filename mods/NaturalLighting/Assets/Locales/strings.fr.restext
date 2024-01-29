@@ -1,5 +1,6 @@
 GENERAL_SETTINGS=Réglages Généraux
-INCOMPATIBLE_MOD_DETECTED=Mod incompatible «{0}» détecté. Natural Lighting est désactivé.
+INCOMPATIBLE_MOD_DETECTED=Mod incompatible «{0}» détecté.
+ENABLE_ANYWAY=Enabled anyway
 USE_NATURAL_SUNLIGHT=Utiliser la lumière naturelle du soleil
 USE_SOFTER_SHADOWS_ON_BUILDINGS=Utilisez des ombres plus douces sur les bâtiments
 USE_OWN_LUT=Utiliser la LUT du mod

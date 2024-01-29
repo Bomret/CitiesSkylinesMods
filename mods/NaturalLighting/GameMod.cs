@@ -60,68 +60,74 @@ namespace NaturalLighting
 
 		public void OnSettingsUI(UIHelperBase settingsUi)
 		{
-			Debug.Log("[NaturalLighting] OnSettingsUI");
-
 			if (settingsUi is null) throw new ArgumentNullException(nameof(settingsUi));
 
 			_translator.SetCurrentLanguage(LocaleManager.instance.language);
 			var settings = _settingsStore.GetOrLoadSettings();
 
-			var incompatibleMods = DetectIncompatibleMods();
-			if (incompatibleMods.Count > 0)
-			{
-				Debug.LogFormat("[NaturalLighting] Detected incompatible mods {0}.", string.Join(", ", incompatibleMods.ToArray()));
-
-				var warningMessage = _translator.GetTranslation(LocaleStrings.IncompatibleModDetected);
-				var warning = settingsUi.AddGroup(string.Format(CultureInfo.InvariantCulture, warningMessage, incompatibleMods[0]));
-
-				var button = (UIButton)warning.AddButton("IGNORE", () =>
-				{
-					settings.IgnoreIncompatibleMods = true;
-					OnSettingsUI(settingsUi);
-				});
-
-				if (!settings.IgnoreIncompatibleMods) return;
-
-				button.isEnabled = false;
-			}
-
 			var generalSettings = settingsUi.AddGroup(_translator.GetTranslation(LocaleStrings.GeneralSettings));
-			generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseNaturalSunlight), settings.UseNaturalSunlight, b =>
+			var useNaturalSunlight = (UICheckBox)generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseNaturalSunlight), settings.UseNaturalSunlight, b =>
 			{
 				settings.UseNaturalSunlight = b;
 				NotifySettingChanged(settings);
 			});
 
-			generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseSofterShadowsOnBuildings), settings.UseSofterShadowsOnBuildings, b =>
+			var useSofterShadowsOnBuildings = (UICheckBox)generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseSofterShadowsOnBuildings), settings.UseSofterShadowsOnBuildings, b =>
 			{
 				settings.UseSofterShadowsOnBuildings = b;
 				NotifySettingChanged(settings);
 			});
 
-			generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseOwnLut), settings.UseOwnLut, b =>
+			var useOwnLut = (UICheckBox)generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseOwnLut), settings.UseOwnLut, b =>
 			{
 				settings.UseOwnLut = b;
 				NotifySettingChanged(settings);
 			});
+
+			var incompatibleMods = DetectIncompatibleMods();
+			if (incompatibleMods.Count > 0 && !settings.IgnoreIncompatibleMods)
+			{
+				Debug.LogFormat("[NaturalLighting] Detected incompatible mods {0}.", string.Join(", ", incompatibleMods.ToArray()));
+
+				useNaturalSunlight.isEnabled = false;
+				useSofterShadowsOnBuildings.isEnabled = false;
+				useOwnLut.isEnabled = false;
+
+				var warningMessage = _translator.GetTranslation(LocaleStrings.IncompatibleModDetected);
+				var warning = settingsUi.AddGroup(string.Format(CultureInfo.InvariantCulture, warningMessage, incompatibleMods[0]));
+
+				warning.AddCheckbox(_translator.GetTranslation(LocaleStrings.EnableAnyway), settings.IgnoreIncompatibleMods, b =>
+				{
+					settings.IgnoreIncompatibleMods = b;
+					useNaturalSunlight.isEnabled = b;
+					useSofterShadowsOnBuildings.isEnabled = b;
+					useOwnLut.isEnabled = b;
+
+					NotifySettingChanged(settings);
+				});
+			}
 		}
 
 		public override void OnLevelLoaded(LoadMode mode)
 		{
 			_isInGame = true;
 
-			Debug.Log("[NaturalLighting] OnLevelLoaded");
+			var settings = _settingsStore.GetOrLoadSettings();
 
 			var incompatibleMods = DetectIncompatibleMods();
-			if (incompatibleMods.Count > 0)
+			if (incompatibleMods.Count > 0 && !settings.IgnoreIncompatibleMods)
 			{
-				Debug.LogFormat("[NaturalLighting] Detected incompatible mods {0}.", string.Join(", ", incompatibleMods.ToArray()));
-				return;
+				Debug.LogFormat("[NaturalLighting] Detected incompatible mods {0}. Disabling settings...", string.Join(", ", incompatibleMods.ToArray()));
+
+				settings = new ModSettings
+				{
+					UseNaturalSunlight = false,
+					UseSofterShadowsOnBuildings = false,
+					UseOwnLut = false
+				};
 			}
 
 			Debug.Log("[NaturalLighting] Starting...");
-
-			var settings = _settingsStore.GetOrLoadSettings();
 
 			foreach (var feature in _features)
 			{
@@ -135,24 +141,25 @@ namespace NaturalLighting
 		{
 			_isInGame = false;
 
-			Debug.Log("[NaturalLighting] OnLevelUnloading");
-
 			if (!_isModSetup) return;
 
 			Debug.Log("[NaturalLighting] Tearing down...");
 
-			foreach (var feature in _features)
+			try
 			{
-				feature.OnUnloading();
+				foreach (var feature in _features)
+				{
+					feature.OnUnloading();
+				}
 			}
-
-			_settingsStore.SaveSettings();
+			finally
+			{
+				_settingsStore.SaveSettings();
+			}
 		}
 
 		public void OnDisabled()
 		{
-			Debug.Log("[NaturalLighting] OnDisabled");
-
 			if (!_isModSetup) return;
 
 			Debug.Log("[NaturalLighting] Disabling...");
@@ -168,6 +175,19 @@ namespace NaturalLighting
 			_settingsStore.SaveSettings();
 
 			if (!_isInGame) return;
+
+			var incompatibleMods = DetectIncompatibleMods();
+			if (incompatibleMods.Count > 0 && !settings.IgnoreIncompatibleMods)
+			{
+				Debug.LogFormat("[NaturalLighting] Detected incompatible mods {0}. Disabling settings...", string.Join(", ", incompatibleMods.ToArray()));
+
+				settings = new ModSettings
+				{
+					UseNaturalSunlight = false,
+					UseSofterShadowsOnBuildings = false,
+					UseOwnLut = false
+				};
+			}
 
 			foreach (var feature in _features)
 			{

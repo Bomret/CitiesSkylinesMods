@@ -1,3 +1,10 @@
+# [naturallighting-v1.1.1](https://github.com/Bomret/CitiesSkylinesMods/compare/naturallighting-v1.1.0...naturallighting-v1.1.1) (2024-01-29)
+
+
+### Bug Fixes
+
+* use correct config file ([bd5479f](https://github.com/Bomret/CitiesSkylinesMods/commit/bd5479f9aaf83e61d5a49f438019aa3d4d207a11))
+
 # [naturallighting-v1.1.0](https://github.com/Bomret/CitiesSkylinesMods/compare/naturallighting-v1.0.1...naturallighting-v1.1.0) (2024-01-28)
 
 
