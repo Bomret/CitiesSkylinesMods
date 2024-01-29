@@ -85,13 +85,16 @@ namespace NaturalLighting
 			});
 
 			var incompatibleMods = DetectIncompatibleMods();
-			if (incompatibleMods.Count > 0 && !settings.IgnoreIncompatibleMods)
+			if (incompatibleMods.Count > 0)
 			{
 				Debug.LogFormat("[NaturalLighting] Detected incompatible mods {0}.", string.Join(", ", incompatibleMods.ToArray()));
 
-				useNaturalSunlight.isEnabled = false;
-				useSofterShadowsOnBuildings.isEnabled = false;
-				useOwnLut.isEnabled = false;
+				if (!settings.IgnoreIncompatibleMods)
+				{
+					useNaturalSunlight.isEnabled = false;
+					useSofterShadowsOnBuildings.isEnabled = false;
+					useOwnLut.isEnabled = false;
+				}
 
 				var warningMessage = _translator.GetTranslation(LocaleStrings.IncompatibleModDetected);
 				var warning = settingsUi.AddGroup(string.Format(CultureInfo.InvariantCulture, warningMessage, incompatibleMods[0]));

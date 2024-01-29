@@ -1,6 +1,6 @@
 GENERAL_SETTINGS=Allgemeine Einstellungen
 INCOMPATIBLE_MOD_DETECTED=Inkompatibles Mod '{0}'erkannt.
-ENABLE_ANYWAY=Enabled anyway
+ENABLE_ANYWAY=Trotzdem verwenden
 USE_NATURAL_SUNLIGHT=Natürliches Sonnenlicht verwenden
 USE_SOFTER_SHADOWS_ON_BUILDINGS=Weichere Schatten auf Gebäuden verwenden
 USE_OWN_LUT=LUT des Mods verwenden

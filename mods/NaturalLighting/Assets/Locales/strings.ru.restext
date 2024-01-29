@@ -1,6 +1,6 @@
 GENERAL_SETTINGS=общие настройки
 INCOMPATIBLE_MOD_DETECTED=Обнаружен несовместимый мод «{0}».
-ENABLE_ANYWAY=Enabled anyway
+ENABLE_ANYWAY=Активировать все равно
 USE_NATURAL_SUNLIGHT=Используйте естественный солнечный свет
 USE_SOFTER_SHADOWS_ON_BUILDINGS=Используйте более мягкие тени на зданиях
 USE_OWN_LUT=Используйте LUT мода

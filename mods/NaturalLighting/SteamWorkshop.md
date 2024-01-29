@@ -22,7 +22,7 @@ This mod has a built-in check for the presence of the following mods that provid
     [*][b]Render It![/b] - much more options and scope
     [*][b]Lumina[/b] - much more options and scope
 [/list]
-If one of these is detected, Natural Lighting will deactivate itself and show a message in it's settings panel in the game's options menu. You have to disable these other mods in order to use Natural Lighting.
+If one of these is detected, Natural Lighting will deactivate itself and show a message in it's settings panel in the game's options menu. You can then either disable these mods to use Natural Lighting or check the "Enable anyway" checkbox. In the latter case, Natural Lighting will apply its settings and possibly override the settings from the incompatible mods. This will not result in crashes but may result in the game's lighting becoming a mix between Natural Lighting and the other mod(s). However this might give you an interesting starting point: You can for example activate Natural Lighting in conjunction with Render It! or Lumina and use these mods to then fine tune the game's visuals to your liking. Recommended only for players who have more experience with the aforementioned mods.
 
 [h2]Why not just use Render It! or Lumina?[/h2]
 I like both mods. I used them for quite some time as Daylight Classic and Softer Shadows are very old and have their quirks with the current version of the game. But I could never get exactly the look I wanted and both mods gave me option paralysis. I just wanted a no-config, instant improvement for the game's very yellow tinted lighting. So I created Natural Lighting for myself and decided to share it here.

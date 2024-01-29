@@ -1,6 +1,6 @@
 GENERAL_SETTINGS=일반 설정
 INCOMPATIBLE_MOD_DETECTED=호환되지 않는 수정 '{0}'이(가) 감지되었습니다.
-ENABLE_ANYWAY=Enabled anyway
+ENABLE_ANYWAY=어쨌든 사용
 USE_NATURAL_SUNLIGHT=자연광을 활용하다
 USE_SOFTER_SHADOWS_ON_BUILDINGS=건물에 더 부드러운 그림자 사용
 USE_OWN_LUT=Mod의 LUT 사용
