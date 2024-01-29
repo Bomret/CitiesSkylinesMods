@@ -27,9 +27,7 @@ namespace NaturalLighting
 		{
 			{"530871278", "Daylight Classic"},
 			{"1794015399", "Render It!"},
-			{"2983036781", "Lumina"},
-			{"1899640536", "Theme Mixer 2"},
-			{"3031623332", "Theme Mixer 2.5"},
+			{"2983036781", "Lumina"}
 		};
 		readonly ModProvider<GameMod> _modProvider;
 		readonly ModSettingsStore _settingsStore;
