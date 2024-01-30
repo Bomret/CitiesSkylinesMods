@@ -46,8 +46,8 @@ namespace NaturalLighting
 				return null;
 			}
 
-			var bytes = File.ReadAllBytes(lutFile.FullName);
-			var image = new Image(bytes);
+			var image = new Image();
+			image.LoadFromFile(lutFile.FullName, Image.SupportedFileFormat.PNG, 0u);
 			var lut = Texture3DWrapper.Convert(image);
 
 			return lut;
