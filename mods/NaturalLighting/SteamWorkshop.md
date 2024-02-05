@@ -1,4 +1,10 @@
-[quote]A Cities: Skylines mod that adjusts in-game lighting to look more natural.[/quote]
+[code][h1]Overview[/h1]
+[list][h2]A Cities: Skylines mod that adjusts in-game lighting to look more natural.[/h2][/list]
+[/code]
+
+[img]https://i.imgur.com/0O9w9Ta.png[/img]
+
+[HR][/HR]
 
 [h1]Natural Lighting[/h1]
 This mod is a "no-frills", "no performance impact", "no configuration needed" attempt to provide an instant visual improvement in the game by making the in-game lighting look more natural and the shadows on the buildings less harsh.
@@ -28,6 +34,8 @@ If one of these is detected, Natural Lighting will deactivate itself and show a 
 I like both mods. I used them for quite some time as Daylight Classic and Softer Shadows are very old and have their quirks with the current version of the game. But I could never get exactly the look I wanted and both mods gave me option paralysis. I just wanted a no-config, instant improvement for the game's very yellow tinted lighting. So I created Natural Lighting for myself and decided to share it here.
 
 The second reason is that both mods use the [b]Harmony[/b] patching library which might cause [url=https://github.com/boformer/CitiesHarmony/issues/24]issues[/url] for people who play the game on Apple Silicon Hardware as it has some outstanding issues with platform support. Natural Lighting does not make use of [b]Harmony[/b].
+
+[HR][/HR]
 
 [h2]Source Code[/h2]
 The source code of all my mods is available on [url=https://github.com/Bomret/CitiesSkylinesMods/tree/main/mods/NaturalLighting]GitHub[/url]. Feel free to report any issues and feedback there or here on Steam.
