@@ -6,7 +6,7 @@
   <!-- Production -->
   <ItemGroup>
     <PackageVersion Include="Azure.Maps.Search" Version="1.0.0-beta.4" />
-    <PackageVersion Include="Microsoft.Azure.Functions.Worker" Version="1.20.1" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker" Version="1.21.0" />
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.16.4" />
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.2.0" />
   </ItemGroup>
