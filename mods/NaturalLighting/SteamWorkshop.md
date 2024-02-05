@@ -38,4 +38,7 @@ The second reason is that both mods use the [b]Harmony[/b] patching library whic
 [HR][/HR]
 
 [h2]Source Code[/h2]
-The source code of all my mods is available on [url=https://github.com/Bomret/CitiesSkylinesMods/tree/main/mods/NaturalLighting]GitHub[/url]. Feel free to report any issues and feedback there or here on Steam.
+The source code of all my mods is available on
+[url=https://github.com/Bomret/CitiesSkylinesMods/tree/main/mods/NaturalLighting][img]https://i.imgur.com/DczUXYq.png[/img][/url]
+
+Feel free to report any issues and feedback there or here on Steam.
