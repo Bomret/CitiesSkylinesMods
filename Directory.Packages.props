@@ -13,6 +13,6 @@
 
   <!-- Tooling -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.Extensions.StaticAnalysis" Version="8.1.0"/>
+    <PackageVersion Include="Microsoft.Extensions.StaticAnalysis" Version="8.4.0"/>
   </ItemGroup>
 </Project>
