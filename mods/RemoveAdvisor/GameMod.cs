@@ -27,28 +27,30 @@ namespace Bomret.RemoveAdvisor
 
 		static void RemoveAdvisor()
 		{
-			var advisorButtonObject = GameObject.Find("AdvisorButton");
-			if (advisorButtonObject != null)
-			{
-				Debug.Log("[RemoveAdvisor] Removing Advisor button");
-				var advisorButtonComponent = advisorButtonObject.GetComponent<UIComponent>();
-				UnityEngine.Object.Destroy(advisorButtonComponent.gameObject);
-			}
-			else
-			{
-				Debug.Log("[RemoveAdvisor] Could not find Advisor button");
-			}
-
 			// FIXME: The TutorialAdvisorPanel is used for ALL info views -.-, so removing it botches the game. Need to find a different way.
 			if (TutorialAdvisorPanel.instance != null)
 			{
 				Debug.Log("[RemoveAdvisor] Removing Advisor panel");
-				UnityEngine.Object.Destroy(TutorialAdvisorPanel.instance.gameObject);
+				TutorialAdvisorPanel.instance.Hide();
 			}
 			else
 			{
 				Debug.Log("[RemoveAdvisor] Could not find Advisor panel");
 			}
+
+			// var advisorButtonObject = GameObject.Find("AdvisorButton");
+			// if (advisorButtonObject != null)
+			// {
+			// 	Debug.Log("[RemoveAdvisor] Removing Advisor button");
+			// 	var advisorButtonComponent = advisorButtonObject.GetComponent<UIComponent>();
+			// 	UnityEngine.Object.Destroy(advisorButtonComponent.gameObject);
+			// }
+			// else
+			// {
+			// 	Debug.Log("[RemoveAdvisor] Could not find Advisor button");
+			// }
+
+
 		}
 	}
 }
