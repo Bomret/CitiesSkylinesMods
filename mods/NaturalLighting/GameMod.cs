@@ -69,18 +69,21 @@ namespace NaturalLighting
 				settings.UseNaturalSunlight = b;
 				NotifySettingChanged(settings);
 			});
+			useNaturalSunlight.tooltip = "Makes the sunlight appear more white and natural";
 
 			var useSofterShadowsOnBuildings = (UICheckBox)generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseSofterShadowsOnBuildings), settings.UseSofterShadowsOnBuildings, b =>
 			{
 				settings.UseSofterShadowsOnBuildings = b;
 				NotifySettingChanged(settings);
 			});
+			useSofterShadowsOnBuildings.tooltip = "Makes shadows on the side of buildings appear less harsh and dark";
 
 			var useOwnLut = (UICheckBox)generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseOwnLut), settings.UseOwnLut, b =>
 			{
 				settings.UseOwnLut = b;
 				NotifySettingChanged(settings);
 			});
+			useOwnLut.tooltip = "Use the built-in Natural Lighting LUT";
 
 			var incompatibleMods = DetectIncompatibleMods();
 			if (incompatibleMods.Count > 0)
@@ -97,7 +100,7 @@ namespace NaturalLighting
 				var warningMessage = _translator.GetTranslation(LocaleStrings.IncompatibleModDetected);
 				var warning = settingsUi.AddGroup(string.Format(CultureInfo.InvariantCulture, warningMessage, incompatibleMods[0]));
 
-				warning.AddCheckbox(_translator.GetTranslation(LocaleStrings.EnableAnyway), settings.IgnoreIncompatibleMods, b =>
+				var useAnyway = (UICheckBox)warning.AddCheckbox(_translator.GetTranslation(LocaleStrings.EnableAnyway), settings.IgnoreIncompatibleMods, b =>
 				{
 					settings.IgnoreIncompatibleMods = b;
 					useNaturalSunlight.isEnabled = b;
@@ -106,6 +109,7 @@ namespace NaturalLighting
 
 					NotifySettingChanged(settings);
 				});
+				useAnyway.tooltip = "Apply Natural Lighting settings regardless of incompatible mods. Recommended only for experienced players";
 			}
 		}
 
