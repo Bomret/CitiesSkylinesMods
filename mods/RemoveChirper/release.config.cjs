@@ -34,21 +34,6 @@ module.exports = {
             "files": [`${name}.csproj`],
             "from": "<Version>.*</Version>",
             "to": "<Version>${nextRelease.version}</Version>"
-          },
-          {
-            "files": [`${name}.csproj`],
-            "from": "<PackageVersion>.*</PackageVersion>",
-            "to": "<PackageVersion>${nextRelease.version}</PackageVersion>"
-          },
-          {
-            "files": [`${name}.csproj`],
-            "from": "<AssemblyVersion>.*</AssemblyVersion>",
-            "to": "<AssemblyVersion>${nextRelease.version}</AssemblyVersion>"
-          },
-          {
-            "files": [`${name}.csproj`],
-            "from": "<FileVersion>.*</FileVersion>",
-            "to": "<FileVersion>${nextRelease.version}</FileVersion>"
           }
         ]
       }
