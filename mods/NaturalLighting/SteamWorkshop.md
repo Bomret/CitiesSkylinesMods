@@ -2,22 +2,20 @@
 [list][h2]A Cities: Skylines mod that adjusts in-game lighting to look more natural.[/h2][/list]
 [/code]
 
-[img]https://i.imgur.com/0O9w9Ta.png[/img]
-
 [HR][/HR]
 
 [h1]Natural Lighting[/h1]
 This mod is a "no-frills", "no performance impact", "no configuration needed" attempt to provide an instant visual improvement in the game by making the in-game lighting look more natural and the shadows on the buildings less harsh.
 
-It is a replacement for Daylight Classic and Softer Shadows but made for the current version of the game (1.17.1-f4) and having some of the features removed that targeted the version of the game available in their day and age that work a bit janky in the current version or look out of place nowadays (in my opinion).
+It is a replacement for Daylight Classic and Softer Shadows but made for the current version of the game (1.18.1-f3) and having some of the features removed that targeted the version of the game available in their day and age that work a bit janky in the current version or look out of place nowadays (in my opinion).
 
 The mod provides translations for all it's settings menu items in all the languages supported by the game. If you find an incorrect translation, please leave a comment below or open an issue on GitHub, linked below.
 
 [h2]Natural Lighting LUT[/h2]
-The current version 1.1.0 of this mod includes the option to use this mod's own LUT for the best experience. You can enable/disable that option anytime in-game. But you can of course also use any other LUT you like.
+This mod includes the option to use a dedicated LUT for the best experience. You can enable/disable that option anytime in-game. But you can of course also use any other LUT you like.
 
 [h2]Compatibility[/h2]
-[b]Game Version[/b]: 1.17.1-f4
+[b]Game Version[/b]: 1.18.1-f3
 [b]Uses Harmony[/b]: no
 [b]Changes Save Files[/b]: no
 
