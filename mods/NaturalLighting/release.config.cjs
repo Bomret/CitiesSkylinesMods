@@ -45,17 +45,7 @@ module.exports = {
       },
     ],
     [
-      '@semantic-release/exec',
-      {
-        publishCmd: '7z a -tzip ' + name + '-v${nextRelease.version}.zip *',
-        execCwd: './publish'
-      },
-    ],
-    [
       '@semantic-release/github',
-      {
-        assets: './publish/**/*.zip'
-      },
     ],
     [
       '@semantic-release/git',
