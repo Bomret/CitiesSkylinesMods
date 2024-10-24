@@ -2,7 +2,7 @@
 using ICities;
 using UnityEngine;
 
-namespace Bomret.RemoveChirper
+namespace RemoveChirper
 {
 	public sealed class GameMod : ChirperExtensionBase, IUserMod
 	{

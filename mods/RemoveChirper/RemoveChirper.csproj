@@ -4,7 +4,7 @@
     <PackageDescription>A Cities: Skylines mod that completely removes Chirper from the game.</PackageDescription>
 
     <Version>1.0.1</Version>
-    <AssemblyVersion>1.0.1</AssemblyVersion>
-    <FileVersion>1.0.1</FileVersion>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
   </PropertyGroup>
 </Project>

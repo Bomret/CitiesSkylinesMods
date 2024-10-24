@@ -13,9 +13,7 @@ using ColossalFramework.UI;
 
 namespace NaturalLighting
 {
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
 	public sealed class GameMod : LoadingExtensionBase, IUserMod
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
 	{
 		public string Name => $"{_modName} {_version}";
 		public string Description => $"Adjusts in-game lighting to look more natural.\nby Bomret";

@@ -4,7 +4,7 @@
     <PackageDescription>A Cities: Skylines mod that adjusts in-game lighting to look more natural.</PackageDescription>
 
     <Version>1.2.1</Version>
-    <AssemblyVersion>1.2.1</AssemblyVersion>
-    <FileVersion>1.2.1</FileVersion>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
   </PropertyGroup>
 </Project>

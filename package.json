@@ -20,8 +20,8 @@
   "scripts": {
     "build": "dotnet build",
     "prepare": "husky install",
-    "publish": "npx turbo publish --concurrency=1",
-    "release": "npx turbo release --concurrency=1 -- --no-ci",
+    "publish": "npx -c 'turbo publish --concurrency=1'",
+    "release": "npx -c 'turbo release --concurrency=1 -- --no-ci'",
     "restore": "dotnet restore"
   },
   "version": "0.0.0",
