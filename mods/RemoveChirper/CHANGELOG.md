@@ -1,3 +1,16 @@
+# [removechirper-v1.1.0](https://github.com/Bomret/CitiesSkylinesMods/compare/removechirper-v1.0.1...removechirper-v1.1.0) (2024-10-24)
+
+
+### Bug Fixes
+
+* fix assembly references ([66d851a](https://github.com/Bomret/CitiesSkylinesMods/commit/66d851ad417a3f522d1f3897c04300a37340aaf3))
+
+
+### Features
+
+* add revived versions of OptionsFramework and Daylight Classic ([8e57342](https://github.com/Bomret/CitiesSkylinesMods/commit/8e573428ea1681a5089812d8d0b527c345410bf0))
+* update for new game version 1.18 ([1dc59cb](https://github.com/Bomret/CitiesSkylinesMods/commit/1dc59cbec50cbbdb3a833f1060e83dd43fe97483))
+
 # [removechirper-v1.1.0](https://github.com/Bomret/CitiesSkylinesMods/compare/removechirper-v1.0.1...removechirper-v1.1.0) (2024-01-28)
 
 
