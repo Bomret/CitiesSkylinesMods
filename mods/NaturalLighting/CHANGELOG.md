@@ -6,6 +6,14 @@
 * add tooltips ([64b1aa2](https://github.com/Bomret/CitiesSkylinesMods/commit/64b1aa21666490dcf68734dbe52a95e0ef99beac))
 * update for new game version 1.18 ([1dc59cb](https://github.com/Bomret/CitiesSkylinesMods/commit/1dc59cbec50cbbdb3a833f1060e83dd43fe97483))
 
+# [naturallighting-v1.3.0](https://github.com/Bomret/CitiesSkylinesMods/compare/naturallighting-v1.2.1...naturallighting-v1.3.0) (2024-10-24)
+
+
+### Features
+
+* add tooltips ([64b1aa2](https://github.com/Bomret/CitiesSkylinesMods/commit/64b1aa21666490dcf68734dbe52a95e0ef99beac))
+* update for new game version 1.18 ([1dc59cb](https://github.com/Bomret/CitiesSkylinesMods/commit/1dc59cbec50cbbdb3a833f1060e83dd43fe97483))
+
 # [naturallighting-v1.2.1](https://github.com/Bomret/CitiesSkylinesMods/compare/naturallighting-v1.2.0...naturallighting-v1.2.1) (2024-01-29)
 
 
