@@ -3,8 +3,6 @@
 . "$PSScriptRoot/lib.ps1"
 
 Log "Setting up development environment"
-SubLog "Cleaning repository"
-Run git clean -xdf
 
 Log "Installing packages"
 SubLog "Installing npm packages"
