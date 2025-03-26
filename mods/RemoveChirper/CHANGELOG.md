@@ -1,3 +1,11 @@
+# [removechirper-v1.1.1](https://github.com/Bomret/CitiesSkylinesMods/compare/removechirper-v1.1.0...removechirper-v1.1.1) (2025-03-26)
+
+
+### Bug Fixes
+
+* display mod name and version ([105ce71](https://github.com/Bomret/CitiesSkylinesMods/commit/105ce71c3ed68f7cc23bf475d90f4c88e4185bd6))
+* update for new patch ([65eab6b](https://github.com/Bomret/CitiesSkylinesMods/commit/65eab6b5df6abcfd86651e39d305b974dc71d8ff))
+
 # [removechirper-v1.1.0](https://github.com/Bomret/CitiesSkylinesMods/compare/removechirper-v1.0.1...removechirper-v1.1.0) (2024-10-24)
 
 
