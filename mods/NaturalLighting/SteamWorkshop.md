@@ -15,16 +15,16 @@ The mod provides translations for all it's settings menu items in all the langua
 This mod includes the option to use a dedicated LUT for the best experience. You can enable/disable that option anytime in-game. But you can of course also use any other LUT you like.
 
 [h2]Compatibility[/h2]
-[b]Game Version[/b]: 1.18.1-f3
+[b]Game Version[/b]: 1.19.2-f3
 [b]Uses Harmony[/b]: no
 [b]Changes Save Files[/b]: no
 
 This mod has a built-in check for the presence of the following mods that provide similar functionality or would break it:
 [list]
-    [*][b]Daylight Classic[/b] - replaced by this mod
-    [*][b]Softer Shadows[/b] - replaced by this mod
-    [*][b]Render It![/b] - much more options and scope
-    [*][b]Lumina[/b] - much more options and scope
+[*][b]Daylight Classic[/b] - replaced by this mod
+[*][b]Softer Shadows[/b] - replaced by this mod
+[*][b]Render It![/b] - much more options and scope
+[*][b]Lumina[/b] - much more options and scope
 [/list]
 If one of these is detected, Natural Lighting will deactivate itself and show a message in it's settings panel in the game's options menu. You can then either disable these mods to use Natural Lighting or check the "Enable anyway" checkbox. In the latter case, Natural Lighting will apply its settings and possibly override the settings from the incompatible mods. This will not result in crashes but may result in the game's lighting becoming a mix between Natural Lighting and the other mod(s). However this might give you an interesting starting point: You can for example activate Natural Lighting in conjunction with Render It! or Lumina and use these mods to then fine tune the game's visuals to your liking. Recommended only for players who have more experience with the aforementioned mods.
 
