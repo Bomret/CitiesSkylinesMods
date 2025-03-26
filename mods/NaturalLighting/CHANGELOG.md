@@ -1,3 +1,10 @@
+# [naturallighting-v1.3.1](https://github.com/Bomret/CitiesSkylinesMods/compare/naturallighting-v1.3.0...naturallighting-v1.3.1) (2025-03-26)
+
+
+### Bug Fixes
+
+* update for new patch ([65eab6b](https://github.com/Bomret/CitiesSkylinesMods/commit/65eab6b5df6abcfd86651e39d305b974dc71d8ff))
+
 # [naturallighting-v1.3.0](https://github.com/Bomret/CitiesSkylinesMods/compare/naturallighting-v1.2.1...naturallighting-v1.3.0) (2024-10-24)
 
 
