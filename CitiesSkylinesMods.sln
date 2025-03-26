@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaturalLighting", "mods\Nat
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apps", "apps", "{A4F195B5-687E-430F-933A-306F8E117A9E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LatLon", "apps\LatLon\LatLon.csproj", "{BB952A94-B046-4F11-82C4-5CAE75BF1479}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,18 +45,6 @@ Global
 		{5C4BA242-6215-4E23-9626-0B0D4B26CC8B}.Release|x64.Build.0 = Release|Any CPU
 		{5C4BA242-6215-4E23-9626-0B0D4B26CC8B}.Release|x86.ActiveCfg = Release|Any CPU
 		{5C4BA242-6215-4E23-9626-0B0D4B26CC8B}.Release|x86.Build.0 = Release|Any CPU
-		{BB952A94-B046-4F11-82C4-5CAE75BF1479}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BB952A94-B046-4F11-82C4-5CAE75BF1479}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BB952A94-B046-4F11-82C4-5CAE75BF1479}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{BB952A94-B046-4F11-82C4-5CAE75BF1479}.Debug|x64.Build.0 = Debug|Any CPU
-		{BB952A94-B046-4F11-82C4-5CAE75BF1479}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{BB952A94-B046-4F11-82C4-5CAE75BF1479}.Debug|x86.Build.0 = Debug|Any CPU
-		{BB952A94-B046-4F11-82C4-5CAE75BF1479}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BB952A94-B046-4F11-82C4-5CAE75BF1479}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BB952A94-B046-4F11-82C4-5CAE75BF1479}.Release|x64.ActiveCfg = Release|Any CPU
-		{BB952A94-B046-4F11-82C4-5CAE75BF1479}.Release|x64.Build.0 = Release|Any CPU
-		{BB952A94-B046-4F11-82C4-5CAE75BF1479}.Release|x86.ActiveCfg = Release|Any CPU
-		{BB952A94-B046-4F11-82C4-5CAE75BF1479}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -66,6 +52,5 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{DA76C5B9-A286-4278-96E5-851ECAA9940D} = {1733379C-1A15-413D-9219-35A7CAA4B69D}
 		{5C4BA242-6215-4E23-9626-0B0D4B26CC8B} = {1733379C-1A15-413D-9219-35A7CAA4B69D}
-		{BB952A94-B046-4F11-82C4-5CAE75BF1479} = {A4F195B5-687E-430F-933A-306F8E117A9E}
 	EndGlobalSection
 EndGlobal

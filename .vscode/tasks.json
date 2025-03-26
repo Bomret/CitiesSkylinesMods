@@ -1,9 +1,7 @@
 {
   "tasks": [
     {
-      "args": [
-        "build"
-      ],
+      "args": ["build"],
       "command": "dotnet",
       "group": {
         "isDefault": true,
@@ -14,9 +12,7 @@
       "type": "process"
     },
     {
-      "command": [
-        "npm install && dotnet restore"
-      ],
+      "command": ["npm install && dotnet restore"],
       "group": "none",
       "label": "Restore Dependencies",
       "presentation": {
@@ -28,89 +24,11 @@
         "reveal": "always",
         "showReuseMessage": false
       },
-      "problemMatcher": [
-        "$msCompile"
-      ],
+      "problemMatcher": ["$msCompile"],
       "runOptions": {
         "runOn": "folderOpen"
       },
       "type": "shell"
-    },
-    {
-      "label": "clean (functions)",
-      "command": "dotnet",
-      "args": [
-        "clean",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "problemMatcher": "$msCompile",
-      "options": {
-        "cwd": "${workspaceFolder}/apps/LatLon"
-      }
-    },
-    {
-      "label": "build (functions)",
-      "command": "dotnet",
-      "args": [
-        "build",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "dependsOn": "clean (functions)",
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
-      "problemMatcher": "$msCompile",
-      "options": {
-        "cwd": "${workspaceFolder}/apps/LatLon"
-      }
-    },
-    {
-      "label": "clean release (functions)",
-      "command": "dotnet",
-      "args": [
-        "clean",
-        "--configuration",
-        "Release",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "problemMatcher": "$msCompile",
-      "options": {
-        "cwd": "${workspaceFolder}/apps/LatLon"
-      }
-    },
-    {
-      "label": "publish (functions)",
-      "command": "dotnet",
-      "args": [
-        "publish",
-        "--configuration",
-        "Release",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "dependsOn": "clean release (functions)",
-      "problemMatcher": "$msCompile",
-      "options": {
-        "cwd": "${workspaceFolder}/apps/LatLon"
-      }
-    },
-    {
-      "type": "func",
-      "dependsOn": "build (functions)",
-      "options": {
-        "cwd": "${workspaceFolder}/apps/LatLon/bin/Debug/net8.0"
-      },
-      "command": "host start",
-      "isBackground": true,
-      "problemMatcher": "$func-dotnet-watch"
     }
   ],
   "version": "2.0.0"
