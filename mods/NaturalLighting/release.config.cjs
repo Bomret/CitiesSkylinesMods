@@ -21,12 +21,30 @@ module.exports = {
           {
             "files": ["package.json"],
             "from": "\"version\": \".*\"",
-            "to": "\"version\": \"${nextRelease.version}\""
+            "to": "\"version\": \"${nextRelease.version}\"",
+            "results": [
+              {
+                "file": "package.json",
+                "hasChanged": true,
+                "numMatches": 1,
+                "numReplacements": 1
+              }
+            ],
+            "countMatches": true
           },
           {
             "files": [`${name}.csproj`],
             "from": "<Version>.*</Version>",
-            "to": "<Version>${nextRelease.version}</Version>"
+            "to": "<Version>${nextRelease.version}</Version>",
+            "results": [
+              {
+                "file": `${name}.csproj`,
+                "hasChanged": true,
+                "numMatches": 1,
+                "numReplacements": 1
+              }
+            ],
+            "countMatches": true
           }
         ]
       }
@@ -50,7 +68,7 @@ module.exports = {
         assets: [
           'CHANGELOG.md',
           'package.json',
-          `${name}.csproj`,
+          '*.csproj',
         ],
         message:
           `chore(${name}): release version \${nextRelease.version} [skip ci]`,
@@ -58,6 +76,6 @@ module.exports = {
     ],
     [
       '@semantic-release/github',
-    ],
+    ]
   ]
 };
