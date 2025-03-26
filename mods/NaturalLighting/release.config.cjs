@@ -14,13 +14,6 @@ module.exports = {
     ],
   plugins: [
     '@semantic-release/commit-analyzer',
-    '@semantic-release/release-notes-generator',
-    [
-      '@semantic-release/changelog',
-      {
-        changelogFile: 'CHANGELOG.md',
-      },
-    ],
     [
       "semantic-release-replace-plugin",
       {
@@ -44,8 +37,12 @@ module.exports = {
         publishCmd: 'npm run publish'
       },
     ],
+    '@semantic-release/release-notes-generator',
     [
-      '@semantic-release/github',
+      '@semantic-release/changelog',
+      {
+        changelogFile: 'CHANGELOG.md',
+      },
     ],
     [
       '@semantic-release/git',
@@ -58,6 +55,9 @@ module.exports = {
         message:
           `chore(${name}): release version \${nextRelease.version} [skip ci]`,
       },
+    ],
+    [
+      '@semantic-release/github',
     ],
   ]
 };
