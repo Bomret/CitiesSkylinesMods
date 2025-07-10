@@ -13,7 +13,6 @@ namespace NaturalLighting.Features
 		bool _currentSunshaftsEnabled;
 		bool _hasStoredOriginalValues;
 
-		// Store original values for restoration
 		float _originalLightIntensity;
 		LightShadows _originalShadowType;
 		Color _originalLightColor;
@@ -22,21 +21,20 @@ namespace NaturalLighting.Features
 		float _originalFogDensity;
 		Color _originalFogColor;
 
-		// Shader materials loaded from asset bundle
 		Material _sunShaftShaderMaterial;
 		Material _simpleClearShaderMaterial;
 		SunShaftsImageEffect _sunShaftsComponent;
 		GameObject _sunTransformGO;
-		private ShaderProvider _shaderProvider;
+		ShaderProvider _shaderProvider;
 
-		// Sunshaft configuration values - balanced for good visual quality
-		const float ENHANCED_LIGHT_INTENSITY = 1.2f;      // Subtle brightness increase
-		const float FOG_DENSITY_MULTIPLIER = 1.3f;        // Gentle atmospheric enhancement
-		const float FOG_COLOR_BLEND = 0.2f;               // Subtle sun color influence
-		const float SUNSHAFT_INTENSITY = 1.2f;            // God ray strength (toned down from debugging)
-		const float SUNSHAFT_THRESHOLD = 0.7f;            // Threshold for ray visibility (higher = more selective)
-		const float SUNSHAFT_BLUR_RADIUS = 2.5f;          // Ray blur amount (more subtle)
-		const int SUNSHAFT_BLUR_ITERATIONS = 2;           // Blur quality (good balance of quality/performance)
+		// Sunshaft configuration values
+		const float ENHANCED_LIGHT_INTENSITY = 1.2f;      // Moderate brightness increase
+		const float FOG_DENSITY_MULTIPLIER = 1.2f;        // Subtle atmospheric enhancement
+		const float FOG_COLOR_BLEND = 0.3f;               // Gentle sun color influence
+		const float SUNSHAFT_INTENSITY = 2.0f;            // God ray strength (restored from debugging)
+		const float SUNSHAFT_THRESHOLD = 0.5f;            // Threshold for ray visibility (lowered for more rays)
+		const float SUNSHAFT_BLUR_RADIUS = 3.0f;          // Ray blur amount (increased for visibility)
+		const int SUNSHAFT_BLUR_ITERATIONS = 3;           // Blur quality (increased for better effect)
 
 		public Sunshafts(IModProvider modProvider, ILogger logger)
 		{
@@ -47,7 +45,7 @@ namespace NaturalLighting.Features
 		public override void OnLoaded(ModSettings settings)
 		{
 			_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts.OnLoaded called with EnableSunshafts: {0}", settings.EnableSunshafts);
-			
+
 			var mod = _modProvider.GetCurrentMod();
 			_shaderProvider = new ShaderProvider(mod);
 
@@ -61,7 +59,6 @@ namespace NaturalLighting.Features
 					_hasStoredOriginalValues = true;
 				}
 
-				// Try to load custom shaders
 				LoadSunshaftShaders();
 
 				_currentSunshaftsEnabled = settings.EnableSunshafts;
@@ -246,7 +243,7 @@ namespace NaturalLighting.Features
 				// Create a simple sunTransform GameObject like the reference implementation
 				_sunTransformGO = new GameObject("SunTransform");
 				var sunTransform = _sunTransformGO.transform;
-				
+
 				// No need to position it here - it will be positioned every frame in OnRenderImage
 				_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Created sun transform GameObject");
 
