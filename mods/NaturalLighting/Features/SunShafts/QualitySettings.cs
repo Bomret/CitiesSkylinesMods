@@ -5,7 +5,7 @@ namespace NaturalLighting.Features.SunShafts
 	/// <summary>
 	/// Represents quality settings for sun shafts rendering optimization.
 	/// </summary>
-	internal readonly struct QualitySettings
+	readonly struct QualitySettings
 	{
 		/// <summary>
 		/// Resolution divisor for render textures (1 = full res, 2 = half res, 4 = quarter res)

@@ -96,7 +96,6 @@ namespace NaturalLighting
 
 			try
 			{
-				// Detect platform at runtime
 				string platformFolder;
 				if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
 				{
@@ -111,28 +110,15 @@ namespace NaturalLighting
 					throw new PlatformNotSupportedException($"[NaturalLighting] Unsupported platform: {Application.platform}. Only Windows and macOS are supported.");
 				}
 
-				// Try platform-specific folder
-				var platformBundlePath = Path.Combine(Path.Combine(_shadersDir.FullName, platformFolder), bundleName);
-				if (File.Exists(platformBundlePath))
-				{
-					var bundle = AssetBundle.LoadFromFile(platformBundlePath);
-					if (bundle != null)
-					{
-						_loadedBundles[bundleName] = bundle;
-						Debug.Log($"[NaturalLighting] Loaded shader bundle from {platformFolder}: {platformBundlePath}");
-						return bundle;
-					}
-				}
-
-				// Fallback to direct path
-				var bundlePath = Path.Combine(_shadersDir.FullName, bundleName);
+				var bundlePath = Path.Combine(Path.Combine(_shadersDir.FullName, platformFolder), bundleName);
 				if (File.Exists(bundlePath))
 				{
 					var bundle = AssetBundle.LoadFromFile(bundlePath);
 					if (bundle != null)
 					{
 						_loadedBundles[bundleName] = bundle;
-						Debug.Log($"[NaturalLighting] Loaded shader bundle from fallback path: {bundlePath}");
+						Debug.Log($"[NaturalLighting] Loaded shader bundle from {platformFolder}: {bundlePath}");
+
 						return bundle;
 					}
 				}
@@ -151,16 +137,21 @@ namespace NaturalLighting
 		{
 			foreach (var bundle in _loadedBundles.Values)
 			{
-				if (bundle != null)
-				{
-					bundle.Unload(true);
-				}
+				bundle?.Unload(true);
 			}
+
 			_loadedBundles.Clear();
 			_loadedShaders.Clear();
 		}
 
-		private void Dispose(bool disposing)
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+			Dispose(disposing: true);
+			GC.SuppressFinalize(this);
+		}
+
+		void Dispose(bool disposing)
 		{
 			if (_disposedValue)
 			{
@@ -173,13 +164,6 @@ namespace NaturalLighting
 			}
 
 			_disposedValue = true;
-		}
-
-		public void Dispose()
-		{
-			// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-			Dispose(disposing: true);
-			GC.SuppressFinalize(this);
 		}
 	}
 }

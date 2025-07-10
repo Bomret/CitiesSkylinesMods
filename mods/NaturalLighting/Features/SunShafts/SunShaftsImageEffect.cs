@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace NaturalLighting.Features.SunShafts
@@ -15,9 +16,7 @@ namespace NaturalLighting.Features.SunShafts
 		float _blurRadius;
 		int _blurIterations;
 
-		// Distance-based optimization (disabled by default for safety)
 		DistanceBasedQualityScaling _distanceOptimization;
-		bool _enableDistanceOptimization;
 
 		public void Initialize(Light sunLight, Transform sunTransform, Material sunShaftsMaterial, Material simpleClearMaterial,
 			float intensity, float threshold, float blurRadius, int blurIterations, ILogger logger)
@@ -31,25 +30,7 @@ namespace NaturalLighting.Features.SunShafts
 			_blurRadius = blurRadius;
 			_blurIterations = blurIterations;
 			_logger = logger;
-			// Initialize distance optimization and enable it for testing
-			_distanceOptimization = new DistanceBasedQualityScaling(_logger);
-			_enableDistanceOptimization = true; // Enable for testing
-
-			_logger?.LogFormat(LogType.Log,
-				"[NaturalLighting] SunShaftsImageEffect initialized - Distance optimization: {0}",
-				_enableDistanceOptimization ? "ENABLED" : "DISABLED");
-		}
-
-		/// <summary>
-		/// Enable or disable distance-based quality optimization.
-		/// Call this method to toggle the optimization on/off for testing.
-		/// </summary>
-		public void SetDistanceOptimization(bool enabled)
-		{
-			_enableDistanceOptimization = enabled;
-			_logger?.LogFormat(LogType.Log,
-				"[NaturalLighting] Distance-based optimization {0}",
-				enabled ? "ENABLED" : "DISABLED");
+			_distanceOptimization = new DistanceBasedQualityScaling();
 		}
 
 		void OnRenderImage(RenderTexture source, RenderTexture destination)
@@ -102,38 +83,28 @@ namespace NaturalLighting.Features.SunShafts
 					Graphics.Blit(source, destination);
 				}
 			}
-			catch (System.Exception e)
+			catch (Exception err)
 			{
-				_logger?.LogFormat(LogType.Error, "[NaturalLighting] SunShaftsImageEffect error: {0}", e.Message);
+				_logger?.LogFormat(LogType.Error, "[NaturalLighting] SunShaftsImageEffect error: {0}", err.Message);
+
 				Graphics.Blit(source, destination);
 			}
 		}
 
 		void ApplySunShaftsEffect(RenderTexture source, RenderTexture destination, Vector3 sunScreenPosition)
 		{
-			// Calculate quality settings (with distance optimization if enabled)
-			var rtWidth = source.width / 4;  // Default quarter resolution
-			var rtHeight = source.height / 4;
-			var iterations = _blurIterations;
-			var intensity = _intensity;
-
-			if (_enableDistanceOptimization && _distanceOptimization != null)
+			if (!_distanceOptimization.TryCalculateQualitySettings(sunScreenPosition, _blurIterations, out var quality) && quality.HasValue)
 			{
-				var quality = _distanceOptimization.CalculateQuality(sunScreenPosition, _blurIterations, _intensity);
+				// Skip effect entirely if false
+				Graphics.Blit(source, destination);
 
-				if (quality.ShouldSkipEffect)
-				{
-					// Skip effect entirely if sun is too close to edge
-					Graphics.Blit(source, destination);
-					return;
-				}
-
-				// Apply optimized quality settings
-				rtWidth = source.width / quality.ResolutionDivisor;
-				rtHeight = source.height / quality.ResolutionDivisor;
-				iterations = quality.BlurIterations;
-				intensity = _intensity * quality.IntensityMultiplier;
+				return;
 			}
+
+			var rtWidth = source.width / quality.Value.ResolutionDivisor;
+			var rtHeight = source.height / quality.Value.ResolutionDivisor;
+			var iterations = quality.Value.BlurIterations;
+			var intensity = _intensity * quality.Value.IntensityMultiplier;
 
 			// Step 1: Bright pass - extract bright areas using Pass 2 (with depth texture)
 			var brightPass = RenderTexture.GetTemporary(rtWidth, rtHeight, 0);
@@ -147,7 +118,7 @@ namespace NaturalLighting.Features.SunShafts
 			// Use Pass 2 for bright pass (with depth texture)
 			Graphics.Blit(source, brightPass, _sunShaftsMaterial, 2);
 
-			// Clear borders to prevent artifacts (critical step from reference)
+			// Clear borders to prevent artifacts
 			if (_simpleClearMaterial != null)
 			{
 				DrawBorder(brightPass, _simpleClearMaterial);
@@ -156,7 +127,6 @@ namespace NaturalLighting.Features.SunShafts
 			// Step 2: Radial blur iterations using Pass 1
 			iterations = Mathf.Clamp(iterations, 1, 4);
 
-			// Base blur radius calculation like reference
 			var baseBlurRadius = _blurRadius * (1f / 768f);
 			_sunShaftsMaterial.SetVector("_BlurRadius4", new Vector4(baseBlurRadius, baseBlurRadius, 0f, 0f));
 			_sunShaftsMaterial.SetVector("_SunPosition", new Vector4(sunScreenPosition.x, sunScreenPosition.y, sunScreenPosition.z, 0.75f));
@@ -166,22 +136,24 @@ namespace NaturalLighting.Features.SunShafts
 			for (var i = 0; i < iterations; i++)
 			{
 				// First blur pass
-				var temp1 = RenderTexture.GetTemporary(rtWidth, rtHeight, 0);
-				temp1.filterMode = FilterMode.Bilinear;
-				Graphics.Blit(blurred, temp1, _sunShaftsMaterial, 1); // Pass 1: Radial blur
+				var blurTexture = RenderTexture.GetTemporary(rtWidth, rtHeight, 0);
+				blurTexture.filterMode = FilterMode.Bilinear;
+				Graphics.Blit(blurred, blurTexture, _sunShaftsMaterial, 1); // Pass 1: Radial blur
 
-				if (blurred != brightPass) RenderTexture.ReleaseTemporary(blurred);
+				if (blurred != brightPass)
+				{
+					RenderTexture.ReleaseTemporary(blurred);
+				}
 
-				// Calculate dynamic blur radius like the reference
-				var blurRadius1 = _blurRadius * (((i * 2f + 1f) * 6f) / 768f);
-				_sunShaftsMaterial.SetVector("_BlurRadius4", new Vector4(blurRadius1, blurRadius1, 0f, 0f));
+				var dynamicBlurRadius = _blurRadius * ((i * 2f + 1f) * 6f / 768f);
+				_sunShaftsMaterial.SetVector("_BlurRadius4", new Vector4(dynamicBlurRadius, dynamicBlurRadius, 0f, 0f));
 
 				// Second blur pass
 				blurred = RenderTexture.GetTemporary(rtWidth, rtHeight, 0);
 				blurred.filterMode = FilterMode.Bilinear;
-				Graphics.Blit(temp1, blurred, _sunShaftsMaterial, 1); // Pass 1: Radial blur
+				Graphics.Blit(blurTexture, blurred, _sunShaftsMaterial, 1); // Pass 1: Radial blur
 
-				RenderTexture.ReleaseTemporary(temp1);
+				RenderTexture.ReleaseTemporary(blurTexture);
 
 				// Update blur radius for next iteration
 				var blurRadius2 = _blurRadius * (((i * 2f + 2f) * 6f) / 768f);
@@ -192,7 +164,6 @@ namespace NaturalLighting.Features.SunShafts
 			_sunShaftsMaterial.SetVector("_SunColor",
 				new Vector4(_sunLight.color.r, _sunLight.color.g, _sunLight.color.b, _sunLight.color.a) * intensity);
 
-			// Use _ColorBuffer like the reference implementation
 			_sunShaftsMaterial.SetTexture("_ColorBuffer", blurred);
 
 			// Use Pass 0 for Screen blend mode (final composite)
@@ -205,6 +176,8 @@ namespace NaturalLighting.Features.SunShafts
 
 		static void DrawBorder(RenderTexture dest, Material material)
 		{
+			// Draw border quads to clear edges (prevents artifacts)
+
 			RenderTexture.active = dest;
 			GL.PushMatrix();
 			GL.LoadOrtho();
@@ -215,7 +188,6 @@ namespace NaturalLighting.Features.SunShafts
 
 				GL.Begin(GL.QUADS);
 
-				// Draw border quads to clear edges (prevents artifacts)
 				var borderX = 1f / dest.width;
 				var borderY = 1f / dest.height;
 

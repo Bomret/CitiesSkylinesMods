@@ -6,20 +6,19 @@ namespace NaturalLighting.Features.SunShafts
 	/// Handles distance-based quality scaling optimization for sun shafts effect.
 	/// Scales quality based on how far the sun is from the screen center.
 	/// </summary>
-	internal sealed class DistanceBasedQualityScaling
+	sealed class DistanceBasedQualityScaling
 	{
-		readonly ILogger _logger;
-
-		// Configuration parameters
 		readonly float _edgeThreshold;
 		readonly float _centerRadius;
 		readonly int _minIterations;
 		readonly int _maxIterations;
 
-		public DistanceBasedQualityScaling(ILogger logger, float edgeThreshold = 0.85f, float centerRadius = 0.3f,
-			int minIterations = 1, int maxIterations = 4)
+		public DistanceBasedQualityScaling(
+			float edgeThreshold = 0.85f,
+			float centerRadius = 0.3f,
+			int minIterations = 1,
+			int maxIterations = 4)
 		{
-			_logger = logger;
 			_edgeThreshold = edgeThreshold;
 			_centerRadius = centerRadius;
 			_minIterations = minIterations;
@@ -32,26 +31,28 @@ namespace NaturalLighting.Features.SunShafts
 		/// </summary>
 		/// <param name="sunScreenPosition">Sun position in viewport coordinates (0-1)</param>
 		/// <param name="baseIterations">Base number of blur iterations</param>
-		/// <param name="baseIntensity">Base effect intensity</param>
 		/// <returns>Quality settings adjusted for distance from screen center</returns>
-		public QualitySettings CalculateQuality(Vector3 sunScreenPosition, int baseIterations, float baseIntensity)
+		public bool TryCalculateQualitySettings(Vector3 sunScreenPosition, int baseIterations, out QualitySettings? qualitySettings)
 		{
-			// Calculate distance from screen center (0.5, 0.5)
+			qualitySettings = null;
+
 			var distanceFromCenter = Vector2.Distance(
 				new Vector2(sunScreenPosition.x, sunScreenPosition.y),
 				new Vector2(0.5f, 0.5f)
 			);
 
-			// Normalize distance (max distance from center is ~0.707 for corners)
 			var normalizedDistance = Mathf.Clamp01(distanceFromCenter / 0.707f);
 
-			// Check if sun is very close to edge - skip effect entirely
-			var isNearEdge = (sunScreenPosition.x < 0.05f || sunScreenPosition.x > 0.95f ||
-							   sunScreenPosition.y < 0.05f || sunScreenPosition.y > 0.95f);
+			var isNearEdge =
+				sunScreenPosition.x < 0.05f ||
+				sunScreenPosition.x > 0.95f ||
+				sunScreenPosition.y < 0.05f ||
+				sunScreenPosition.y > 0.95f;
 
 			if (isNearEdge)
 			{
-				return new QualitySettings(1, 0, 0.0f, true, true);
+				// skip effect if sun is near the screen's edge
+				return false;
 			}
 
 			// Calculate quality scaling based on distance from center
@@ -78,7 +79,9 @@ namespace NaturalLighting.Features.SunShafts
 			// Skip border clearing for performance when using lower quality
 			var shouldSkipBorderClearing = resolutionDivisor > 4 || scaledIterations < 2;
 
-			return new QualitySettings(resolutionDivisor, scaledIterations, intensityMultiplier, false, shouldSkipBorderClearing);
+			qualitySettings = new QualitySettings(resolutionDivisor, scaledIterations, intensityMultiplier, false, shouldSkipBorderClearing);
+
+			return true;
 		}
 
 		/// <summary>
@@ -92,19 +95,19 @@ namespace NaturalLighting.Features.SunShafts
 				// Full quality in center area
 				return 1.0f;
 			}
-			else if (normalizedDistance >= _edgeThreshold)
+			if (normalizedDistance >= _edgeThreshold)
 			{
 				// Minimum quality near edges
 				return 0.3f;
 			}
-			else
-			{
-				// Smooth transition between center and edge
-				var t = (normalizedDistance - _centerRadius) / (_edgeThreshold - _centerRadius);
-				// Use smoothstep for nice transition curve
-				var smoothT = t * t * (3.0f - 2.0f * t);
-				return Mathf.Lerp(1.0f, 0.3f, smoothT);
-			}
+
+			// Smooth transition between center and edge
+			var t = (normalizedDistance - _centerRadius) / (_edgeThreshold - _centerRadius);
+
+			// Use smoothstep for nice transition curve
+			var smoothT = t * t * (3.0f - 2.0f * t);
+
+			return Mathf.Lerp(1.0f, 0.3f, smoothT);
 		}
 	}
 }
