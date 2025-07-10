@@ -8,7 +8,6 @@ namespace NaturalLighting.Features.SunShafts
 		Light _sunLight;
 		Transform _sunTransform;
 		Material _sunShaftsMaterial;
-		Material _simpleClearMaterial;
 		ILogger _logger;
 
 		float _intensity;
@@ -18,13 +17,12 @@ namespace NaturalLighting.Features.SunShafts
 
 		DistanceBasedQualityScaling _distanceOptimization;
 
-		public void Initialize(Light sunLight, Transform sunTransform, Material sunShaftsMaterial, Material simpleClearMaterial,
+		public void Initialize(Light sunLight, Transform sunTransform, Material sunShaftsMaterial,
 			float intensity, float threshold, float blurRadius, int blurIterations, ILogger logger)
 		{
 			_sunLight = sunLight;
 			_sunTransform = sunTransform;
 			_sunShaftsMaterial = sunShaftsMaterial;
-			_simpleClearMaterial = simpleClearMaterial;
 			_intensity = intensity;
 			_threshold = threshold;
 			_blurRadius = blurRadius;
@@ -118,12 +116,6 @@ namespace NaturalLighting.Features.SunShafts
 			// Use Pass 2 for bright pass (with depth texture)
 			Graphics.Blit(source, brightPass, _sunShaftsMaterial, 2);
 
-			// Clear borders to prevent artifacts
-			if (_simpleClearMaterial != null)
-			{
-				DrawBorder(brightPass, _simpleClearMaterial);
-			}
-
 			// Step 2: Radial blur iterations using Pass 1
 			iterations = Mathf.Clamp(iterations, 1, 4);
 
@@ -172,53 +164,6 @@ namespace NaturalLighting.Features.SunShafts
 			// Cleanup
 			RenderTexture.ReleaseTemporary(brightPass);
 			if (blurred != brightPass) RenderTexture.ReleaseTemporary(blurred);
-		}
-
-		static void DrawBorder(RenderTexture dest, Material material)
-		{
-			// Draw border quads to clear edges (prevents artifacts)
-
-			RenderTexture.active = dest;
-			GL.PushMatrix();
-			GL.LoadOrtho();
-
-			for (var pass = 0; pass < material.passCount; pass++)
-			{
-				material.SetPass(pass);
-
-				GL.Begin(GL.QUADS);
-
-				var borderX = 1f / dest.width;
-				var borderY = 1f / dest.height;
-
-				// Left border
-				GL.TexCoord2(0f, 0f); GL.Vertex3(0f, 0f, 0.1f);
-				GL.TexCoord2(1f, 0f); GL.Vertex3(borderX, 0f, 0.1f);
-				GL.TexCoord2(1f, 1f); GL.Vertex3(borderX, 1f, 0.1f);
-				GL.TexCoord2(0f, 1f); GL.Vertex3(0f, 1f, 0.1f);
-
-				// Right border
-				GL.TexCoord2(0f, 0f); GL.Vertex3(1f - borderX, 0f, 0.1f);
-				GL.TexCoord2(1f, 0f); GL.Vertex3(1f, 0f, 0.1f);
-				GL.TexCoord2(1f, 1f); GL.Vertex3(1f, 1f, 0.1f);
-				GL.TexCoord2(0f, 1f); GL.Vertex3(1f - borderX, 1f, 0.1f);
-
-				// Top border
-				GL.TexCoord2(0f, 0f); GL.Vertex3(0f, 1f - borderY, 0.1f);
-				GL.TexCoord2(1f, 0f); GL.Vertex3(1f, 1f - borderY, 0.1f);
-				GL.TexCoord2(1f, 1f); GL.Vertex3(1f, 1f, 0.1f);
-				GL.TexCoord2(0f, 1f); GL.Vertex3(0f, 1f, 0.1f);
-
-				// Bottom border
-				GL.TexCoord2(0f, 0f); GL.Vertex3(0f, 0f, 0.1f);
-				GL.TexCoord2(1f, 0f); GL.Vertex3(1f, 0f, 0.1f);
-				GL.TexCoord2(1f, 1f); GL.Vertex3(1f, borderY, 0.1f);
-				GL.TexCoord2(0f, 1f); GL.Vertex3(0f, borderY, 0.1f);
-
-				GL.End();
-			}
-
-			GL.PopMatrix();
 		}
 	}
 }

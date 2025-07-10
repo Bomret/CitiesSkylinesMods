@@ -22,7 +22,6 @@ namespace NaturalLighting.Features.SunShafts
 		Color _originalFogColor;
 
 		Material _sunShaftShaderMaterial;
-		Material _simpleClearShaderMaterial;
 		SunShaftsImageEffect _sunShaftsComponent;
 		GameObject _sunTransformGO;
 		ShaderProvider _shaderProvider;
@@ -146,12 +145,10 @@ namespace NaturalLighting.Features.SunShafts
 				_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Attempting to load shaders from shader bundle");
 
 				var sunShaftsCompositeShader = _shaderProvider.GetShader("SunShaftsComposite", "sunshafts");
-				var simpleClearShader = _shaderProvider.GetShader("SimpleClear", "sunshafts");
 
-				if (sunShaftsCompositeShader != null && simpleClearShader != null)
+				if (sunShaftsCompositeShader != null)
 				{
 					_sunShaftShaderMaterial = new Material(sunShaftsCompositeShader);
-					_simpleClearShaderMaterial = new Material(simpleClearShader);
 
 					_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Successfully loaded custom shaders");
 				}
@@ -247,7 +244,7 @@ namespace NaturalLighting.Features.SunShafts
 				// No need to position it here - it will be positioned every frame in OnRenderImage
 				_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Created sun transform GameObject");
 
-				_sunShaftsComponent.Initialize(_sunLight, sunTransform, _sunShaftShaderMaterial, _simpleClearShaderMaterial,
+				_sunShaftsComponent.Initialize(_sunLight, sunTransform, _sunShaftShaderMaterial,
 					SUNSHAFT_INTENSITY, SUNSHAFT_THRESHOLD, SUNSHAFT_BLUR_RADIUS,
 					SUNSHAFT_BLUR_ITERATIONS, _logger);
 
@@ -298,12 +295,6 @@ namespace NaturalLighting.Features.SunShafts
 			{
 				Object.DestroyImmediate(_sunShaftShaderMaterial);
 				_sunShaftShaderMaterial = null;
-			}
-
-			if (_simpleClearShaderMaterial != null)
-			{
-				Object.DestroyImmediate(_simpleClearShaderMaterial);
-				_simpleClearShaderMaterial = null;
 			}
 		}
 
