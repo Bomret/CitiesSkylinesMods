@@ -15,6 +15,10 @@ namespace NaturalLighting.Features.SunShafts
 		float _blurRadius;
 		int _blurIterations;
 
+		// Distance-based optimization (disabled by default for safety)
+		DistanceBasedQualityScaling _distanceOptimization;
+		bool _enableDistanceOptimization;
+
 		public void Initialize(Light sunLight, Transform sunTransform, Material sunShaftsMaterial, Material simpleClearMaterial,
 			float intensity, float threshold, float blurRadius, int blurIterations, ILogger logger)
 		{
@@ -27,6 +31,25 @@ namespace NaturalLighting.Features.SunShafts
 			_blurRadius = blurRadius;
 			_blurIterations = blurIterations;
 			_logger = logger;
+			// Initialize distance optimization and enable it for testing
+			_distanceOptimization = new DistanceBasedQualityScaling(_logger);
+			_enableDistanceOptimization = true; // Enable for testing
+
+			_logger?.LogFormat(LogType.Log,
+				"[NaturalLighting] SunShaftsImageEffect initialized - Distance optimization: {0}",
+				_enableDistanceOptimization ? "ENABLED" : "DISABLED");
+		}
+
+		/// <summary>
+		/// Enable or disable distance-based quality optimization.
+		/// Call this method to toggle the optimization on/off for testing.
+		/// </summary>
+		public void SetDistanceOptimization(bool enabled)
+		{
+			_enableDistanceOptimization = enabled;
+			_logger?.LogFormat(LogType.Log,
+				"[NaturalLighting] Distance-based optimization {0}",
+				enabled ? "ENABLED" : "DISABLED");
 		}
 
 		void OnRenderImage(RenderTexture source, RenderTexture destination)
@@ -88,9 +111,29 @@ namespace NaturalLighting.Features.SunShafts
 
 		void ApplySunShaftsEffect(RenderTexture source, RenderTexture destination, Vector3 sunScreenPosition)
 		{
-			// Use quarter resolution for performance (like reference implementation)
-			var rtWidth = source.width / 4;
+			// Calculate quality settings (with distance optimization if enabled)
+			var rtWidth = source.width / 4;  // Default quarter resolution
 			var rtHeight = source.height / 4;
+			var iterations = _blurIterations;
+			var intensity = _intensity;
+
+			if (_enableDistanceOptimization && _distanceOptimization != null)
+			{
+				var quality = _distanceOptimization.CalculateQuality(sunScreenPosition, _blurIterations, _intensity);
+
+				if (quality.ShouldSkipEffect)
+				{
+					// Skip effect entirely if sun is too close to edge
+					Graphics.Blit(source, destination);
+					return;
+				}
+
+				// Apply optimized quality settings
+				rtWidth = source.width / quality.ResolutionDivisor;
+				rtHeight = source.height / quality.ResolutionDivisor;
+				iterations = quality.BlurIterations;
+				intensity = _intensity * quality.IntensityMultiplier;
+			}
 
 			// Step 1: Bright pass - extract bright areas using Pass 2 (with depth texture)
 			var brightPass = RenderTexture.GetTemporary(rtWidth, rtHeight, 0);
@@ -111,7 +154,7 @@ namespace NaturalLighting.Features.SunShafts
 			}
 
 			// Step 2: Radial blur iterations using Pass 1
-			_blurIterations = Mathf.Clamp(_blurIterations, 1, 4);
+			iterations = Mathf.Clamp(iterations, 1, 4);
 
 			// Base blur radius calculation like reference
 			var baseBlurRadius = _blurRadius * (1f / 768f);
@@ -120,7 +163,7 @@ namespace NaturalLighting.Features.SunShafts
 
 			var blurred = brightPass;
 
-			for (var i = 0; i < _blurIterations; i++)
+			for (var i = 0; i < iterations; i++)
 			{
 				// First blur pass
 				var temp1 = RenderTexture.GetTemporary(rtWidth, rtHeight, 0);
@@ -147,7 +190,7 @@ namespace NaturalLighting.Features.SunShafts
 
 			// Step 3: Final composite using Pass 0 (Screen blend)
 			_sunShaftsMaterial.SetVector("_SunColor",
-				new Vector4(_sunLight.color.r, _sunLight.color.g, _sunLight.color.b, _sunLight.color.a) * _intensity);
+				new Vector4(_sunLight.color.r, _sunLight.color.g, _sunLight.color.b, _sunLight.color.a) * intensity);
 
 			// Use _ColorBuffer like the reference implementation
 			_sunShaftsMaterial.SetTexture("_ColorBuffer", blurred);
