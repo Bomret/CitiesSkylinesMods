@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace NaturalLighting.Features
 {
-	// Simplified, safer image effect component
 	public class SunShaftsImageEffect : MonoBehaviour
 	{
 		Light _sunLight;
@@ -15,10 +14,6 @@ namespace NaturalLighting.Features
 		float _threshold;
 		float _blurRadius;
 		int _blurIterations;
-		
-		// For reduced logging frequency
-		private int _frameCount;
-		private const int LOG_EVERY_N_FRAMES = 120; // Log every 2 seconds at 60fps
 
 		public void Initialize(Light sunLight, Transform sunTransform, Material sunShaftsMaterial, Material simpleClearMaterial,
 			float intensity, float threshold, float blurRadius, int blurIterations, ILogger logger)
@@ -36,7 +31,6 @@ namespace NaturalLighting.Features
 
 		void OnRenderImage(RenderTexture source, RenderTexture destination)
 		{
-			// Safety checks
 			if (_sunShaftsMaterial == null || _sunLight == null)
 			{
 				Graphics.Blit(source, destination);
@@ -52,42 +46,24 @@ namespace NaturalLighting.Features
 					return;
 				}
 
-				// Calculate sun position EXACTLY like the reference implementation
 				// Update sunTransform position every frame relative to camera position
 				if (_sunTransform != null)
 				{
-					// This is the key: position the sun relative to the camera each frame
 					_sunTransform.position = camera.transform.position - _sunLight.transform.forward * 2000f;
 				}
 
-				// Calculate screen position from the updated transform
+				// Calculate sun screen position using the updated transform
 				Vector3 sunScreenPosition;
 				if (_sunTransform != null)
 				{
 					sunScreenPosition = camera.WorldToViewportPoint(_sunTransform.position);
-					
-					// Reduced logging frequency
-					if (_frameCount % LOG_EVERY_N_FRAMES == 0)
-					{
-						_logger?.LogFormat(LogType.Log, "[NaturalLighting] SunShafts: Camera pos: {0}, Light forward: {1}, Sun world pos: {2}, Screen pos: ({3:F2}, {4:F2}, {5:F2})", 
-							camera.transform.position, _sunLight.transform.forward, _sunTransform.position,
-							sunScreenPosition.x, sunScreenPosition.y, sunScreenPosition.z);
-					}
 				}
 				else
 				{
 					// Fallback: calculate directly
 					Vector3 sunWorldPosition = camera.transform.position - (_sunLight.transform.forward * 2000f);
 					sunScreenPosition = camera.WorldToViewportPoint(sunWorldPosition);
-					
-					if (_frameCount % LOG_EVERY_N_FRAMES == 0)
-					{
-						_logger?.LogFormat(LogType.Log, "[NaturalLighting] SunShafts: Fallback calculation - Screen pos: ({0:F2}, {1:F2}, {2:F2})", 
-							sunScreenPosition.x, sunScreenPosition.y, sunScreenPosition.z);
-					}
 				}
-
-				_frameCount++;
 
 				// Enable depth texture mode
 				camera.depthTextureMode |= DepthTextureMode.Depth;
@@ -124,13 +100,6 @@ namespace NaturalLighting.Features
 			_sunShaftsMaterial.SetVector("_BlurRadius4", new Vector4(1f, 1f, 0f, 0f) * _blurRadius);
 			_sunShaftsMaterial.SetVector("_SunPosition", new Vector4(sunScreenPosition.x, sunScreenPosition.y, sunScreenPosition.z, 0.75f)); // Include Z and maxRadius (reference value)
 			_sunShaftsMaterial.SetVector("_SunThreshold", new Vector4(_threshold, _threshold, _threshold, _threshold));
-
-			// Debug log shader parameters occasionally
-			if (_frameCount % LOG_EVERY_N_FRAMES == 0)
-			{
-				_logger?.LogFormat(LogType.Log, "[NaturalLighting] SunShafts: BlurRadius={0}, SunPos=({1},{2},{3}), Threshold={4}, Intensity={5}", 
-					_blurRadius, sunScreenPosition.x, sunScreenPosition.y, sunScreenPosition.z, _threshold, _intensity);
-			}
 
 			// Use Pass 2 for bright pass (with depth texture)
 			Graphics.Blit(source, brightPass, _sunShaftsMaterial, 2);
