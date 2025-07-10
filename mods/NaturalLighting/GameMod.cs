@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using ColossalFramework.Globalization;
+using ColossalFramework.UI;
 using ICities;
-using UnityEngine;
 using NaturalLighting.Features;
 using NaturalLighting.Settings;
-using System.Collections.Generic;
-using System.Linq;
-using System.Collections.ObjectModel;
-using ColossalFramework.Globalization;
-using System.Globalization;
-using System.Reflection;
-using ColossalFramework.UI;
+using UnityEngine;
 
 namespace NaturalLighting
 {
@@ -43,7 +43,8 @@ namespace NaturalLighting
 			_features = new List<Feature<ModSettings>>() {
 				new NaturalSunlight(Debug.logger),
 				new SofterShadowsOnBuildings(Debug.logger),
-				new LutReplacer(_modProvider, Debug.logger)
+				new LutReplacer(_modProvider, Debug.logger),
+				new Sunshafts(_modProvider, Debug.logger)
 			};
 		}
 
@@ -83,6 +84,13 @@ namespace NaturalLighting
 			});
 			useOwnLut.tooltip = "Use the built-in Natural Lighting LUT";
 
+			var enableSunshafts = (UICheckBox)generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.EnableSunshafts), settings.EnableSunshafts, b =>
+			{
+				settings.EnableSunshafts = b;
+				NotifySettingChanged(settings);
+			});
+			enableSunshafts.tooltip = "Enable enhanced sunshafts and god ray effects for more dramatic lighting";
+
 			var incompatibleMods = DetectIncompatibleMods();
 			if (incompatibleMods.Count > 0)
 			{
@@ -93,6 +101,7 @@ namespace NaturalLighting
 					useNaturalSunlight.isEnabled = false;
 					useSofterShadowsOnBuildings.isEnabled = false;
 					useOwnLut.isEnabled = false;
+					enableSunshafts.isEnabled = false;
 				}
 
 				var warningMessage = _translator.GetTranslation(LocaleStrings.IncompatibleModDetected);
@@ -104,6 +113,7 @@ namespace NaturalLighting
 					useNaturalSunlight.isEnabled = b;
 					useSofterShadowsOnBuildings.isEnabled = b;
 					useOwnLut.isEnabled = b;
+					enableSunshafts.isEnabled = b;
 
 					NotifySettingChanged(settings);
 				});
@@ -126,7 +136,8 @@ namespace NaturalLighting
 				{
 					UseNaturalSunlight = false,
 					UseSofterShadowsOnBuildings = false,
-					UseOwnLut = false
+					UseOwnLut = false,
+					EnableSunshafts = false
 				};
 			}
 
@@ -188,7 +199,8 @@ namespace NaturalLighting
 				{
 					UseNaturalSunlight = false,
 					UseSofterShadowsOnBuildings = false,
-					UseOwnLut = false
+					UseOwnLut = false,
+					EnableSunshafts = false
 				};
 			}
 

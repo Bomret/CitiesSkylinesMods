@@ -4,3 +4,4 @@ ENABLE_ANYWAY=Enable anyway
 USE_NATURAL_SUNLIGHT=Use natural sunlight
 USE_SOFTER_SHADOWS_ON_BUILDINGS=Use softer shadows on buildings
 USE_OWN_LUT=Use the mod's LUT
+ENABLE_SUNSHAFTS=Enable Sunshafts

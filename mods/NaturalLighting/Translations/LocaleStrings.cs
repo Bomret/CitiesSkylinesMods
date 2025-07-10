@@ -8,5 +8,6 @@ namespace NaturalLighting
 		public const string UseNaturalSunlight = "USE_NATURAL_SUNLIGHT";
 		public const string UseSofterShadowsOnBuildings = "USE_SOFTER_SHADOWS_ON_BUILDINGS";
 		public const string UseOwnLut = "USE_OWN_LUT";
+		public const string EnableSunshafts = "ENABLE_SUNSHAFTS";
 	}
 }

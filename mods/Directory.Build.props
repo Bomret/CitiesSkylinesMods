@@ -44,6 +44,7 @@
   <ItemGroup>
     <Luts Include="Assets/Luts/*.png" />
     <Translations Include="Assets/Locales/*.restext" />
+    <Shaders Include="Assets/Shaders/*.*" />
   </ItemGroup>
 
   <Target Name="CreateDefaultTranslation" BeforeTargets="BeforeBuild" Condition="Exists('Assets/Locales/strings.en.restext')">
@@ -55,27 +56,31 @@
   <Target Name="DeployToLocalModDirectory" AfterTargets="Publish">
     <PropertyGroup>
       <PublishLocalesDir>$(PublishDir)Assets/Locales/</PublishLocalesDir>
-      <PublishLutsDir>$(PublishDir)Assets/Luts/</PublishLutsDir>
+      <PublishAssetsDir>$(PublishDir)Assets/</PublishAssetsDir>
       <LocalModDir>$(LocalAppData)/Colossal Order/Cities_Skylines/Addons/Mods/$(ProjectName)/</LocalModDir>
     </PropertyGroup>
 
-    <MakeDir Directories="$(PublishLocalesDir)" />
-    <MakeDir Directories="$(PublishLutsDir)" />
-    <Copy SourceFiles="@(Luts)" DestinationFolder="$(PublishLutsDir)" />
+    <!-- Create assets directories and copy non-translation assets -->
+    <MakeDir Directories="$(PublishAssetsDir)" />
+    <ItemGroup>
+      <AssetFiles Include="Assets/**/*.*" Exclude="Assets/Locales/*.restext" />
+    </ItemGroup>
+    <Copy SourceFiles="@(AssetFiles)" DestinationFiles="@(AssetFiles->'$(PublishAssetsDir)%(RecursiveDir)%(Filename)%(Extension)')" />
 
+    <!-- Handle translations specially - generate .resources files -->
+    <MakeDir Directories="$(PublishLocalesDir)" />
     <GenerateResource ExecuteAsTool="false" Sources="@(Translations)" OutputResources="@(Translations->'$(PublishLocalesDir)%(Filename).resources')">
       <Output TaskParameter="OutputResources" ItemName="TextXmlResources" />
     </GenerateResource>
 
+    <!-- Deploy to local mod directory -->
     <ItemGroup>
       <ModFiles Include="$(PublishDir)*.*" />
-      <LocalesFiles Include="$(PublishDir)Assets/Locales/*.*" />
-      <LutFiles Include="$(PublishDir)Assets/Luts/*.*" />
+      <AllAssetsFiles Include="$(PublishDir)Assets/**/*.*" />
     </ItemGroup>
 
     <RemoveDir Directories="$(LocalModDir)" />
     <Copy SourceFiles="@(ModFiles)" DestinationFolder="$(LocalModDir)" />
-    <Copy SourceFiles="@(LocalesFiles)" DestinationFolder="$(LocalModDir)Assets/Locales" />
-    <Copy SourceFiles="@(LutFiles)" DestinationFolder="$(LocalModDir)Assets/Luts" />
+    <Copy SourceFiles="@(AllAssetsFiles)" DestinationFiles="@(AllAssetsFiles->'$(LocalModDir)Assets/%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 </Project> 
