@@ -8,6 +8,7 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using ICities;
 using NaturalLighting.Features;
+using NaturalLighting.Features.SunShafts;
 using NaturalLighting.Settings;
 using UnityEngine;
 
@@ -44,7 +45,7 @@ namespace NaturalLighting
 				new NaturalSunlight(Debug.logger),
 				new SofterShadowsOnBuildings(Debug.logger),
 				new LutReplacer(_modProvider, Debug.logger),
-				new Sunshafts(_modProvider, Debug.logger)
+				new SunshaftsFeature(_modProvider, Debug.logger)
 			};
 		}
 

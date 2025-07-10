@@ -1,9 +1,9 @@
 using NaturalLighting.Settings;
 using UnityEngine;
 
-namespace NaturalLighting.Features
+namespace NaturalLighting.Features.SunShafts
 {
-	sealed class Sunshafts : Feature<ModSettings>
+	sealed class SunshaftsFeature : Feature<ModSettings>
 	{
 		readonly ILogger _logger;
 		readonly IModProvider _modProvider;
@@ -36,7 +36,7 @@ namespace NaturalLighting.Features
 		const float SUNSHAFT_BLUR_RADIUS = 3.0f;          // Ray blur amount (increased for visibility)
 		const int SUNSHAFT_BLUR_ITERATIONS = 3;           // Blur quality (increased for better effect)
 
-		public Sunshafts(IModProvider modProvider, ILogger logger)
+		public SunshaftsFeature(IModProvider modProvider, ILogger logger)
 		{
 			_modProvider = modProvider;
 			_logger = logger;
