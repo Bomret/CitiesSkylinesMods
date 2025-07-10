@@ -1,19 +1,19 @@
 {
   "name": "@bomret/cities-skylines-mods",
   "dependencies": {
-    "@commitlint/cli": "19.8.0",
-    "@commitlint/config-conventional": "19.8.0",
+    "@commitlint/cli": "19.8.1",
+    "@commitlint/config-conventional": "19.8.1",
     "semantic-release-replace-plugin": "1.2.7",
     "@semantic-release/changelog": "6.0.3",
-    "@semantic-release/exec": "7.0.3",
+    "@semantic-release/exec": "7.1.0",
     "@semantic-release/git": "10.0.1",
     "husky": "9.1.7",
     "rimraf": "6.0.1",
-    "semantic-release": "24.2.3",
+    "semantic-release": "24.2.6",
     "semantic-release-monorepo": "8.0.2",
-    "turbo": "2.4.4"
+    "turbo": "2.5.4"
   },
-  "packageManager": "npm@11.2.0",
+  "packageManager": "npm@11.4.2",
   "private": true,
   "repository": {
     "type": "git",
@@ -23,7 +23,7 @@
     "build": "dotnet build",
     "prepare": "husky",
     "publish": "npx -c 'turbo publish --concurrency=1'",
-    "release": "npx -c 'turbo release --concurrency=1 -- --no-ci'",
+    "release": "npx -c 'turbo release --concurrency=1'",
     "restore": "dotnet restore"
   },
   "version": "0.0.0",
