@@ -33,12 +33,6 @@ namespace NaturalLighting.Features.SunShafts
 
 		void OnRenderImage(RenderTexture source, RenderTexture destination)
 		{
-			if (_sunShaftsMaterial == null || _sunLight == null)
-			{
-				Graphics.Blit(source, destination);
-				return;
-			}
-
 			try
 			{
 				var camera = GetComponent<Camera>();
@@ -49,37 +43,25 @@ namespace NaturalLighting.Features.SunShafts
 				}
 
 				// Update sunTransform position every frame relative to camera position
-				if (_sunTransform != null)
-				{
-					_sunTransform.position = camera.transform.position - _sunLight.transform.forward * 2000f;
-				}
+				_sunTransform.position = camera.transform.position - _sunLight.transform.forward * 2000f;
 
 				// Calculate sun screen position using the updated transform
-				Vector3 sunScreenPosition;
-				if (_sunTransform != null)
-				{
-					sunScreenPosition = camera.WorldToViewportPoint(_sunTransform.position);
-				}
-				else
-				{
-					// Fallback: calculate directly
-					var sunWorldPosition = camera.transform.position - (_sunLight.transform.forward * 2000f);
-					sunScreenPosition = camera.WorldToViewportPoint(sunWorldPosition);
-				}
+				var sunScreenPosition = camera.WorldToViewportPoint(_sunTransform.position);
 
 				// Enable depth texture mode
 				camera.depthTextureMode |= DepthTextureMode.Depth;
 
-				// Only render effect when sun is in front of camera (z > 0)
-				if (sunScreenPosition.z > 0)
+				if (sunScreenPosition.z <= 0 ||
+					!_distanceOptimization.TryCalculateQualitySettings(sunScreenPosition, _blurIterations, out var quality) ||
+					!quality.HasValue)
 				{
-					ApplySunShaftsEffect(source, destination, sunScreenPosition);
-				}
-				else
-				{
-					// Sun not visible (behind camera), just pass through
+					// Sun not visible or effect disabled by quality settings, just pass through
 					Graphics.Blit(source, destination);
+
+					return;
 				}
+
+				ApplySunShaftsEffect(source, destination, sunScreenPosition, quality.Value);
 			}
 			catch (Exception err)
 			{
@@ -89,20 +71,12 @@ namespace NaturalLighting.Features.SunShafts
 			}
 		}
 
-		void ApplySunShaftsEffect(RenderTexture source, RenderTexture destination, Vector3 sunScreenPosition)
+		void ApplySunShaftsEffect(RenderTexture source, RenderTexture destination, Vector3 sunScreenPosition, QualitySettings quality)
 		{
-			if (!_distanceOptimization.TryCalculateQualitySettings(sunScreenPosition, _blurIterations, out var quality) && quality.HasValue)
-			{
-				// Skip effect entirely if false
-				Graphics.Blit(source, destination);
-
-				return;
-			}
-
-			var rtWidth = source.width / quality.Value.ResolutionDivisor;
-			var rtHeight = source.height / quality.Value.ResolutionDivisor;
-			var iterations = quality.Value.BlurIterations;
-			var intensity = _intensity * quality.Value.IntensityMultiplier;
+			var rtWidth = source.width / quality.ResolutionDivisor;
+			var rtHeight = source.height / quality.ResolutionDivisor;
+			var iterations = quality.BlurIterations;
+			var intensity = _intensity * quality.IntensityMultiplier;
 
 			// Step 1: Bright pass - extract bright areas using Pass 2 (with depth texture)
 			var brightPass = RenderTexture.GetTemporary(rtWidth, rtHeight, 0);
