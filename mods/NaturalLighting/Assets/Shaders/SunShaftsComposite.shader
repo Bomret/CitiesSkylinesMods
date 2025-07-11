@@ -70,6 +70,15 @@ Shader "Hidden/SunShaftsComposite" {
         #endif
     }
     
+    // Helper to get the correct UV coordinates for skybox sampling
+    float2 GetSkyboxUV(v2f i) {
+        #if UNITY_UV_STARTS_AT_TOP
+        return i.uv1.xy;
+        #else
+        return i.uv.xy;
+        #endif
+    }
+    
     // Helper to calculate sun distance with correct UV coordinates
     half GetSunDistance(v2f i) {
         #if UNITY_UV_STARTS_AT_TOP
@@ -119,7 +128,7 @@ Shader "Hidden/SunShaftsComposite" {
             i.uv.xy += i.blurVector; 
         }
 
-        return color / SAMPLES_FLOAT;
+        return color * 0.16666667f; // Optimized: precomputed 1/6 instead of division
     }
     
     half TransformColor (half4 skyboxValue) {
@@ -145,12 +154,7 @@ Shader "Hidden/SunShaftsComposite" {
     }
 
     half4 frag_nodepth (v2f i) : SV_Target {
-        #if UNITY_UV_STARTS_AT_TOP
-        half4 sky = (tex2D (_Skybox, i.uv1.xy));
-        #else
-        half4 sky = (tex2D (_Skybox, i.uv.xy));
-        #endif
-
+        half4 sky = (tex2D (_Skybox, GetSkyboxUV(i)));
         half4 tex = (tex2D (_MainTex, i.uv.xy));
 
         // consider maximum radius
