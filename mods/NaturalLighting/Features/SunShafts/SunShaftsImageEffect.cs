@@ -38,6 +38,11 @@ namespace NaturalLighting.Features.SunShafts
 		Vector4 _cachedSunThreshold;
 		Vector4 _cachedSunColor;
 
+		// Pre-calculated Vector4 patterns to avoid allocations in hot path
+		static readonly Vector4 BLUR_RADIUS_BASE_PATTERN = new Vector4(1f, 1f, 0f, 0f);
+		Vector4 _cachedThresholdVector;
+		float _lastThreshold = float.MinValue;
+
 		public void Initialize(Light sunLight, Transform sunTransform, Material sunShaftsMaterial,
 			float intensity, float threshold, float blurRadius, int blurIterations, ILogger logger)
 		{
@@ -99,6 +104,29 @@ namespace NaturalLighting.Features.SunShafts
 		void OnDestroy()
 		{
 			ReleasePooledTextures();
+		}
+
+		// Helper method to get cached threshold vector
+		Vector4 GetCachedThresholdVector()
+		{
+			if (_lastThreshold != _threshold)
+			{
+				_cachedThresholdVector = new Vector4(_threshold, _threshold, _threshold, _threshold);
+				_lastThreshold = _threshold;
+			}
+			return _cachedThresholdVector;
+		}
+
+		// Helper method to create blur radius vector without allocation
+		static Vector4 CreateBlurRadiusVector(float radius)
+		{
+			return BLUR_RADIUS_BASE_PATTERN * radius;
+		}
+
+		// Helper method to create dynamic blur radius vector
+		static Vector4 CreateDynamicBlurRadiusVector(float radius)
+		{
+			return new Vector4(radius, radius, 0f, 0f);
 		}
 
 		// Helper methods to reduce redundant Material.SetVector calls
@@ -196,9 +224,9 @@ namespace NaturalLighting.Features.SunShafts
 
 			// Set parameters for bright pass (only update if changed)
 			var sunPosition = new Vector4(sunScreenPosition.x, sunScreenPosition.y, sunScreenPosition.z, SUN_MAX_RADIUS);
-			var sunThreshold = new Vector4(_threshold, _threshold, _threshold, _threshold);
+			var sunThreshold = GetCachedThresholdVector();
 
-			SetBlurRadiusIfChanged(new Vector4(1f, 1f, 0f, 0f) * _blurRadius);
+			SetBlurRadiusIfChanged(CreateBlurRadiusVector(_blurRadius));
 			SetSunPositionIfChanged(sunPosition);
 			SetSunThresholdIfChanged(sunThreshold);
 
@@ -209,7 +237,7 @@ namespace NaturalLighting.Features.SunShafts
 			iterations = Mathf.Clamp(iterations, 1, 4);
 
 			var baseBlurRadius = _blurRadius * BLUR_RESOLUTION_SCALE;
-			SetBlurRadiusIfChanged(new Vector4(baseBlurRadius, baseBlurRadius, 0f, 0f));
+			SetBlurRadiusIfChanged(CreateDynamicBlurRadiusVector(baseBlurRadius));
 			// Sun position already set above, no need to set again
 
 			var currentSource = brightPass;
@@ -222,7 +250,7 @@ namespace NaturalLighting.Features.SunShafts
 
 				// Precalculated blur radius for current iteration
 				var dynamicBlurRadius = blurStep * (i * 2f + 1f);
-				SetBlurRadiusIfChanged(new Vector4(dynamicBlurRadius, dynamicBlurRadius, 0f, 0f));
+				SetBlurRadiusIfChanged(CreateDynamicBlurRadiusVector(dynamicBlurRadius));
 
 				// Second blur pass - swap source and target
 				var tempSwap = currentSource;
@@ -233,7 +261,7 @@ namespace NaturalLighting.Features.SunShafts
 
 				// Precalculated blur radius for next iteration
 				var nextBlurRadius = blurStep * (i * 2f + 2f);
-				SetBlurRadiusIfChanged(new Vector4(nextBlurRadius, nextBlurRadius, 0f, 0f));
+				SetBlurRadiusIfChanged(CreateDynamicBlurRadiusVector(nextBlurRadius));
 
 				// Prepare for next iteration
 				tempSwap = currentSource;
