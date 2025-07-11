@@ -5,6 +5,14 @@ namespace NaturalLighting.Features.SunShafts
 {
 	sealed class SunShaftsImageEffect : MonoBehaviour
 	{
+		// Constants for sun shafts effect calculations
+		const float SUN_DISTANCE = 2000f;                    // Distance of sun transform from camera
+		const float SUN_MAX_RADIUS = 0.75f;                  // Maximum radius for sun falloff
+		const float REFERENCE_RESOLUTION = 768f;             // Baseline resolution for blur scaling
+		const float SHADER_SAMPLE_COUNT = 6f;                // Number of samples in optimized radial blur shader
+		const float BLUR_RESOLUTION_SCALE = 1f / REFERENCE_RESOLUTION; // Base blur scaling factor
+		const float BLUR_SCALE_FACTOR = SHADER_SAMPLE_COUNT / REFERENCE_RESOLUTION; // Combined blur scaling factor
+
 		Light _sunLight;
 		Transform _sunTransform;
 		Material _sunShaftsMaterial;
@@ -16,6 +24,13 @@ namespace NaturalLighting.Features.SunShafts
 		int _blurIterations;
 
 		DistanceBasedQualityScaling _distanceOptimization;
+
+		// RenderTexture pooling to avoid allocation overhead
+		RenderTexture _pooledBrightPass;
+		RenderTexture _pooledBlurTexture1;
+		RenderTexture _pooledBlurTexture2;
+		int _lastPooledWidth = -1;
+		int _lastPooledHeight = -1;
 
 		// Cached shader parameters to avoid redundant SetVector calls
 		Vector4 _cachedSunPosition;
@@ -35,6 +50,55 @@ namespace NaturalLighting.Features.SunShafts
 			_blurIterations = blurIterations;
 			_logger = logger;
 			_distanceOptimization = new DistanceBasedQualityScaling();
+		}
+
+		// RenderTexture pooling methods to reduce allocation overhead
+		void EnsurePooledTextures(int width, int height)
+		{
+			// Only recreate textures if dimensions changed
+			if (_lastPooledWidth != width || _lastPooledHeight != height)
+			{
+				ReleasePooledTextures();
+
+				_pooledBrightPass = new RenderTexture(width, height, 0) { filterMode = FilterMode.Bilinear };
+				_pooledBlurTexture1 = new RenderTexture(width, height, 0) { filterMode = FilterMode.Bilinear };
+				_pooledBlurTexture2 = new RenderTexture(width, height, 0) { filterMode = FilterMode.Bilinear };
+
+				_lastPooledWidth = width;
+				_lastPooledHeight = height;
+			}
+		}
+
+		void ReleasePooledTextures()
+		{
+			if (_pooledBrightPass != null)
+			{
+				_pooledBrightPass.Release();
+				DestroyImmediate(_pooledBrightPass);
+				_pooledBrightPass = null;
+			}
+
+			if (_pooledBlurTexture1 != null)
+			{
+				_pooledBlurTexture1.Release();
+				DestroyImmediate(_pooledBlurTexture1);
+				_pooledBlurTexture1 = null;
+			}
+
+			if (_pooledBlurTexture2 != null)
+			{
+				_pooledBlurTexture2.Release();
+				DestroyImmediate(_pooledBlurTexture2);
+				_pooledBlurTexture2 = null;
+			}
+
+			_lastPooledWidth = -1;
+			_lastPooledHeight = -1;
+		}
+
+		void OnDestroy()
+		{
+			ReleasePooledTextures();
 		}
 
 		// Helper methods to reduce redundant Material.SetVector calls
@@ -86,7 +150,7 @@ namespace NaturalLighting.Features.SunShafts
 				}
 
 				// Update sunTransform position every frame relative to camera position
-				_sunTransform.position = camera.transform.position - _sunLight.transform.forward * 2000f;
+				_sunTransform.position = camera.transform.position - _sunLight.transform.forward * SUN_DISTANCE;
 
 				// Calculate sun screen position using the updated transform
 				var sunScreenPosition = camera.WorldToViewportPoint(_sunTransform.position);
@@ -121,12 +185,17 @@ namespace NaturalLighting.Features.SunShafts
 			var iterations = quality.BlurIterations;
 			var intensity = _intensity * quality.IntensityMultiplier;
 
+			// Ensure pooled textures are available and correctly sized
+			EnsurePooledTextures(rtWidth, rtHeight);
+
+			// Precalculate blur radius constants to avoid repeated multiplication
+			var blurStep = _blurRadius * BLUR_SCALE_FACTOR;
+
 			// Step 1: Bright pass - extract bright areas using Pass 2 (with depth texture)
-			var brightPass = RenderTexture.GetTemporary(rtWidth, rtHeight, 0);
-			brightPass.filterMode = FilterMode.Bilinear;
+			var brightPass = _pooledBrightPass;
 
 			// Set parameters for bright pass (only update if changed)
-			var sunPosition = new Vector4(sunScreenPosition.x, sunScreenPosition.y, sunScreenPosition.z, 0.75f);
+			var sunPosition = new Vector4(sunScreenPosition.x, sunScreenPosition.y, sunScreenPosition.z, SUN_MAX_RADIUS);
 			var sunThreshold = new Vector4(_threshold, _threshold, _threshold, _threshold);
 
 			SetBlurRadiusIfChanged(new Vector4(1f, 1f, 0f, 0f) * _blurRadius);
@@ -139,51 +208,47 @@ namespace NaturalLighting.Features.SunShafts
 			// Step 2: Radial blur iterations using Pass 1
 			iterations = Mathf.Clamp(iterations, 1, 4);
 
-			var baseBlurRadius = _blurRadius * (1f / 768f);
+			var baseBlurRadius = _blurRadius * BLUR_RESOLUTION_SCALE;
 			SetBlurRadiusIfChanged(new Vector4(baseBlurRadius, baseBlurRadius, 0f, 0f));
 			// Sun position already set above, no need to set again
 
-			var blurred = brightPass;
+			var currentSource = brightPass;
+			var currentTarget = _pooledBlurTexture1;
 
 			for (var i = 0; i < iterations; i++)
 			{
 				// First blur pass
-				var blurTexture = RenderTexture.GetTemporary(rtWidth, rtHeight, 0);
-				blurTexture.filterMode = FilterMode.Bilinear;
-				Graphics.Blit(blurred, blurTexture, _sunShaftsMaterial, 1); // Pass 1: Radial blur
+				Graphics.Blit(currentSource, currentTarget, _sunShaftsMaterial, 1); // Pass 1: Radial blur
 
-				if (blurred != brightPass)
-				{
-					RenderTexture.ReleaseTemporary(blurred);
-				}
-
-				var dynamicBlurRadius = _blurRadius * ((i * 2f + 1f) * 6f / 768f);
+				// Precalculated blur radius for current iteration
+				var dynamicBlurRadius = blurStep * (i * 2f + 1f);
 				SetBlurRadiusIfChanged(new Vector4(dynamicBlurRadius, dynamicBlurRadius, 0f, 0f));
 
-				// Second blur pass
-				blurred = RenderTexture.GetTemporary(rtWidth, rtHeight, 0);
-				blurred.filterMode = FilterMode.Bilinear;
-				Graphics.Blit(blurTexture, blurred, _sunShaftsMaterial, 1); // Pass 1: Radial blur
+				// Second blur pass - swap source and target
+				var tempSwap = currentSource;
+				currentSource = currentTarget;
+				currentTarget = (currentTarget == _pooledBlurTexture1) ? _pooledBlurTexture2 : _pooledBlurTexture1;
 
-				RenderTexture.ReleaseTemporary(blurTexture);
+				Graphics.Blit(currentSource, currentTarget, _sunShaftsMaterial, 1); // Pass 1: Radial blur
 
-				// Update blur radius for next iteration
-				var blurRadius2 = _blurRadius * (((i * 2f + 2f) * 6f) / 768f);
-				SetBlurRadiusIfChanged(new Vector4(blurRadius2, blurRadius2, 0f, 0f));
+				// Precalculated blur radius for next iteration
+				var nextBlurRadius = blurStep * (i * 2f + 2f);
+				SetBlurRadiusIfChanged(new Vector4(nextBlurRadius, nextBlurRadius, 0f, 0f));
+
+				// Prepare for next iteration
+				tempSwap = currentSource;
+				currentSource = currentTarget;
+				currentTarget = tempSwap;
 			}
 
 			// Step 3: Final composite using Pass 0 (Screen blend)
 			var sunColor = (Vector4)_sunLight.color * intensity;
 			SetSunColorIfChanged(sunColor);
 
-			_sunShaftsMaterial.SetTexture("_ColorBuffer", blurred);
+			_sunShaftsMaterial.SetTexture("_ColorBuffer", currentSource);
 
 			// Use Pass 0 for Screen blend mode (final composite)
 			Graphics.Blit(source, destination, _sunShaftsMaterial, 0);
-
-			// Cleanup
-			RenderTexture.ReleaseTemporary(brightPass);
-			if (blurred != brightPass) RenderTexture.ReleaseTemporary(blurred);
 		}
 	}
 }
