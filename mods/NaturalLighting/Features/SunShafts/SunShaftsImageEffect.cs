@@ -17,6 +17,12 @@ namespace NaturalLighting.Features.SunShafts
 
 		DistanceBasedQualityScaling _distanceOptimization;
 
+		// Cached shader parameters to avoid redundant SetVector calls
+		Vector4 _cachedSunPosition;
+		Vector4 _cachedBlurRadius;
+		Vector4 _cachedSunThreshold;
+		Vector4 _cachedSunColor;
+
 		public void Initialize(Light sunLight, Transform sunTransform, Material sunShaftsMaterial,
 			float intensity, float threshold, float blurRadius, int blurIterations, ILogger logger)
 		{
@@ -29,6 +35,43 @@ namespace NaturalLighting.Features.SunShafts
 			_blurIterations = blurIterations;
 			_logger = logger;
 			_distanceOptimization = new DistanceBasedQualityScaling();
+		}
+
+		// Helper methods to reduce redundant Material.SetVector calls
+		void SetSunPositionIfChanged(Vector4 newSunPosition)
+		{
+			if (_cachedSunPosition != newSunPosition)
+			{
+				_cachedSunPosition = newSunPosition;
+				_sunShaftsMaterial.SetVector("_SunPosition", newSunPosition);
+			}
+		}
+
+		void SetBlurRadiusIfChanged(Vector4 newBlurRadius)
+		{
+			if (_cachedBlurRadius != newBlurRadius)
+			{
+				_cachedBlurRadius = newBlurRadius;
+				_sunShaftsMaterial.SetVector("_BlurRadius4", newBlurRadius);
+			}
+		}
+
+		void SetSunThresholdIfChanged(Vector4 newSunThreshold)
+		{
+			if (_cachedSunThreshold != newSunThreshold)
+			{
+				_cachedSunThreshold = newSunThreshold;
+				_sunShaftsMaterial.SetVector("_SunThreshold", newSunThreshold);
+			}
+		}
+
+		void SetSunColorIfChanged(Vector4 newSunColor)
+		{
+			if (_cachedSunColor != newSunColor)
+			{
+				_cachedSunColor = newSunColor;
+				_sunShaftsMaterial.SetVector("_SunColor", newSunColor);
+			}
 		}
 
 		void OnRenderImage(RenderTexture source, RenderTexture destination)
@@ -82,10 +125,13 @@ namespace NaturalLighting.Features.SunShafts
 			var brightPass = RenderTexture.GetTemporary(rtWidth, rtHeight, 0);
 			brightPass.filterMode = FilterMode.Bilinear;
 
-			// Set parameters like the reference implementation BEFORE bright pass
-			_sunShaftsMaterial.SetVector("_BlurRadius4", new Vector4(1f, 1f, 0f, 0f) * _blurRadius);
-			_sunShaftsMaterial.SetVector("_SunPosition", new Vector4(sunScreenPosition.x, sunScreenPosition.y, sunScreenPosition.z, 0.75f)); // Include Z and maxRadius (reference value)
-			_sunShaftsMaterial.SetVector("_SunThreshold", new Vector4(_threshold, _threshold, _threshold, _threshold));
+			// Set parameters for bright pass (only update if changed)
+			var sunPosition = new Vector4(sunScreenPosition.x, sunScreenPosition.y, sunScreenPosition.z, 0.75f);
+			var sunThreshold = new Vector4(_threshold, _threshold, _threshold, _threshold);
+
+			SetBlurRadiusIfChanged(new Vector4(1f, 1f, 0f, 0f) * _blurRadius);
+			SetSunPositionIfChanged(sunPosition);
+			SetSunThresholdIfChanged(sunThreshold);
 
 			// Use Pass 2 for bright pass (with depth texture)
 			Graphics.Blit(source, brightPass, _sunShaftsMaterial, 2);
@@ -94,8 +140,8 @@ namespace NaturalLighting.Features.SunShafts
 			iterations = Mathf.Clamp(iterations, 1, 4);
 
 			var baseBlurRadius = _blurRadius * (1f / 768f);
-			_sunShaftsMaterial.SetVector("_BlurRadius4", new Vector4(baseBlurRadius, baseBlurRadius, 0f, 0f));
-			_sunShaftsMaterial.SetVector("_SunPosition", new Vector4(sunScreenPosition.x, sunScreenPosition.y, sunScreenPosition.z, 0.75f));
+			SetBlurRadiusIfChanged(new Vector4(baseBlurRadius, baseBlurRadius, 0f, 0f));
+			// Sun position already set above, no need to set again
 
 			var blurred = brightPass;
 
@@ -112,7 +158,7 @@ namespace NaturalLighting.Features.SunShafts
 				}
 
 				var dynamicBlurRadius = _blurRadius * ((i * 2f + 1f) * 6f / 768f);
-				_sunShaftsMaterial.SetVector("_BlurRadius4", new Vector4(dynamicBlurRadius, dynamicBlurRadius, 0f, 0f));
+				SetBlurRadiusIfChanged(new Vector4(dynamicBlurRadius, dynamicBlurRadius, 0f, 0f));
 
 				// Second blur pass
 				blurred = RenderTexture.GetTemporary(rtWidth, rtHeight, 0);
@@ -123,12 +169,12 @@ namespace NaturalLighting.Features.SunShafts
 
 				// Update blur radius for next iteration
 				var blurRadius2 = _blurRadius * (((i * 2f + 2f) * 6f) / 768f);
-				_sunShaftsMaterial.SetVector("_BlurRadius4", new Vector4(blurRadius2, blurRadius2, 0f, 0f));
+				SetBlurRadiusIfChanged(new Vector4(blurRadius2, blurRadius2, 0f, 0f));
 			}
 
 			// Step 3: Final composite using Pass 0 (Screen blend)
-			_sunShaftsMaterial.SetVector("_SunColor",
-				new Vector4(_sunLight.color.r, _sunLight.color.g, _sunLight.color.b, _sunLight.color.a) * intensity);
+			var sunColor = (Vector4)_sunLight.color * intensity;
+			SetSunColorIfChanged(sunColor);
 
 			_sunShaftsMaterial.SetTexture("_ColorBuffer", blurred);
 
