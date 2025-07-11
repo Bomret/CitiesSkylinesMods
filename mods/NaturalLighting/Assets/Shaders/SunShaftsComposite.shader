@@ -60,6 +60,25 @@ Shader "Hidden/SunShaftsComposite" {
         return i.uv.xy;
         #endif
     }
+    
+    // Helper to get the correct UV coordinates for depth texture sampling
+    float2 GetDepthUV(v2f i) {
+        #if UNITY_UV_STARTS_AT_TOP
+        return i.uv1.xy;
+        #else
+        return i.uv.xy;
+        #endif
+    }
+    
+    // Helper to calculate sun distance with correct UV coordinates
+    half GetSunDistance(v2f i) {
+        #if UNITY_UV_STARTS_AT_TOP
+        half2 sunOffset = _SunPosition.xy - i.uv1.xy;
+        #else
+        half2 sunOffset = _SunPosition.xy - i.uv.xy;		
+        #endif
+        return saturate (_SunPosition.w - length (sunOffset));
+    }
 
     half4 fragScreen(v2f i) : SV_Target { 
         half4 colorA = tex2D (_MainTex, i.uv.xy);
@@ -80,9 +99,11 @@ Shader "Hidden/SunShaftsComposite" {
     v2f_radial vert_radial( appdata_img v ) {
         v2f_radial o;
         o.pos = UnityObjectToClipPos(v.vertex);
-
-        o.uv.xy =  v.texcoord.xy;
-        o.blurVector = (_SunPosition.xy - v.texcoord.xy) * _BlurRadius4.xy;
+        o.uv.xy = v.texcoord.xy;
+        
+        // Precalculate blur vector: direction from UV to sun position, scaled by blur radius
+        half2 toSunVector = _SunPosition.xy - v.texcoord.xy;
+        o.blurVector = toSunVector * _BlurRadius4.xy;
 
         return o; 
     }
@@ -91,10 +112,10 @@ Shader "Hidden/SunShaftsComposite" {
     {
         half4 color = half4(0,0,0,0);
 
-        for(int j = 0; j < SAMPLES_INT; j++)
+        for(int sampleIndex = 0; sampleIndex < SAMPLES_INT; sampleIndex++)
         {
-            half4 tmpColor = tex2D(_MainTex, i.uv.xy);
-            color += tmpColor;
+            half4 sampleColor = tex2D(_MainTex, i.uv.xy);
+            color += sampleColor;
             i.uv.xy += i.blurVector; 
         }
 
@@ -102,30 +123,22 @@ Shader "Hidden/SunShaftsComposite" {
     }
     
     half TransformColor (half4 skyboxValue) {
-        return dot(max(skyboxValue.rgb - _SunThreshold.rgb, half3(0,0,0)), half3(1,1,1)); // threshold and convert to greyscale
+        half3 thresholded = saturate(skyboxValue.rgb - _SunThreshold.rgb);
+
+        return thresholded.r + thresholded.g + thresholded.b;
     }
 
     half4 frag_depth (v2f i) : SV_Target {
-        #if UNITY_UV_STARTS_AT_TOP
-        float depthSample = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv1.xy);
-        #else
-        float depthSample = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv.xy);		
-        #endif
-
+        float depthSample = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, GetDepthUV(i));
         half4 tex = tex2D (_MainTex, i.uv.xy);
 
-        depthSample = Linear01Depth (depthSample);
+        half linearDepth = Linear01Depth (depthSample);
 
         // consider maximum radius
-        #if UNITY_UV_STARTS_AT_TOP
-        half2 vec = _SunPosition.xy - i.uv1.xy;
-        #else
-        half2 vec = _SunPosition.xy - i.uv.xy;		
-        #endif
-        half dist = saturate (_SunPosition.w - length (vec.xy));		
+        half dist = GetSunDistance(i);
 
         // consider shafts blockers - eliminate branching with step function
-        half depthMask = step(0.99, depthSample);
+        half depthMask = step(0.99, linearDepth);
         half4 outColor = TransformColor (tex) * dist * depthMask;
 
         return outColor;
@@ -133,20 +146,15 @@ Shader "Hidden/SunShaftsComposite" {
 
     half4 frag_nodepth (v2f i) : SV_Target {
         #if UNITY_UV_STARTS_AT_TOP
-        float4 sky = (tex2D (_Skybox, i.uv1.xy));
+        half4 sky = (tex2D (_Skybox, i.uv1.xy));
         #else
-        float4 sky = (tex2D (_Skybox, i.uv.xy));
+        half4 sky = (tex2D (_Skybox, i.uv.xy));
         #endif
 
-        float4 tex = (tex2D (_MainTex, i.uv.xy));
+        half4 tex = (tex2D (_MainTex, i.uv.xy));
 
         // consider maximum radius
-        #if UNITY_UV_STARTS_AT_TOP
-        half2 vec = _SunPosition.xy - i.uv1.xy;
-        #else
-        half2 vec = _SunPosition.xy - i.uv.xy;
-        #endif
-        half dist = saturate (_SunPosition.w - length (vec));
+        half dist = GetSunDistance(i);
 
         // find unoccluded sky pixels - eliminate branching with step function
         // consider pixel values that differ significantly between framebuffer and sky-only buffer as occluded
