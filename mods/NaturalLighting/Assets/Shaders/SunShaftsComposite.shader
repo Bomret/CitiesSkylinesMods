@@ -52,13 +52,18 @@ Shader "Hidden/SunShaftsComposite" {
         return o;
     }
 
+    // Helper to get the correct UV coordinates for ColorBuffer sampling
+    float2 GetColorBufferUV(v2f i) {
+        #if UNITY_UV_STARTS_AT_TOP
+        return i.uv1.xy;
+        #else
+        return i.uv.xy;
+        #endif
+    }
+
     half4 fragScreen(v2f i) : SV_Target { 
         half4 colorA = tex2D (_MainTex, i.uv.xy);
-        #if UNITY_UV_STARTS_AT_TOP
-        half4 colorB = tex2D (_ColorBuffer, i.uv1.xy);
-        #else
-        half4 colorB = tex2D (_ColorBuffer, i.uv.xy);
-        #endif
+        half4 colorB = tex2D (_ColorBuffer, GetColorBufferUV(i));
         half4 depthMask = saturate (colorB * _SunColor);
 
         return 1.0f - (1.0f-colorA) * (1.0f-depthMask);
@@ -66,11 +71,7 @@ Shader "Hidden/SunShaftsComposite" {
 
     half4 fragAdd(v2f i) : SV_Target { 
         half4 colorA = tex2D (_MainTex, i.uv.xy);
-        #if UNITY_UV_STARTS_AT_TOP
-        half4 colorB = tex2D (_ColorBuffer, i.uv1.xy);
-        #else
-        half4 colorB = tex2D (_ColorBuffer, i.uv.xy);
-        #endif
+        half4 colorB = tex2D (_ColorBuffer, GetColorBufferUV(i));
         half4 depthMask = saturate (colorB * _SunColor);
 
         return colorA + depthMask;	
@@ -103,7 +104,7 @@ Shader "Hidden/SunShaftsComposite" {
     half TransformColor (half4 skyboxValue) {
         return dot(max(skyboxValue.rgb - _SunThreshold.rgb, half3(0,0,0)), half3(1,1,1)); // threshold and convert to greyscale
     }
-    
+
     half4 frag_depth (v2f i) : SV_Target {
         #if UNITY_UV_STARTS_AT_TOP
         float depthSample = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv1.xy);
@@ -123,11 +124,9 @@ Shader "Hidden/SunShaftsComposite" {
         #endif
         half dist = saturate (_SunPosition.w - length (vec.xy));		
 
-        half4 outColor = 0;
-
-        // consider shafts blockers
-        if (depthSample > 0.99)
-            outColor = TransformColor (tex) * dist;
+        // consider shafts blockers - eliminate branching with step function
+        half depthMask = step(0.99, depthSample);
+        half4 outColor = TransformColor (tex) * dist * depthMask;
 
         return outColor;
     }
@@ -149,12 +148,11 @@ Shader "Hidden/SunShaftsComposite" {
         #endif
         half dist = saturate (_SunPosition.w - length (vec));
 
-        half4 outColor = 0;
-
-        // find unoccluded sky pixels
+        // find unoccluded sky pixels - eliminate branching with step function
         // consider pixel values that differ significantly between framebuffer and sky-only buffer as occluded
-        if (Luminance ( abs(sky.rgb - tex.rgb)) < 0.2)
-            outColor = TransformColor (sky) * dist;
+        half luminanceDiff = Luminance(abs(sky.rgb - tex.rgb));
+        half occlusionMask = step(luminanceDiff, 0.2);
+        half4 outColor = TransformColor (sky) * dist * occlusionMask;
 
         return outColor;
     }
