@@ -14,19 +14,40 @@ using UnityEngine;
 
 namespace NaturalLighting
 {
+	/// <summary>
+	/// Main mod class for Natural Lighting that provides enhanced lighting effects for Cities: Skylines.
+	/// 
+	/// This mod adjusts various lighting parameters to create more natural and visually appealing lighting,
+	/// including sunlight color, shadow softness, color correction LUTs, and sun shaft effects.
+	/// It includes compatibility checking to prevent conflicts with other lighting mods.
+	/// </summary>
 	public sealed class GameMod : LoadingExtensionBase, IUserMod
 	{
+		/// <summary>
+		/// Gets the display name of the mod including version information.
+		/// </summary>
 		public string Name => $"{_modName} {_version}";
+
+		/// <summary>
+		/// Gets the description of the mod displayed in the mod manager.
+		/// </summary>
 		public string Description => $"Adjusts in-game lighting to look more natural.\nby Bomret";
 
 		readonly string _modName = "Natural Lighting";
 		readonly string _version = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
 
+		/// <summary>
+		/// Dictionary of incompatible mod Steam IDs mapped to their display names.
+		/// These mods conflict with Natural Lighting's functionality.
+		/// </summary>
 		static readonly Dictionary<string, string> IncompatibleMods = new Dictionary<string, string>
 		{
 			{"530871278", "Daylight Classic"},
 			{"1794015399", "Render It!"},
-			{"2983036781", "Lumina"}
+			{"2983036781", "Lumina"},
+			{"933513277", "Sun Shafts"},
+			{"1881187805", "Sun Shafts (Chinese)"},
+			{"1138510774", "PostProcessFX - Multi-platform"},
 		};
 		readonly ModProvider<GameMod> _modProvider;
 		readonly ModSettingsStore _settingsStore;
@@ -36,19 +57,25 @@ namespace NaturalLighting
 		bool _isModSetup;
 		Translator _translator;
 
+		/// <summary>
+		/// Initializes a new instance of the GameMod class and sets up all lighting features.
+		/// </summary>
 		public GameMod()
 		{
 			_modProvider = new ModProvider<GameMod>();
 			_settingsStore = ModSettingsStore.Create(_modName);
 
 			_features = new List<Feature<ModSettings>>() {
-				new NaturalSunlight(Debug.logger),
-				new SofterShadowsOnBuildings(Debug.logger),
-				new LutReplacer(_modProvider, Debug.logger),
+				new NaturalSunlightFeature(_modProvider, Debug.logger),
+				new SofterShadowsOnBuildingsFeature(_modProvider, Debug.logger),
+				new LutReplacerFeature(_modProvider, Debug.logger),
 				new SunshaftsFeature(_modProvider, Debug.logger)
 			};
 		}
 
+		/// <summary>
+		/// Called when the mod is enabled. Initializes the translation system.
+		/// </summary>
 		public void OnEnabled()
 		{
 			var mod = _modProvider.GetCurrentMod();
@@ -56,6 +83,12 @@ namespace NaturalLighting
 			_translator = new Translator(mod);
 		}
 
+		/// <summary>
+		/// Creates the mod's settings UI in the game's options menu.
+		/// Includes incompatible mod detection and appropriate warnings.
+		/// </summary>
+		/// <param name="settingsUi">The UI helper for creating settings controls.</param>
+		/// <exception cref="ArgumentNullException">Thrown when settingsUi is null.</exception>
 		public void OnSettingsUI(UIHelperBase settingsUi)
 		{
 			if (settingsUi is null) throw new ArgumentNullException(nameof(settingsUi));
@@ -122,36 +155,38 @@ namespace NaturalLighting
 			}
 		}
 
+		/// <summary>
+		/// Called when a game level is loaded. Initializes all lighting features with current settings.
+		/// Automatically disables features if incompatible mods are detected and not overridden.
+		/// </summary>
+		/// <param name="mode">The game loading mode (new game, load game, etc.).</param>
 		public override void OnLevelLoaded(LoadMode mode)
 		{
 			_isInGame = true;
 
 			var settings = _settingsStore.GetOrLoadSettings();
-
-			var incompatibleMods = DetectIncompatibleMods();
-			if (incompatibleMods.Count > 0 && !settings.IgnoreIncompatibleMods)
-			{
-				Debug.LogFormat("[NaturalLighting] Detected incompatible mods {0}. Disabling settings...", string.Join(", ", incompatibleMods.ToArray()));
-
-				settings = new ModSettings
-				{
-					UseNaturalSunlight = false,
-					UseSofterShadowsOnBuildings = false,
-					UseOwnLut = false,
-					EnableSunshafts = false
-				};
-			}
+			settings = ApplyIncompatibilityCheck(settings);
 
 			Debug.Log("[NaturalLighting] Starting...");
 
 			foreach (var feature in _features)
 			{
-				feature.OnLoaded(settings);
+				try
+				{
+					feature.OnLoaded(settings);
+				}
+				catch (Exception ex)
+				{
+					Debug.LogErrorFormat("[NaturalLighting] Failed to load feature {0}: {1}", feature.GetType().Name, ex.Message);
+				}
 			}
 
 			_isModSetup = true;
 		}
 
+		/// <summary>
+		/// Called when a game level is being unloaded. Safely tears down all lighting features.
+		/// </summary>
 		public override void OnLevelUnloading()
 		{
 			_isInGame = false;
@@ -160,19 +195,24 @@ namespace NaturalLighting
 
 			Debug.Log("[NaturalLighting] Tearing down...");
 
-			try
+			foreach (var feature in _features)
 			{
-				foreach (var feature in _features)
+				try
 				{
 					feature.OnUnloading();
 				}
+				catch (Exception ex)
+				{
+					Debug.LogErrorFormat("[NaturalLighting] Error unloading feature {0}: {1}", feature.GetType().Name, ex.Message);
+				}
 			}
-			finally
-			{
-				_settingsStore.SaveSettings();
-			}
+
+			_settingsStore.SaveSettings();
 		}
 
+		/// <summary>
+		/// Called when the mod is disabled. Properly disposes of all features.
+		/// </summary>
 		public void OnDisabled()
 		{
 			if (!_isModSetup) return;
@@ -181,36 +221,73 @@ namespace NaturalLighting
 
 			foreach (var feature in _features)
 			{
-				feature.Dispose();
+				try
+				{
+					feature.Dispose();
+				}
+				catch (Exception ex)
+				{
+					Debug.LogErrorFormat("[NaturalLighting] Error disposing feature {0}: {1}", feature.GetType().Name, ex.Message);
+				}
 			}
 		}
 
+		/// <summary>
+		/// Notifies all features when settings have changed and saves the settings to disk.
+		/// Automatically applies incompatibility checks before notifying features.
+		/// </summary>
+		/// <param name="settings">The updated settings to apply.</param>
 		void NotifySettingChanged(ModSettings settings)
 		{
 			_settingsStore.SaveSettings();
 
 			if (!_isInGame) return;
 
+			settings = ApplyIncompatibilityCheck(settings);
+
+			foreach (var feature in _features)
+			{
+				try
+				{
+					feature.OnSettingsChanged(settings);
+				}
+				catch (Exception ex)
+				{
+					Debug.LogErrorFormat("[NaturalLighting] Error notifying feature {0} of setting change: {1}", feature.GetType().Name, ex.Message);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Applies incompatibility checks to the provided settings.
+		/// If incompatible mods are detected and not overridden, returns disabled settings.
+		/// </summary>
+		/// <param name="settings">The settings to check for compatibility.</param>
+		/// <returns>The original settings if compatible, or disabled settings if incompatible mods are detected.</returns>
+		ModSettings ApplyIncompatibilityCheck(ModSettings settings)
+		{
 			var incompatibleMods = DetectIncompatibleMods();
 			if (incompatibleMods.Count > 0 && !settings.IgnoreIncompatibleMods)
 			{
 				Debug.LogFormat("[NaturalLighting] Detected incompatible mods {0}. Disabling settings...", string.Join(", ", incompatibleMods.ToArray()));
 
-				settings = new ModSettings
+				return new ModSettings
 				{
 					UseNaturalSunlight = false,
 					UseSofterShadowsOnBuildings = false,
 					UseOwnLut = false,
-					EnableSunshafts = false
+					EnableSunshafts = false,
+					IgnoreIncompatibleMods = settings.IgnoreIncompatibleMods // Preserve the override setting
 				};
 			}
 
-			foreach (var feature in _features)
-			{
-				feature.OnSettingsChanged(settings);
-			}
+			return settings;
 		}
 
+		/// <summary>
+		/// Detects incompatible mods that are currently loaded.
+		/// </summary>
+		/// <returns>A read-only collection of display names for detected incompatible mods.</returns>
 		ReadOnlyCollection<string> DetectIncompatibleMods()
 		{
 			var incompatibleMods = new List<string>();

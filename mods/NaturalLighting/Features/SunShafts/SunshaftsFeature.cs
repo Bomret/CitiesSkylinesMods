@@ -10,9 +10,6 @@ namespace NaturalLighting.Features.SunShafts
 	/// </summary>
 	sealed class SunshaftsFeature : Feature<ModSettings>
 	{
-		readonly ILogger _logger;
-		readonly IModProvider _modProvider;
-
 		Camera _mainCamera;
 		Light _sunLight;
 
@@ -30,10 +27,7 @@ namespace NaturalLighting.Features.SunShafts
 		/// <param name="modProvider">Provider for accessing mod resources and metadata.</param>
 		/// <param name="logger">Logger for diagnostic output.</param>
 		public SunshaftsFeature(IModProvider modProvider, ILogger logger)
-		{
-			_modProvider = modProvider;
-			_logger = logger;
-		}
+			: base(modProvider, logger) { }
 
 		/// <summary>
 		/// Called when the mod is loaded. Initializes the shader provider and enables
@@ -42,9 +36,9 @@ namespace NaturalLighting.Features.SunShafts
 		/// <param name="settings">Current mod settings containing sunshaft preferences.</param>
 		public override void OnLoaded(ModSettings settings)
 		{
-			_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts.OnLoaded called with EnableSunshafts: {0}", settings.EnableSunshafts);
+			Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts.OnLoaded called with EnableSunshafts: {0}", settings.EnableSunshafts);
 
-			var mod = _modProvider.GetCurrentMod();
+			var mod = ModProvider.GetCurrentMod();
 			_shaderProvider = new ShaderProvider(mod);
 
 			_currentSunshaftsEnabled = settings.EnableSunshafts;
@@ -63,7 +57,7 @@ namespace NaturalLighting.Features.SunShafts
 		{
 			if (_currentSunshaftsEnabled == settings.EnableSunshafts) return;
 
-			_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Settings changed from {0} to {1}",
+			Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Settings changed from {0} to {1}",
 				_currentSunshaftsEnabled, settings.EnableSunshafts);
 
 			if (settings.EnableSunshafts)
@@ -109,12 +103,12 @@ namespace NaturalLighting.Features.SunShafts
 			if (_mainCamera != null && _sunLight != null)
 			{
 				_isInitialized = true;
-				_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Initialized - Camera: Found, Sun Light: Found (name: '{0}')",
+				Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Initialized - Camera: Found, Sun Light: Found (name: '{0}')",
 					_sunLight.name);
 			}
 			else
 			{
-				_logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Initialization incomplete - Camera: {0}, Sun Light: {1}",
+				Logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Initialization incomplete - Camera: {0}, Sun Light: {1}",
 					_mainCamera != null, _sunLight != null);
 			}
 		}
@@ -128,29 +122,29 @@ namespace NaturalLighting.Features.SunShafts
 		{
 			if (_sunShaftShaderMaterial != null)
 			{
-				_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Shaders already loaded, skipping");
+				Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Shaders already loaded, skipping");
 				return;
 			}
 
 			try
 			{
-				_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Attempting to load shaders from shader bundle");
+				Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Attempting to load shaders from shader bundle");
 
 				var sunShaftsCompositeShader = _shaderProvider.GetShader("SunShaftsComposite", "sunshafts");
 
 				if (sunShaftsCompositeShader != null)
 				{
 					_sunShaftShaderMaterial = new Material(sunShaftsCompositeShader);
-					_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Successfully loaded custom shaders");
+					Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Successfully loaded custom shaders");
 				}
 				else
 				{
-					_logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Shader not found");
+					Logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Shader not found");
 				}
 			}
 			catch (System.Exception e)
 			{
-				_logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Shader loading failed: {0}", e.Message);
+				Logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Shader loading failed: {0}", e.Message);
 			}
 		}
 
@@ -167,7 +161,7 @@ namespace NaturalLighting.Features.SunShafts
 				return;
 			}
 
-			_logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Cannot add image effect - missing shaders or camera");
+			Logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Cannot add image effect - missing shaders or camera");
 		}
 
 		/// <summary>
@@ -179,13 +173,13 @@ namespace NaturalLighting.Features.SunShafts
 		{
 			if (_sunShaftShaderMaterial == null || _mainCamera == null)
 			{
-				_logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Cannot add image effect - missing prerequisites");
+				Logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Cannot add image effect - missing prerequisites");
 				return;
 			}
 
 			if (_sunShaftsComponent != null && _sunTransformObj != null)
 			{
-				_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Image effect already active, skipping");
+				Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Image effect already active, skipping");
 				return;
 			}
 
@@ -208,13 +202,13 @@ namespace NaturalLighting.Features.SunShafts
 				_sunTransformObj = new GameObject("SunTransform");
 				var sunTransform = _sunTransformObj.transform;
 
-				_sunShaftsComponent.Initialize(_sunLight, sunTransform, _sunShaftShaderMaterial, _logger);
+				_sunShaftsComponent.Initialize(_sunLight, sunTransform, _sunShaftShaderMaterial, Logger);
 
-				_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Added custom image effect");
+				Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Added custom image effect");
 			}
 			catch (System.Exception e)
 			{
-				_logger.LogFormat(LogType.Error, "[NaturalLighting] Sunshafts: Failed to add image effect: {0}", e.Message);
+				Logger.LogFormat(LogType.Error, "[NaturalLighting] Sunshafts: Failed to add image effect: {0}", e.Message);
 			}
 		}
 
@@ -227,13 +221,13 @@ namespace NaturalLighting.Features.SunShafts
 		{
 			if (_mainCamera == null)
 			{
-				_logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Main camera not found");
+				Logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Main camera not found");
 				return false;
 			}
 
 			if (_sunLight == null)
 			{
-				_logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Sun light not found");
+				Logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Sun light not found");
 				return false;
 			}
 
@@ -247,7 +241,7 @@ namespace NaturalLighting.Features.SunShafts
 			}
 			catch (System.Exception)
 			{
-				_logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Components have been destroyed");
+				Logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Components have been destroyed");
 				return false;
 			}
 		}
@@ -259,23 +253,23 @@ namespace NaturalLighting.Features.SunShafts
 		/// </summary>
 		void EnableSunshafts()
 		{
-			_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts.EnableSunshafts: Enabled");
+			Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts.EnableSunshafts: Enabled");
 
 			if (!_isInitialized)
 			{
-				_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Initializing components for first use");
+				Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Initializing components for first use");
 				InitializeComponents();
 			}
 
 			if (_sunShaftShaderMaterial == null)
 			{
-				_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Loading shaders for first use");
+				Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Loading shaders for first use");
 				LoadSunshaftShaders();
 			}
 
 			if (!ValidateComponents())
 			{
-				_logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Validation failed, cannot enable");
+				Logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Validation failed, cannot enable");
 
 				_mainCamera = null;
 				_sunLight = null;
@@ -325,7 +319,7 @@ namespace NaturalLighting.Features.SunShafts
 				_sunTransformObj = null;
 			}
 
-			_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Disabled image effect");
+			Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Disabled image effect");
 		}
 
 		/// <summary>
