@@ -13,10 +13,24 @@ namespace NaturalLighting.Features.SunShafts
 		const float BLUR_RESOLUTION_SCALE = 1f / REFERENCE_RESOLUTION; // Base blur scaling factor
 		const float BLUR_SCALE_FACTOR = SHADER_SAMPLE_COUNT / REFERENCE_RESOLUTION; // Combined blur scaling factor
 
+		// Shader pass indices and iteration constants
+		const int SHADER_PASS_SCREEN_BLEND = 0;              // Pass 0: Screen blend for final composite
+		const int SHADER_PASS_RADIAL_BLUR = 1;               // Pass 1: Radial blur iterations
+		const int SHADER_PASS_BRIGHT_PASS = 2;               // Pass 2: Bright pass with depth texture
+		const int MIN_BLUR_ITERATIONS = 1;                   // Minimum blur iterations allowed
+		const int MAX_BLUR_ITERATIONS = 4;                   // Maximum blur iterations allowed
+
+		// RenderTexture and pooling constants
+		const int RENDERTEXTURE_DEPTH_BUFFER = 0;            // No depth buffer for RenderTextures
+		const int INVALID_TEXTURE_SIZE = -1;                 // Invalid texture size marker
+
 		Light _sunLight;
 		Transform _sunTransform;
 		Material _sunShaftsMaterial;
 		ILogger _logger;
+		Camera _camera; // Cached camera component to avoid GetComponent calls
+		Transform _cameraTransform; // Cached camera transform for frequent access
+		Transform _sunLightTransform; // Cached sun light transform for frequent access
 
 		float _intensity;
 		float _threshold;
@@ -29,8 +43,8 @@ namespace NaturalLighting.Features.SunShafts
 		RenderTexture _pooledBrightPass;
 		RenderTexture _pooledBlurTexture1;
 		RenderTexture _pooledBlurTexture2;
-		int _lastPooledWidth = -1;
-		int _lastPooledHeight = -1;
+		int _lastPooledWidth = INVALID_TEXTURE_SIZE;
+		int _lastPooledHeight = INVALID_TEXTURE_SIZE;
 
 		// Cached shader parameters to avoid redundant SetVector calls
 		Vector4 _cachedSunPosition;
@@ -55,6 +69,11 @@ namespace NaturalLighting.Features.SunShafts
 			_blurIterations = blurIterations;
 			_logger = logger;
 			_distanceOptimization = new DistanceBasedQualityScaling();
+
+			// Cache the camera component to avoid repeated GetComponent calls
+			_camera = GetComponent<Camera>();
+			_cameraTransform = _camera.transform;
+			_sunLightTransform = _sunLight.transform;
 		}
 
 		// RenderTexture pooling methods to reduce allocation overhead
@@ -65,9 +84,9 @@ namespace NaturalLighting.Features.SunShafts
 			{
 				ReleasePooledTextures();
 
-				_pooledBrightPass = new RenderTexture(width, height, 0) { filterMode = FilterMode.Bilinear };
-				_pooledBlurTexture1 = new RenderTexture(width, height, 0) { filterMode = FilterMode.Bilinear };
-				_pooledBlurTexture2 = new RenderTexture(width, height, 0) { filterMode = FilterMode.Bilinear };
+				_pooledBrightPass = new RenderTexture(width, height, RENDERTEXTURE_DEPTH_BUFFER) { filterMode = FilterMode.Bilinear };
+				_pooledBlurTexture1 = new RenderTexture(width, height, RENDERTEXTURE_DEPTH_BUFFER) { filterMode = FilterMode.Bilinear };
+				_pooledBlurTexture2 = new RenderTexture(width, height, RENDERTEXTURE_DEPTH_BUFFER) { filterMode = FilterMode.Bilinear };
 
 				_lastPooledWidth = width;
 				_lastPooledHeight = height;
@@ -97,8 +116,8 @@ namespace NaturalLighting.Features.SunShafts
 				_pooledBlurTexture2 = null;
 			}
 
-			_lastPooledWidth = -1;
-			_lastPooledHeight = -1;
+			_lastPooledWidth = INVALID_TEXTURE_SIZE;
+			_lastPooledHeight = INVALID_TEXTURE_SIZE;
 		}
 
 		void OnDestroy()
@@ -106,7 +125,6 @@ namespace NaturalLighting.Features.SunShafts
 			ReleasePooledTextures();
 		}
 
-		// Helper method to get cached threshold vector
 		Vector4 GetCachedThresholdVector()
 		{
 			if (_lastThreshold != _threshold)
@@ -117,19 +135,16 @@ namespace NaturalLighting.Features.SunShafts
 			return _cachedThresholdVector;
 		}
 
-		// Helper method to create blur radius vector without allocation
 		static Vector4 CreateBlurRadiusVector(float radius)
 		{
 			return BLUR_RADIUS_BASE_PATTERN * radius;
 		}
 
-		// Helper method to create dynamic blur radius vector
 		static Vector4 CreateDynamicBlurRadiusVector(float radius)
 		{
 			return new Vector4(radius, radius, 0f, 0f);
 		}
 
-		// Helper methods to reduce redundant Material.SetVector calls
 		void SetSunPositionIfChanged(Vector4 newSunPosition)
 		{
 			if (_cachedSunPosition != newSunPosition)
@@ -170,21 +185,20 @@ namespace NaturalLighting.Features.SunShafts
 		{
 			try
 			{
-				var camera = GetComponent<Camera>();
-				if (camera == null)
+				if (_camera == null)
 				{
 					Graphics.Blit(source, destination);
 					return;
 				}
 
 				// Update sunTransform position every frame relative to camera position
-				_sunTransform.position = camera.transform.position - _sunLight.transform.forward * SUN_DISTANCE;
+				_sunTransform.position = _cameraTransform.position - _sunLightTransform.forward * SUN_DISTANCE;
 
 				// Calculate sun screen position using the updated transform
-				var sunScreenPosition = camera.WorldToViewportPoint(_sunTransform.position);
+				var sunScreenPosition = _camera.WorldToViewportPoint(_sunTransform.position);
 
 				// Enable depth texture mode
-				camera.depthTextureMode |= DepthTextureMode.Depth;
+				_camera.depthTextureMode |= DepthTextureMode.Depth;
 
 				if (sunScreenPosition.z <= 0 ||
 					!_distanceOptimization.TryCalculateQualitySettings(sunScreenPosition, _blurIterations, out var quality) ||
@@ -213,15 +227,23 @@ namespace NaturalLighting.Features.SunShafts
 			var iterations = quality.BlurIterations;
 			var intensity = _intensity * quality.IntensityMultiplier;
 
-			// Ensure pooled textures are available and correctly sized
 			EnsurePooledTextures(rtWidth, rtHeight);
 
-			// Precalculate blur radius constants to avoid repeated multiplication
 			var blurStep = _blurRadius * BLUR_SCALE_FACTOR;
 
 			// Step 1: Bright pass - extract bright areas using Pass 2 (with depth texture)
-			var brightPass = _pooledBrightPass;
+			ExecuteBrightPass(source, sunScreenPosition);
 
+			// Step 2: Radial blur iterations using Pass 1
+			iterations = Mathf.Clamp(iterations, MIN_BLUR_ITERATIONS, MAX_BLUR_ITERATIONS);
+			var blurredTexture = ExecuteBlurIterations(iterations, blurStep);
+
+			// Step 3: Final composite using Pass 0 (Screen blend)
+			ExecuteFinalComposite(source, destination, blurredTexture, intensity);
+		}
+
+		void ExecuteBrightPass(RenderTexture source, Vector3 sunScreenPosition)
+		{
 			// Set parameters for bright pass (only update if changed)
 			var sunPosition = new Vector4(sunScreenPosition.x, sunScreenPosition.y, sunScreenPosition.z, SUN_MAX_RADIUS);
 			var sunThreshold = GetCachedThresholdVector();
@@ -231,22 +253,21 @@ namespace NaturalLighting.Features.SunShafts
 			SetSunThresholdIfChanged(sunThreshold);
 
 			// Use Pass 2 for bright pass (with depth texture)
-			Graphics.Blit(source, brightPass, _sunShaftsMaterial, 2);
+			Graphics.Blit(source, _pooledBrightPass, _sunShaftsMaterial, SHADER_PASS_BRIGHT_PASS);
+		}
 
-			// Step 2: Radial blur iterations using Pass 1
-			iterations = Mathf.Clamp(iterations, 1, 4);
-
+		RenderTexture ExecuteBlurIterations(int iterations, float blurStep)
+		{
 			var baseBlurRadius = _blurRadius * BLUR_RESOLUTION_SCALE;
 			SetBlurRadiusIfChanged(CreateDynamicBlurRadiusVector(baseBlurRadius));
-			// Sun position already set above, no need to set again
 
-			var currentSource = brightPass;
+			var currentSource = _pooledBrightPass;
 			var currentTarget = _pooledBlurTexture1;
 
 			for (var i = 0; i < iterations; i++)
 			{
 				// First blur pass
-				Graphics.Blit(currentSource, currentTarget, _sunShaftsMaterial, 1); // Pass 1: Radial blur
+				Graphics.Blit(currentSource, currentTarget, _sunShaftsMaterial, SHADER_PASS_RADIAL_BLUR); // Pass 1: Radial blur
 
 				// Precalculated blur radius for current iteration
 				var dynamicBlurRadius = blurStep * (i * 2f + 1f);
@@ -257,7 +278,7 @@ namespace NaturalLighting.Features.SunShafts
 				currentSource = currentTarget;
 				currentTarget = (currentTarget == _pooledBlurTexture1) ? _pooledBlurTexture2 : _pooledBlurTexture1;
 
-				Graphics.Blit(currentSource, currentTarget, _sunShaftsMaterial, 1); // Pass 1: Radial blur
+				Graphics.Blit(currentSource, currentTarget, _sunShaftsMaterial, SHADER_PASS_RADIAL_BLUR); // Pass 1: Radial blur
 
 				// Precalculated blur radius for next iteration
 				var nextBlurRadius = blurStep * (i * 2f + 2f);
@@ -269,14 +290,18 @@ namespace NaturalLighting.Features.SunShafts
 				currentTarget = tempSwap;
 			}
 
-			// Step 3: Final composite using Pass 0 (Screen blend)
+			return currentSource;
+		}
+
+		void ExecuteFinalComposite(RenderTexture source, RenderTexture destination, RenderTexture blurredTexture, float intensity)
+		{
 			var sunColor = (Vector4)_sunLight.color * intensity;
 			SetSunColorIfChanged(sunColor);
 
-			_sunShaftsMaterial.SetTexture("_ColorBuffer", currentSource);
+			_sunShaftsMaterial.SetTexture("_ColorBuffer", blurredTexture);
 
 			// Use Pass 0 for Screen blend mode (final composite)
-			Graphics.Blit(source, destination, _sunShaftsMaterial, 0);
+			Graphics.Blit(source, destination, _sunShaftsMaterial, SHADER_PASS_SCREEN_BLEND);
 		}
 	}
 }
