@@ -57,26 +57,25 @@ namespace NaturalLighting.Features.SunShafts
 		/// <summary>
 		/// Initializes the sun shafts image effect with the specified parameters.
 		/// This method caches components and sets up the distance-based quality optimization system.
+		/// Effect parameters are automatically loaded from SunShaftsEffectConstants.
 		/// </summary>
 		/// <param name="sunLight">The directional light representing the sun</param>
 		/// <param name="sunTransform">Transform used for sun position calculations</param>
 		/// <param name="sunShaftsMaterial">Material containing the optimized sun shafts shader</param>
-		/// <param name="intensity">Base intensity multiplier for the sun shafts effect</param>
-		/// <param name="threshold">Brightness threshold for the bright pass filter</param>
-		/// <param name="blurRadius">Base blur radius for radial blur operations</param>
-		/// <param name="blurIterations">Maximum number of blur iterations to perform</param>
 		/// <param name="logger">Logger instance for error reporting</param>
-		public void Initialize(Light sunLight, Transform sunTransform, Material sunShaftsMaterial,
-			float intensity, float threshold, float blurRadius, int blurIterations, ILogger logger)
+		public void Initialize(Light sunLight, Transform sunTransform, Material sunShaftsMaterial, ILogger logger)
 		{
 			_sunLight = sunLight;
 			_sunTransform = sunTransform;
 			_sunShaftsMaterial = sunShaftsMaterial;
-			_intensity = intensity;
-			_threshold = threshold;
-			_blurRadius = blurRadius;
-			_blurIterations = blurIterations;
 			_logger = logger;
+
+			// Use default constants from SunShaftsEffectConstants
+			_intensity = SunShaftsEffectConstants.DEFAULT_INTENSITY;
+			_threshold = SunShaftsEffectConstants.DEFAULT_THRESHOLD;
+			_blurRadius = SunShaftsEffectConstants.DEFAULT_BLUR_RADIUS;
+			_blurIterations = SunShaftsEffectConstants.DEFAULT_BLUR_ITERATIONS;
+
 			_distanceOptimization = new DistanceBasedQualityScaling();
 
 			// Cache components to eliminate repeated lookups

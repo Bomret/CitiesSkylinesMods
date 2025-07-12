@@ -10,6 +10,12 @@ namespace NaturalLighting.Features.SunShafts
 		public const float SUN_DISTANCE = 2000f;                    // Distance of sun transform from camera
 		public const float SUN_MAX_RADIUS = 0.75f;                  // Maximum radius for sun falloff
 
+		// Core sunshaft effect parameters
+		public const float DEFAULT_INTENSITY = 2.0f;                // Default god ray strength
+		public const float DEFAULT_THRESHOLD = 0.5f;                // Default threshold for ray visibility
+		public const float DEFAULT_BLUR_RADIUS = 3.0f;              // Default ray blur amount
+		public const int DEFAULT_BLUR_ITERATIONS = 3;               // Default blur quality
+
 		// Resolution and scaling constants
 		public const float REFERENCE_RESOLUTION = 768f;             // Baseline resolution for blur scaling (tuned for optimal visual quality)
 		public const float SHADER_SAMPLE_COUNT = 6f;                // Number of samples in optimized radial blur shader
