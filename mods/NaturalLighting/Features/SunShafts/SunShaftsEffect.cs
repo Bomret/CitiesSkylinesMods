@@ -14,7 +14,7 @@ namespace NaturalLighting.Features.SunShafts
 	/// The shader uses a hard-coded 6-sample radial blur pattern optimized for Unity 5.6.7f1's
 	/// GPU capabilities, with mathematical constants defined in <see cref="SunShaftsEffectConstants"/>.
 	/// </summary>
-	sealed class SunShaftsImageEffect : MonoBehaviour
+	sealed class SunShaftsEffect : MonoBehaviour
 	{
 		// Core rendering components
 		Light _sunLight;                                      // The directional light representing the sun

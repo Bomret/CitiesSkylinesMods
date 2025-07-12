@@ -8,6 +8,7 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using ICities;
 using NaturalLighting.Features;
+using NaturalLighting.Features.ChromaticAberration;
 using NaturalLighting.Features.SunShafts;
 using NaturalLighting.Settings;
 using UnityEngine;
@@ -50,26 +51,32 @@ namespace NaturalLighting
 			{"1138510774", "PostProcessFX - Multi-platform"},
 		};
 		readonly ModProvider<GameMod> _modProvider;
+		private readonly ObjectProvider _serviceProvider;
 		readonly ModSettingsStore _settingsStore;
 		readonly List<Feature<ModSettings>> _features;
 
 		bool _isInGame;
 		bool _isModSetup;
-		Translator _translator;
+
+		ModInfo _mod;
+		private Translator _translator;
 
 		/// <summary>
 		/// Initializes a new instance of the GameMod class and sets up all lighting features.
 		/// </summary>
 		public GameMod()
 		{
-			_modProvider = new ModProvider<GameMod>();
 			_settingsStore = ModSettingsStore.Create(_modName);
 
+			_modProvider = new ModProvider<GameMod>();
+			_serviceProvider = new ObjectProvider();
+
 			_features = new List<Feature<ModSettings>>() {
-				new NaturalSunlightFeature(_modProvider, Debug.logger),
-				new SofterShadowsOnBuildingsFeature(_modProvider, Debug.logger),
-				new LutReplacerFeature(_modProvider, Debug.logger),
-				new SunshaftsFeature(_modProvider, Debug.logger)
+				new NaturalSunlightFeature(Debug.logger),
+				new SofterShadowsOnBuildingsFeature(Debug.logger),
+				new LutReplacerFeature(Debug.logger),
+				new SunshaftsFeature(Debug.logger),
+				new ChromaticAberrationFeature(Debug.logger)
 			};
 		}
 
@@ -78,9 +85,11 @@ namespace NaturalLighting
 		/// </summary>
 		public void OnEnabled()
 		{
-			var mod = _modProvider.GetCurrentMod();
+			_mod = _modProvider.GetCurrentMod();
 
-			_translator = new Translator(mod);
+			_translator = new Translator(_mod);
+			_serviceProvider.Register<IShaderProvider>(new ShaderProvider(_mod));
+			_serviceProvider.Register<ILutProvider>(new LutProvider(_mod));
 		}
 
 		/// <summary>
@@ -125,6 +134,13 @@ namespace NaturalLighting
 			});
 			enableSunshafts.tooltip = "Enable enhanced sunshafts and god ray effects for more dramatic lighting";
 
+			var useChromaticAberration = (UICheckBox)generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseChromaticAberration), settings.UseChromaticAberration, b =>
+			{
+				settings.UseChromaticAberration = b;
+				NotifySettingChanged(settings);
+			});
+			useChromaticAberration.tooltip = "Enable subtle chromatic aberration effect that simulates realistic camera lens distortion";
+
 			var incompatibleMods = DetectIncompatibleMods();
 			if (incompatibleMods.Count > 0)
 			{
@@ -136,6 +152,7 @@ namespace NaturalLighting
 					useSofterShadowsOnBuildings.isEnabled = false;
 					useOwnLut.isEnabled = false;
 					enableSunshafts.isEnabled = false;
+					useChromaticAberration.isEnabled = false;
 				}
 
 				var warningMessage = _translator.GetTranslation(LocaleStrings.IncompatibleModDetected);
@@ -148,6 +165,7 @@ namespace NaturalLighting
 					useSofterShadowsOnBuildings.isEnabled = b;
 					useOwnLut.isEnabled = b;
 					enableSunshafts.isEnabled = b;
+					useChromaticAberration.isEnabled = b;
 
 					NotifySettingChanged(settings);
 				});
@@ -173,7 +191,7 @@ namespace NaturalLighting
 			{
 				try
 				{
-					feature.OnLoaded(settings);
+					feature.OnLoaded(_serviceProvider, settings);
 				}
 				catch (Exception ex)
 				{

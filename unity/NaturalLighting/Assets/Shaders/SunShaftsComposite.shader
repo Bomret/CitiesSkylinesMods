@@ -14,7 +14,7 @@
  * 5. Additive Blend - Alternative compositing method using additive blending
  */
 
-Shader "Hidden/SunShaftsComposite" {
+Shader "Hidden/SunShafts" {
     Properties {
         _MainTex ("Base", 2D) = "" {}     // Main scene texture (what we're adding rays to)
         _ColorBuffer ("Color", 2D) = "" {} // Processed color data for sun rays

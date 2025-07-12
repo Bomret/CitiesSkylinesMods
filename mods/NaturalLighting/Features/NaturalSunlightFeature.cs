@@ -53,15 +53,14 @@ namespace NaturalLighting.Features
 		/// </summary>
 		/// <param name="modProvider">Provider for accessing mod resources and metadata.</param>
 		/// <param name="logger">Logger for diagnostic output and error reporting.</param>
-		public NaturalSunlightFeature(IModProvider modProvider, ILogger logger)
-			: base(modProvider, logger) { }
+		public NaturalSunlightFeature(ILogger logger) : base(logger) { }
 
 		/// <summary>
 		/// Called when the mod is loaded. Initializes the day/night properties manager,
 		/// captures the default sunlight color for restoration purposes, and applies natural sunlight if enabled.
 		/// </summary>
 		/// <param name="settings">Current mod settings containing natural sunlight preferences.</param>
-		public override void OnLoaded(ModSettings settings)
+		public override void OnLoaded(IObjectProvider objectProvider, ModSettings settings)
 		{
 			_dayNightProperties = Object.FindObjectOfType<DayNightProperties>();
 			if (_dayNightProperties == null)

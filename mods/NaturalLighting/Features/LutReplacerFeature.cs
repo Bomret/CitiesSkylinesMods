@@ -13,7 +13,7 @@ namespace NaturalLighting.Features
 	/// </summary>
 	sealed class LutReplacerFeature : Feature<ModSettings>
 	{
-		LutProvider _lutProvider;
+		ILutProvider _lutProvider;
 		ColorCorrectionManager _colorCorrections;
 		Texture3D _defaultLut;
 		bool _currentUseOwnLut;
@@ -23,18 +23,16 @@ namespace NaturalLighting.Features
 		/// </summary>
 		/// <param name="modProvider">Provider for accessing mod resources and metadata.</param>
 		/// <param name="logger">Logger for diagnostic output and error reporting.</param>
-		public LutReplacerFeature(IModProvider modProvider, ILogger logger)
-			: base(modProvider, logger) { }
+		public LutReplacerFeature(ILogger logger) : base(logger) { }
 
 		/// <summary>
 		/// Called when the mod is loaded. Initializes the LUT provider and color correction manager,
 		/// captures the default LUT for restoration purposes, and applies custom LUT if enabled.
 		/// </summary>
 		/// <param name="initialSettings">Current mod settings containing LUT replacement preferences.</param>
-		public override void OnLoaded(ModSettings initialSettings)
+		public override void OnLoaded(IObjectProvider objectProvider, ModSettings initialSettings)
 		{
-			var mod = ModProvider.GetCurrentMod();
-			_lutProvider = new LutProvider(mod);
+			_lutProvider = objectProvider.GetObj<ILutProvider>();
 
 			_colorCorrections = Object.FindObjectOfType<ColorCorrectionManager>();
 

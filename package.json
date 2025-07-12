@@ -30,6 +30,7 @@
   "workspaces": [
     "./apps/*",
     "./mods/*",
-    "./libs/*"
+    "./libs/*",
+    "./unity/*"
   ]
 }

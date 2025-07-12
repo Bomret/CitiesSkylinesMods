@@ -7,13 +7,11 @@ namespace NaturalLighting
 {
 	interface IShaderProvider
 	{
-		AssetBundle GetOrLoadBundle(string name);
 		Shader GetShader(string shaderName, string bundleName);
 	}
 
 	sealed class ShaderProvider : IShaderProvider, IDisposable
 	{
-		readonly ModInfo _mod;
 		readonly DirectoryInfo _shadersDir;
 		readonly Dictionary<string, AssetBundle> _loadedBundles = new Dictionary<string, AssetBundle>();
 		readonly Dictionary<string, Shader> _loadedShaders = new Dictionary<string, Shader>();
@@ -21,11 +19,10 @@ namespace NaturalLighting
 
 		public ShaderProvider(ModInfo mod)
 		{
-			_mod = mod;
 			_shadersDir = new DirectoryInfo(Path.Combine(Path.Combine(mod.Directory.FullName, "Assets"), "Shaders"));
 		}
 
-		public Shader GetShader(string shaderName, string bundleName = null)
+		public Shader GetShader(string shaderName, string bundleName)
 		{
 			var key = bundleName != null ? $"{bundleName}:{shaderName}" : shaderName;
 
@@ -36,45 +33,45 @@ namespace NaturalLighting
 
 			try
 			{
-				if (bundleName != null)
+				var bundle = GetOrLoadBundle(bundleName);
+				if (bundle != null)
 				{
-					var bundle = GetOrLoadBundle(bundleName);
-					if (bundle != null)
+					// First try to find by shader name using Unity's Shader.Find
+					var shader = Shader.Find($"Hidden/{shaderName}");
+					if (shader != null)
 					{
-						// First try to find by shader name using Unity's Shader.Find
-						var shader = Shader.Find($"Hidden/{shaderName}");
-						if (shader != null)
-						{
-							_loadedShaders[key] = shader;
-							return shader;
-						}
+						_loadedShaders[key] = shader;
+						return shader;
+					}
 
-						// If that fails, try loading all assets and look for shaders
-						var allAssets = bundle.LoadAllAssets<Shader>();
-						foreach (var asset in allAssets)
+					// If that fails, try loading all assets and look for shaders
+					var allAssets = bundle.LoadAllAssets<Shader>();
+					foreach (var asset in allAssets)
+					{
+						if (asset.name.Contains(shaderName) || asset.name.EndsWith(shaderName, StringComparison.OrdinalIgnoreCase))
 						{
-							if (asset.name.Contains(shaderName) || asset.name.EndsWith(shaderName, StringComparison.OrdinalIgnoreCase))
-							{
-								_loadedShaders[key] = asset;
-								return asset;
-							}
+							_loadedShaders[key] = asset;
+							return asset;
 						}
 					}
 				}
 
 				// Try loading from all available bundles
-				foreach (var bundle in _loadedBundles.Values)
+				foreach (var b in _loadedBundles.Values)
 				{
-					if (bundle != null)
+					if (b == null)
 					{
-						var allAssets = bundle.LoadAllAssets<Shader>();
-						foreach (var asset in allAssets)
+						continue;
+					}
+
+					var allAssets = b.LoadAllAssets<Shader>();
+					foreach (var asset in allAssets)
+					{
+						if (asset.name.Contains(shaderName) || asset.name.EndsWith(shaderName, StringComparison.OrdinalIgnoreCase))
 						{
-							if (asset.name.Contains(shaderName) || asset.name.EndsWith(shaderName, StringComparison.OrdinalIgnoreCase))
-							{
-								_loadedShaders[key] = asset;
-								return asset;
-							}
+							_loadedShaders[key] = asset;
+
+							return asset;
 						}
 					}
 				}
@@ -87,7 +84,7 @@ namespace NaturalLighting
 			return null;
 		}
 
-		public AssetBundle GetOrLoadBundle(string bundleName)
+		AssetBundle GetOrLoadBundle(string bundleName)
 		{
 			if (_loadedBundles.TryGetValue(bundleName, out var cachedBundle) && cachedBundle != null)
 			{

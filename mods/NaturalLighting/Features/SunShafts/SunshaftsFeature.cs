@@ -17,29 +17,28 @@ namespace NaturalLighting.Features.SunShafts
 		bool _isInitialized;
 
 		Material _sunShaftShaderMaterial;
-		SunShaftsImageEffect _sunShaftsComponent;
+		SunShaftsEffect _sunShaftsComponent;
 		GameObject _sunTransformObj;
-		ShaderProvider _shaderProvider;
+
+		IShaderProvider _shaderProvider;
 
 		/// <summary>
 		/// Initializes a new instance of the SunshaftsFeature class.
 		/// </summary>
 		/// <param name="modProvider">Provider for accessing mod resources and metadata.</param>
 		/// <param name="logger">Logger for diagnostic output.</param>
-		public SunshaftsFeature(IModProvider modProvider, ILogger logger)
-			: base(modProvider, logger) { }
+		public SunshaftsFeature(ILogger logger) : base(logger) { }
 
 		/// <summary>
 		/// Called when the mod is loaded. Initializes the shader provider and enables
 		/// sunshafts if the setting is enabled.
 		/// </summary>
 		/// <param name="settings">Current mod settings containing sunshaft preferences.</param>
-		public override void OnLoaded(ModSettings settings)
+		public override void OnLoaded(IObjectProvider objectProvider, ModSettings settings)
 		{
 			Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts.OnLoaded called with EnableSunshafts: {0}", settings.EnableSunshafts);
 
-			var mod = ModProvider.GetCurrentMod();
-			_shaderProvider = new ShaderProvider(mod);
+			_shaderProvider = objectProvider.GetObj<IShaderProvider>();
 
 			_currentSunshaftsEnabled = settings.EnableSunshafts;
 			if (_currentSunshaftsEnabled)
@@ -130,7 +129,7 @@ namespace NaturalLighting.Features.SunShafts
 			{
 				Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Attempting to load shaders from shader bundle");
 
-				var sunShaftsCompositeShader = _shaderProvider.GetShader("SunShaftsComposite", "sunshafts");
+				var sunShaftsCompositeShader = _shaderProvider.GetShader("SunShafts", "naturallighting");
 
 				if (sunShaftsCompositeShader != null)
 				{
@@ -197,7 +196,7 @@ namespace NaturalLighting.Features.SunShafts
 					_sunTransformObj = null;
 				}
 
-				_sunShaftsComponent = _mainCamera.gameObject.AddComponent<SunShaftsImageEffect>();
+				_sunShaftsComponent = _mainCamera.gameObject.AddComponent<SunShaftsEffect>();
 
 				_sunTransformObj = new GameObject("SunTransform");
 				var sunTransform = _sunTransformObj.transform;
@@ -294,7 +293,6 @@ namespace NaturalLighting.Features.SunShafts
 		{
 			DisableSunshafts();
 			CleanupShaders();
-			_shaderProvider?.Dispose();
 
 			_isInitialized = false;
 			_mainCamera = null;

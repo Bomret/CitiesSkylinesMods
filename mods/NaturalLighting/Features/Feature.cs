@@ -19,11 +19,6 @@ namespace NaturalLighting.Features
 		bool _isDisposed;
 
 		/// <summary>
-		/// Gets the mod provider instance for accessing mod resources and metadata.
-		/// </summary>
-		protected IModProvider ModProvider { get; }
-
-		/// <summary>
 		/// Gets the logger instance for diagnostic output and error reporting.
 		/// </summary>
 		protected ILogger Logger { get; }
@@ -33,9 +28,8 @@ namespace NaturalLighting.Features
 		/// </summary>
 		/// <param name="modProvider">Provider for accessing mod resources and metadata.</param>
 		/// <param name="logger">Logger for diagnostic output and error reporting.</param>
-		protected Feature(IModProvider modProvider, ILogger logger)
+		protected Feature(ILogger logger)
 		{
-			ModProvider = modProvider;
 			Logger = logger;
 		}
 
@@ -44,7 +38,7 @@ namespace NaturalLighting.Features
 		/// Override this method to perform feature-specific initialization logic.
 		/// </summary>
 		/// <param name="initialSettings">The initial settings to apply to this feature.</param>
-		public virtual void OnLoaded(TSettings initialSettings) { }
+		public virtual void OnLoaded(IObjectProvider serviceProvider, TSettings initialSettings) { }
 
 		/// <summary>
 		/// Called when the feature settings have changed and should be applied.

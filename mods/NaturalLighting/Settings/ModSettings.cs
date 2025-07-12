@@ -7,5 +7,6 @@
 		public bool UseSofterShadowsOnBuildings { get; set; } = true;
 		public bool UseOwnLut { get; set; } = true;
 		public bool EnableSunshafts { get; set; } = true;
+		public bool UseChromaticAberration { get; set; }
 	}
 }

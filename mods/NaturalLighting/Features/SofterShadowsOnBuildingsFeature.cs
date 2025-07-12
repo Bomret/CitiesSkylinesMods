@@ -51,15 +51,14 @@ namespace NaturalLighting.Features
 		/// </summary>
 		/// <param name="modProvider">Provider for accessing mod resources and metadata.</param>
 		/// <param name="logger">Logger for diagnostic output and error reporting.</param>
-		public SofterShadowsOnBuildingsFeature(IModProvider modProvider, ILogger logger)
-			: base(modProvider, logger) { }
+		public SofterShadowsOnBuildingsFeature(ILogger logger) : base(logger) { }
 
 		/// <summary>
 		/// Called when the mod is loaded. Initializes reflection access to Unity's ambient color system,
 		/// captures the default equator color for restoration purposes, and applies softer shadows if enabled.
 		/// </summary>
 		/// <param name="settings">Current mod settings containing softer shadows preferences.</param>
-		public override void OnLoaded(ModSettings settings)
+		public override void OnLoaded(IObjectProvider objectProvider, ModSettings settings)
 		{
 			try
 			{
