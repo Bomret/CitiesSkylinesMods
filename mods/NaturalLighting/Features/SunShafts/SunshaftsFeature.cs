@@ -21,7 +21,7 @@ namespace NaturalLighting.Features.SunShafts
 
 		Material _sunShaftShaderMaterial;
 		SunShaftsImageEffect _sunShaftsComponent;
-		GameObject _sunTransform;
+		GameObject _sunTransformObj;
 		ShaderProvider _shaderProvider;
 
 		/// <summary>
@@ -163,11 +163,11 @@ namespace NaturalLighting.Features.SunShafts
 			if (_sunShaftShaderMaterial != null && _mainCamera != null)
 			{
 				AddSunshaftsImageEffect();
+
+				return;
 			}
-			else
-			{
-				_logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Cannot add image effect - missing shaders or camera");
-			}
+
+			_logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Cannot add image effect - missing shaders or camera");
 		}
 
 		/// <summary>
@@ -183,7 +183,7 @@ namespace NaturalLighting.Features.SunShafts
 				return;
 			}
 
-			if (_sunShaftsComponent != null && _sunTransform != null)
+			if (_sunShaftsComponent != null && _sunTransformObj != null)
 			{
 				_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Image effect already active, skipping");
 				return;
@@ -197,16 +197,16 @@ namespace NaturalLighting.Features.SunShafts
 					_sunShaftsComponent = null;
 				}
 
-				if (_sunTransform != null)
+				if (_sunTransformObj != null)
 				{
-					Object.DestroyImmediate(_sunTransform);
-					_sunTransform = null;
+					Object.DestroyImmediate(_sunTransformObj);
+					_sunTransformObj = null;
 				}
 
 				_sunShaftsComponent = _mainCamera.gameObject.AddComponent<SunShaftsImageEffect>();
 
-				_sunTransform = new GameObject("SunTransform");
-				var sunTransform = _sunTransform.transform;
+				_sunTransformObj = new GameObject("SunTransform");
+				var sunTransform = _sunTransformObj.transform;
 
 				_sunShaftsComponent.Initialize(_sunLight, sunTransform, _sunShaftShaderMaterial, _logger);
 
@@ -220,7 +220,7 @@ namespace NaturalLighting.Features.SunShafts
 
 		/// <summary>
 		/// Validates that all required components are available and properly initialized.
-		/// Checks if Unity objects are still valid (not destroyed) and resets references if needed.
+		/// Checks if Unity objects are still valid (not destroyed).
 		/// </summary>
 		/// <returns>True if components are valid, false otherwise</returns>
 		bool ValidateComponents()
@@ -241,14 +241,13 @@ namespace NaturalLighting.Features.SunShafts
 			try
 			{
 				var _ = _mainCamera.transform; // This will throw if destroyed
-				var __ = _sunLight.transform;  // This will throw if destroyed
+				_ = _sunLight.transform;  // This will throw if destroyed
+
 				return true;
 			}
 			catch (System.Exception)
 			{
 				_logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Components have been destroyed");
-				_mainCamera = null;
-				_sunLight = null;
 				return false;
 			}
 		}
@@ -276,7 +275,12 @@ namespace NaturalLighting.Features.SunShafts
 
 			if (!ValidateComponents())
 			{
-				_logger.LogFormat(LogType.Error, "[NaturalLighting] Sunshafts: Required components not available, cannot enable");
+				_logger.LogFormat(LogType.Warning, "[NaturalLighting] Sunshafts: Validation failed, cannot enable");
+
+				_mainCamera = null;
+				_sunLight = null;
+				_isInitialized = false;
+
 				return;
 			}
 
@@ -315,10 +319,10 @@ namespace NaturalLighting.Features.SunShafts
 				_sunShaftsComponent = null;
 			}
 
-			if (_sunTransform != null)
+			if (_sunTransformObj != null)
 			{
-				Object.DestroyImmediate(_sunTransform);
-				_sunTransform = null;
+				Object.DestroyImmediate(_sunTransformObj);
+				_sunTransformObj = null;
 			}
 
 			_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Disabled image effect");
