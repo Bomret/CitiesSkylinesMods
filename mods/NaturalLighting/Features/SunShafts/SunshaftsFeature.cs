@@ -84,13 +84,10 @@ namespace NaturalLighting.Features.SunShafts
 				}
 			}
 
-			_logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Initialized - Camera: {0}, Sun Light: {1} (name: '{2}')",
-				_mainCamera != null, _sunLight != null, _sunLight?.name ?? "null");
-
-			// Mark as initialized if we have at least the essential components
-			if (_mainCamera != null || _sunLight != null)
+			if (_mainCamera != null && _sunLight != null)
 			{
 				_isInitialized = true;
+				_logger.Log(LogType.Log, "[NaturalLighting] Sunshafts: Initialized");
 			}
 		}
 
