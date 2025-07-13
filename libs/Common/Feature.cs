@@ -1,8 +1,7 @@
 using System;
-using ICities;
 using UnityEngine;
 
-namespace NaturalLighting.Features
+namespace Common
 {
 	/// <summary>
 	/// Abstract base class for all Natural Lighting mod features that provides a common lifecycle
@@ -13,7 +12,7 @@ namespace NaturalLighting.Features
 	/// All concrete features should inherit from this class and implement the required abstract methods.
 	/// </summary>
 	/// <typeparam name="TSettings">The type of settings object this feature operates on, must be a reference type.</typeparam>
-	abstract class Feature<TSettings> : IDisposable
+	public abstract class Feature<TSettings> : IDisposable
 		where TSettings : class
 	{
 		bool _isDisposed;
@@ -38,7 +37,7 @@ namespace NaturalLighting.Features
 		/// Override this method to perform feature-specific initialization logic.
 		/// </summary>
 		/// <param name="initialSettings">The initial settings to apply to this feature.</param>
-		public virtual void OnLoaded(IObjectProvider serviceProvider, TSettings initialSettings) { }
+		public virtual void OnLoaded(IServiceProvider serviceProvider, TSettings initialSettings) { }
 
 		/// <summary>
 		/// Called when the feature settings have changed and should be applied.

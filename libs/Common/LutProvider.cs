@@ -1,24 +1,24 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ColossalFramework;
 using ColossalFramework.Importers;
 using UnityEngine;
-using System.Linq;
-using System.Collections.Generic;
-using System;
 
-namespace NaturalLighting
+namespace Common
 {
-	interface ILutProvider
+	public interface ILutProvider
 	{
 		Texture3D GetLut(string name);
 	}
 
-	sealed class LutProvider : ILutProvider
+	public sealed class LutProvider : ILutProvider
 	{
 		readonly DirectoryInfo _lutsDir;
 		readonly Dictionary<string, Texture3D> _luts = new Dictionary<string, Texture3D>(StringComparer.OrdinalIgnoreCase);
 
-		public LutProvider(ModInfo mod)
+		public LutProvider(ModData mod)
 		{
 			_lutsDir = mod.Directory.CreateSubdirectory("Assets").CreateSubdirectory("Luts");
 		}

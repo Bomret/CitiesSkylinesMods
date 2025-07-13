@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 
-namespace NaturalLighting
+namespace Common
 {
-	readonly struct ModInfo
+	public readonly struct ModData
 	{
 		public string NameOrSteamId { get; }
 		public DirectoryInfo Directory { get; }
@@ -12,7 +12,7 @@ namespace NaturalLighting
 
 		readonly Func<bool> _isEnabled;
 
-		public ModInfo(
+		public ModData(
 			string nameOrSteamId,
 			DirectoryInfo directory,
 			Func<bool> isEnabled) : this()

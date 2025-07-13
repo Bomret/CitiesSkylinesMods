@@ -1,7 +1,8 @@
-GENERAL_SETTINGS=Configuración General
-INCOMPATIBLE_MOD_DETECTED=Se detectó el mod “{0}” incompatible.
-ENABLE_ANYWAY=Activar de todos modos
-USE_NATURAL_SUNLIGHT=Utilice la luz solar natural
-USE_SOFTER_SHADOWS_ON_BUILDINGS=Utilice sombras más suaves en los edificios
-USE_OWN_LUT=Usar LUT de mod
-ENABLE_SUNSHAFTS=Activar Rayos Solares
+GENERAL_SETTINGS=Configuración general
+INCOMPATIBLE_MOD_DETECTED=Detectado mod incompatible '{0}'.
+ENABLE_ANYWAY=Habilitar de todos modos
+USE_NATURAL_SUNLIGHT=Usar luz solar natural
+USE_SOFTER_SHADOWS_ON_BUILDINGS=Usar sombras más suaves en los edificios
+USE_OWN_LUT=Usar el LUT del mod
+ENABLE_SUNSHAFTS=Usar efecto de rayos solares
+USE_CHROMATIC_ABERRATION=Usar efecto de aberración cromática

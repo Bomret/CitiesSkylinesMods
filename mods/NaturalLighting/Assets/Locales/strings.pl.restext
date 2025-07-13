@@ -1,7 +1,8 @@
-GENERAL_SETTINGS=Ustawienia główne
+GENERAL_SETTINGS=Ustawienia ogólne
 INCOMPATIBLE_MOD_DETECTED=Wykryto niekompatybilny mod '{0}'.
-ENABLE_ANYWAY=Aktywuj mimo to
-USE_NATURAL_SUNLIGHT=Korzystaj z naturalnego światła słonecznego
+ENABLE_ANYWAY=Włącz mimo to
+USE_NATURAL_SUNLIGHT=Użyj naturalnego światła słonecznego
 USE_SOFTER_SHADOWS_ON_BUILDINGS=Użyj delikatniejszych cieni na budynkach
-USE_OWN_LUT=Użyj LUT Mod
-ENABLE_SUNSHAFTS=Włącz Promienie Słońca
+USE_OWN_LUT=Użyj LUT moda
+ENABLE_SUNSHAFTS=Użyj efektu promieni słonecznych
+USE_CHROMATIC_ABERRATION=Użyj efektu aberracji chromatycznej

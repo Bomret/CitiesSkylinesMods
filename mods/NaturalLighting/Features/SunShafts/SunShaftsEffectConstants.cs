@@ -1,3 +1,5 @@
+using Common;
+
 namespace NaturalLighting.Features.SunShafts
 {
 	/// <summary>

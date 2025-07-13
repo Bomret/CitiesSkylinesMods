@@ -5,29 +5,29 @@ using System.Xml.Serialization;
 using ColossalFramework.IO;
 using UnityEngine;
 
-namespace NaturalLighting.Settings
+namespace Common
 {
-	public sealed class ModSettingsStore
+	public sealed class ModSettingsStore<TSettings> where TSettings : class, new()
 	{
 		readonly string _settingsFilePath;
 		readonly XmlSerializer _xmlSerializer;
 
-		ModSettings _settings;
+		TSettings _settings;
 
 		public ModSettingsStore(string settingsFilePath)
 		{
 			_settingsFilePath = settingsFilePath;
-			_xmlSerializer = new XmlSerializer(typeof(ModSettings));
+			_xmlSerializer = new XmlSerializer(typeof(TSettings));
 		}
 
-		public static ModSettingsStore Create(string modName)
+		public static ModSettingsStore<TSettings> Create(string modName)
 		{
 			var settingsFile = Path.Combine(DataLocation.localApplicationData, $"{modName}.xml");
 
-			return new ModSettingsStore(settingsFile);
+			return new ModSettingsStore<TSettings>(settingsFile);
 		}
 
-		public ModSettings GetOrLoadSettings()
+		public TSettings GetOrLoadSettings()
 		{
 			if (_settings != null) return _settings;
 
@@ -41,7 +41,7 @@ namespace NaturalLighting.Settings
 				{
 					using (var reader = XmlReader.Create(_settingsFilePath))
 					{
-						_settings = (ModSettings)_xmlSerializer.Deserialize(reader);
+						_settings = (TSettings)_xmlSerializer.Deserialize(reader);
 					}
 				}
 				catch (Exception err)
@@ -68,7 +68,7 @@ namespace NaturalLighting.Settings
 
 		void ResetSettings()
 		{
-			_settings = new ModSettings();
+			_settings = new TSettings();
 
 			SaveSettings();
 		}

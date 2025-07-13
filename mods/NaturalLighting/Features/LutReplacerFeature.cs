@@ -1,3 +1,4 @@
+using Common;
 using NaturalLighting.Settings;
 using UnityEngine;
 
@@ -30,9 +31,9 @@ namespace NaturalLighting.Features
 		/// captures the default LUT for restoration purposes, and applies custom LUT if enabled.
 		/// </summary>
 		/// <param name="initialSettings">Current mod settings containing LUT replacement preferences.</param>
-		public override void OnLoaded(IObjectProvider objectProvider, ModSettings initialSettings)
+		public override void OnLoaded(IServiceProvider serviceProvider, ModSettings initialSettings)
 		{
-			_lutProvider = objectProvider.GetObj<ILutProvider>();
+			_lutProvider = serviceProvider.GetObj<ILutProvider>();
 
 			_colorCorrections = Object.FindObjectOfType<ColorCorrectionManager>();
 

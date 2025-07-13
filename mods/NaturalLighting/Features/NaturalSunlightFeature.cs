@@ -1,3 +1,4 @@
+using Common;
 using NaturalLighting.Settings;
 using UnityEngine;
 
@@ -60,7 +61,7 @@ namespace NaturalLighting.Features
 		/// captures the default sunlight color for restoration purposes, and applies natural sunlight if enabled.
 		/// </summary>
 		/// <param name="settings">Current mod settings containing natural sunlight preferences.</param>
-		public override void OnLoaded(IObjectProvider objectProvider, ModSettings settings)
+		public override void OnLoaded(IServiceProvider serviceProvider, ModSettings settings)
 		{
 			_dayNightProperties = Object.FindObjectOfType<DayNightProperties>();
 			if (_dayNightProperties == null)

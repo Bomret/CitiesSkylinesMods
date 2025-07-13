@@ -1,3 +1,4 @@
+using Common;
 using NaturalLighting.Settings;
 using UnityEngine;
 
@@ -34,11 +35,11 @@ namespace NaturalLighting.Features.SunShafts
 		/// sunshafts if the setting is enabled.
 		/// </summary>
 		/// <param name="settings">Current mod settings containing sunshaft preferences.</param>
-		public override void OnLoaded(IObjectProvider objectProvider, ModSettings settings)
+		public override void OnLoaded(IServiceProvider serviceProvider, ModSettings settings)
 		{
 			Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts.OnLoaded called with EnableSunshafts: {0}", settings.EnableSunshafts);
 
-			_shaderProvider = objectProvider.GetObj<IShaderProvider>();
+			_shaderProvider = serviceProvider.GetObj<IShaderProvider>();
 
 			_currentSunshaftsEnabled = settings.EnableSunshafts;
 			if (_currentSunshaftsEnabled)

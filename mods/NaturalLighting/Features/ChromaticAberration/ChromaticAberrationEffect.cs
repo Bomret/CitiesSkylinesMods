@@ -1,3 +1,4 @@
+using Common;
 using UnityEngine;
 
 namespace NaturalLighting.Features.ChromaticAberration
@@ -21,17 +22,9 @@ namespace NaturalLighting.Features.ChromaticAberration
 		// Cached components for performance optimization
 		Camera _camera;                                       // Cached to avoid GetComponent calls
 
-		// Effect parameters (optimized for Cities: Skylines)
-		const float DefaultAberrationStrength = 0.04f;       // Moderate aberration strength
-		const float DefaultDistortionAmount = 0.8f;          // Controlled distortion curve
-		const float CenterX = 0.5f;                          // Center of screen X
-		const float CenterY = 0.5f;                          // Center of screen Y
-
 		// Shader property IDs (cached for performance)
 		static readonly int AberrationPropertyId = Shader.PropertyToID("_Aberration");
 		static readonly int DistortionPropertyId = Shader.PropertyToID("_Distortion");
-		static readonly int CenterXPropertyId = Shader.PropertyToID("_CenterX");
-		static readonly int CenterYPropertyId = Shader.PropertyToID("_CenterY");
 
 		/// <summary>
 		/// Initializes the chromatic aberration image effect with the specified material.
@@ -62,10 +55,8 @@ namespace NaturalLighting.Features.ChromaticAberration
 		{
 			if (_chromaticAberrationMaterial != null)
 			{
-				_chromaticAberrationMaterial.SetFloat(AberrationPropertyId, DefaultAberrationStrength);
-				_chromaticAberrationMaterial.SetFloat(DistortionPropertyId, DefaultDistortionAmount);
-				_chromaticAberrationMaterial.SetFloat(CenterXPropertyId, CenterX);
-				_chromaticAberrationMaterial.SetFloat(CenterYPropertyId, CenterY);
+				_chromaticAberrationMaterial.SetFloat(AberrationPropertyId, ChromaticAberrationEffectConstants.DEFAULT_ABERRATION_STRENGTH);
+				_chromaticAberrationMaterial.SetFloat(DistortionPropertyId, ChromaticAberrationEffectConstants.DEFAULT_DISTORTION_AMOUNT);
 			}
 		}
 

@@ -1,11 +1,14 @@
 {
   "name": "removechirper",
-  "private": true,
+  "version": "1.1.1",
+  "dependencies": {
+    "common": "0.0.0"
+  },
   "scripts": {
     "build": "dotnet build --nologo --no-dependencies --no-restore",
     "publish": "rimraf ./publish && dotnet publish --configuration Release --no-dependencies --nologo --output ./publish",
     "release": "semantic-release -e semantic-release-monorepo --no-ci",
     "restore": "dotnet restore --no-dependencies"
   },
-  "version": "1.1.1"
+  "private": true
 }

@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace NaturalLighting
+namespace Common
 {
-	interface IShaderProvider
+	public interface IShaderProvider
 	{
 		Shader GetShader(string shaderName, string bundleName);
 	}
 
-	sealed class ShaderProvider : IShaderProvider, IDisposable
+	public sealed class ShaderProvider : IShaderProvider, IDisposable
 	{
 		readonly DirectoryInfo _shadersDir;
 		readonly Dictionary<string, AssetBundle> _loadedBundles = new Dictionary<string, AssetBundle>();
 		readonly Dictionary<string, Shader> _loadedShaders = new Dictionary<string, Shader>();
 		bool _disposedValue;
 
-		public ShaderProvider(ModInfo mod)
+		public ShaderProvider(ModData mod)
 		{
 			_shadersDir = new DirectoryInfo(Path.Combine(Path.Combine(mod.Directory.FullName, "Assets"), "Shaders"));
 		}

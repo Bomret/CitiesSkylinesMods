@@ -1,0 +1,9 @@
+{
+  "name": "common",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "dotnet build --nologo --no-dependencies --no-restore",
+    "restore": "dotnet restore --no-dependencies"
+  },
+  "private": true
+}

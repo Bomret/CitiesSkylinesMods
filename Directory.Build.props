@@ -3,7 +3,7 @@
     <Authors>Bomret</Authors>
     <RepositoryUrl>https://github.com/Bomret/CitiesSkylinesMods</RepositoryUrl>
 
-    <DefaultItemExcludes>$(DefaultItemExcludes);node_modules\**;package.json;packages.lock.json</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);node_modules\**;packages.lock.json</DefaultItemExcludes>
 
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>

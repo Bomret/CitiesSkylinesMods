@@ -2,7 +2,7 @@
 
 using System.Xml.Serialization;
 
-namespace NaturalLighting
+namespace Common.Translations
 {
 	public sealed class Language
 	{
@@ -13,14 +13,5 @@ namespace NaturalLighting
 		public string Name { get; set; }
 
 		public Translation[] Translations { get; set; }
-	}
-
-	public sealed class Translation
-	{
-		[XmlAttribute]
-		public string ID { get; set; }
-
-		[XmlAttribute]
-		public string Value { get; set; }
 	}
 }

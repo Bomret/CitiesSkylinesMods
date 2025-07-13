@@ -1,4 +1,5 @@
 using System.Reflection;
+using Common;
 using NaturalLighting.Settings;
 using UnityEngine;
 
@@ -58,7 +59,7 @@ namespace NaturalLighting.Features
 		/// captures the default equator color for restoration purposes, and applies softer shadows if enabled.
 		/// </summary>
 		/// <param name="settings">Current mod settings containing softer shadows preferences.</param>
-		public override void OnLoaded(IObjectProvider objectProvider, ModSettings settings)
+		public override void OnLoaded(IServiceProvider serviceProvider, ModSettings settings)
 		{
 			try
 			{

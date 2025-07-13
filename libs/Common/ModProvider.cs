@@ -1,29 +1,29 @@
 using System.Collections.Generic;
-using ColossalFramework.Plugins;
 using System.Collections.ObjectModel;
 using System.IO;
+using ColossalFramework.Plugins;
 
-namespace NaturalLighting
+namespace Common
 {
-	interface IModProvider
+	public interface IModProvider
 	{
-		ModInfo GetCurrentMod();
-		ReadOnlyCollection<ModInfo> GetLoadedMods();
+		ModData GetCurrentMod();
+		ReadOnlyCollection<ModData> GetLoadedMods();
 	}
 
-	sealed class ModProvider<TCurrentMod> : IModProvider
+	public sealed class ModProvider<TCurrentMod> : IModProvider
 		where TCurrentMod : class
 	{
-		public ModInfo GetCurrentMod()
+		public ModData GetCurrentMod()
 		{
 			var plugin = PluginManager.instance.FindPluginInfo(typeof(TCurrentMod).Assembly);
 
 			return ToModInfo(plugin);
 		}
 
-		public ReadOnlyCollection<ModInfo> GetLoadedMods()
+		public ReadOnlyCollection<ModData> GetLoadedMods()
 		{
-			var loadedMods = new List<ModInfo>();
+			var loadedMods = new List<ModData>();
 			foreach (var mod in PluginManager.instance.GetPluginsInfo())
 			{
 				if (!mod.isEnabled) continue;
@@ -34,7 +34,7 @@ namespace NaturalLighting
 			return loadedMods.AsReadOnly();
 		}
 
-		static ModInfo ToModInfo(PluginManager.PluginInfo plugin) => new ModInfo(
+		static ModData ToModInfo(PluginManager.PluginInfo plugin) => new ModData(
 			nameOrSteamId: plugin.name,
 			directory: new DirectoryInfo(plugin.modPath),
 			isEnabled: () => plugin.isEnabled);

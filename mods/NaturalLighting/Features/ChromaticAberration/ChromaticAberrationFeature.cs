@@ -1,3 +1,4 @@
+using Common;
 using NaturalLighting.Settings;
 using UnityEngine;
 
@@ -38,11 +39,11 @@ namespace NaturalLighting.Features.ChromaticAberration
 		/// chromatic aberration if the setting is enabled.
 		/// </summary>
 		/// <param name="settings">Current mod settings containing chromatic aberration preferences.</param>
-		public override void OnLoaded(IObjectProvider objectProvider, ModSettings settings)
+		public override void OnLoaded(IServiceProvider serviceProvider, ModSettings settings)
 		{
 			Logger.LogFormat(LogType.Log, "[NaturalLighting] ChromaticAberration.OnLoaded called with UseChromaticAberration: {0}", settings.UseChromaticAberration);
 
-			_shaderProvider = objectProvider.GetObj<IShaderProvider>();
+			_shaderProvider = serviceProvider.GetObj<IShaderProvider>();
 
 			_currentChromaticAberrationEnabled = settings.UseChromaticAberration;
 			if (_currentChromaticAberrationEnabled)

@@ -22,7 +22,6 @@ Shader "Hidden/SunShafts" {
     }
 
     CGINCLUDE
-
     #include "UnityCG.cginc"
     
     /*

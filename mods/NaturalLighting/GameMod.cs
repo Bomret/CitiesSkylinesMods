@@ -6,6 +6,8 @@ using System.Linq;
 using System.Reflection;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
+using Common;
+using Common.Translations;
 using ICities;
 using NaturalLighting.Features;
 using NaturalLighting.Features.ChromaticAberration;
@@ -51,25 +53,25 @@ namespace NaturalLighting
 			{"1138510774", "PostProcessFX - Multi-platform"},
 		};
 		readonly ModProvider<GameMod> _modProvider;
-		private readonly ObjectProvider _serviceProvider;
-		readonly ModSettingsStore _settingsStore;
+		readonly ServiceProvider _serviceProvider;
+		readonly ModSettingsStore<ModSettings> _settingsStore;
 		readonly List<Feature<ModSettings>> _features;
 
 		bool _isInGame;
 		bool _isModSetup;
 
-		ModInfo _mod;
-		private Translator _translator;
+		ModData _mod;
+		Translator _translator;
 
 		/// <summary>
 		/// Initializes a new instance of the GameMod class and sets up all lighting features.
 		/// </summary>
 		public GameMod()
 		{
-			_settingsStore = ModSettingsStore.Create(_modName);
+			_settingsStore = ModSettingsStore<ModSettings>.Create(_modName);
 
 			_modProvider = new ModProvider<GameMod>();
-			_serviceProvider = new ObjectProvider();
+			_serviceProvider = new ServiceProvider();
 
 			_features = new List<Feature<ModSettings>>() {
 				new NaturalSunlightFeature(Debug.logger),
