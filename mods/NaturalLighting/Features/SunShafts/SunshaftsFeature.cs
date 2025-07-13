@@ -37,11 +37,11 @@ namespace NaturalLighting.Features.SunShafts
 		/// <param name="settings">Current mod settings containing sunshaft preferences.</param>
 		public override void OnLoaded(IServiceProvider serviceProvider, ModSettings settings)
 		{
-			Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts.OnLoaded called with EnableSunshafts: {0}", settings.EnableSunshafts);
+			Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts.OnLoaded called with EnableSunshafts: {0}", settings.UseSunshafts);
 
 			_shaderProvider = serviceProvider.GetObj<IShaderProvider>();
 
-			_currentSunshaftsEnabled = settings.EnableSunshafts;
+			_currentSunshaftsEnabled = settings.UseSunshafts;
 			if (_currentSunshaftsEnabled)
 			{
 				EnableSunshafts();
@@ -55,12 +55,12 @@ namespace NaturalLighting.Features.SunShafts
 		/// <param name="settings">Updated mod settings.</param>
 		public override void OnSettingsChanged(ModSettings settings)
 		{
-			if (_currentSunshaftsEnabled == settings.EnableSunshafts) return;
+			if (_currentSunshaftsEnabled == settings.UseSunshafts) return;
 
 			Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Settings changed from {0} to {1}",
-				_currentSunshaftsEnabled, settings.EnableSunshafts);
+				_currentSunshaftsEnabled, settings.UseSunshafts);
 
-			if (settings.EnableSunshafts)
+			if (settings.UseSunshafts)
 			{
 				EnableSunshafts();
 			}
@@ -69,7 +69,7 @@ namespace NaturalLighting.Features.SunShafts
 				DisableSunshafts();
 			}
 
-			_currentSunshaftsEnabled = settings.EnableSunshafts;
+			_currentSunshaftsEnabled = settings.UseSunshafts;
 		}
 
 		/// <summary>

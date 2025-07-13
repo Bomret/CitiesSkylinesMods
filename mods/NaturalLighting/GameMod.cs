@@ -129,12 +129,12 @@ namespace NaturalLighting
 			});
 			useOwnLut.tooltip = "Use the built-in Natural Lighting LUT";
 
-			var enableSunshafts = (UICheckBox)generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.EnableSunshafts), settings.EnableSunshafts, b =>
+			var useSunshafts = (UICheckBox)generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.EnableSunshafts), settings.UseSunshafts, b =>
 			{
-				settings.EnableSunshafts = b;
+				settings.UseSunshafts = b;
 				NotifySettingChanged(settings);
 			});
-			enableSunshafts.tooltip = "Enable enhanced sunshafts and god ray effects for more dramatic lighting";
+			useSunshafts.tooltip = "Enable enhanced sunshafts and god ray effects for more dramatic lighting";
 
 			var useChromaticAberration = (UICheckBox)generalSettings.AddCheckbox(_translator.GetTranslation(LocaleStrings.UseChromaticAberration), settings.UseChromaticAberration, b =>
 			{
@@ -153,7 +153,7 @@ namespace NaturalLighting
 					useNaturalSunlight.isEnabled = false;
 					useSofterShadowsOnBuildings.isEnabled = false;
 					useOwnLut.isEnabled = false;
-					enableSunshafts.isEnabled = false;
+					useSunshafts.isEnabled = false;
 					useChromaticAberration.isEnabled = false;
 				}
 
@@ -166,7 +166,7 @@ namespace NaturalLighting
 					useNaturalSunlight.isEnabled = b;
 					useSofterShadowsOnBuildings.isEnabled = b;
 					useOwnLut.isEnabled = b;
-					enableSunshafts.isEnabled = b;
+					useSunshafts.isEnabled = b;
 					useChromaticAberration.isEnabled = b;
 
 					NotifySettingChanged(settings);
@@ -296,7 +296,7 @@ namespace NaturalLighting
 					UseNaturalSunlight = false,
 					UseSofterShadowsOnBuildings = false,
 					UseOwnLut = false,
-					EnableSunshafts = false,
+					UseSunshafts = false,
 					IgnoreIncompatibleMods = settings.IgnoreIncompatibleMods // Preserve the override setting
 				};
 			}
