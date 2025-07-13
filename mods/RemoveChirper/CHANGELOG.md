@@ -1,3 +1,10 @@
+# [removechirper-v1.2.0](https://github.com/Bomret/CitiesSkylinesMods/compare/removechirper-v1.1.1...removechirper-v1.2.0) (2025-07-13)
+
+
+### Features
+
+* big updates ([01a2995](https://github.com/Bomret/CitiesSkylinesMods/commit/01a2995638dd508a7f31f5fb3aa00e734ec0f34f))
+
 # [removechirper-v1.1.1](https://github.com/Bomret/CitiesSkylinesMods/compare/removechirper-v1.1.0...removechirper-v1.1.1) (2025-03-26)
 
 
