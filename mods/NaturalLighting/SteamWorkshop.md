@@ -12,6 +12,7 @@ It is a replacement for Daylight Classic and Softer Shadows but made for the cur
 The mod provides translations for all it's settings menu items in all the languages supported by the game. If you find an incorrect translation, please leave a comment below or open an issue on GitHub, linked below.
 
 [h2]Features[/h2]
+All individual features of this mod can be enabled/disabled in-game in Options > Mod Settings > Natural Lighting.
 
 [h3]Color Correction (default: on)[/h3]
 This mod changes the default lighting colors in the game so everything doesn't look so tinted yellow anymore.
