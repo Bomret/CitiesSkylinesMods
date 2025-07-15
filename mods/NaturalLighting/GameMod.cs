@@ -11,6 +11,7 @@ using Common.Translations;
 using ICities;
 using NaturalLighting.Features;
 using NaturalLighting.Features.ChromaticAberration;
+using NaturalLighting.Features.NaturalSunlight;
 using NaturalLighting.Features.SunShafts;
 using NaturalLighting.Settings;
 using UnityEngine;
