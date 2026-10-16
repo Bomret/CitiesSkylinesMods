@@ -10,7 +10,8 @@
   - Install — `pnpm install`. Its `postinstall` runs `dotnet restore && dotnet tool restore`.
   - Build — `dotnet build CitiesSkylinesMods.slnx`. Needs Cities: Skylines installed through Steam: the
     mods reference the game's managed assemblies from its install path (`mods/Directory.Build.props`).
-  - Tests — none; this repository has no test suite.
+  - Tests — none; this repository has no test suite. The verification command is the build, see
+    `docs/agents/verification.md`.
 - Lint: `Microsoft.Extensions.StaticAnalysis` analyzers run on every build (`Directory.Build.props`,
   version in `Directory.Packages.props`). Code style rules: `.editorconfig`.
 - Commit messages: commitlint with `@commitlint/config-conventional`, run by the husky `commit-msg` hook.

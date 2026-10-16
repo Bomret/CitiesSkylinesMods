@@ -22,7 +22,8 @@ pnpm workspace plus .NET (`dotnet build CitiesSkylinesMods.slnx`), per-mod `publ
 scripts, Unity 5.6.7f1 for the shader bundle. See `docs/agents/toolchain.md`.
 
 ### Verification
-None: the repository has no test suite.
+No test suite. The verification command is `dotnet build CitiesSkylinesMods.slnx`. See
+`docs/agents/verification.md`.
 
 ### Deployment
 Posture `manual`, 2 targets (`naturallighting`, `removechirper`). See `docs/agents/deployment.md`.
