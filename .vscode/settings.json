@@ -2,16 +2,31 @@
   "dotnetAcquisitionExtension.enableTelemetry": false,
   "editor.formatOnType": true,
   "editor.formatOnSave": true,
-  "editor.semanticHighlighting.enabled": true,
   "[csharp]": {
+    "editor.formatOnType": false,
+    "editor.defaultFormatter": "ms-dotnettools.csharp",
     "editor.codeActionsOnSave": {
       "source.fixAll": "always",
       "source.organizeImports": "always"
     }
   },
-  "[json]": {
-    "editor.formatOnType": true,
-    "editor.formatOnSave": true
+  "[xml]": {
+    "editor.defaultFormatter": "DotJoshJohnson.xml"
   },
-  "debug.internalConsoleOptions": "neverOpen"
+  "[javascript]": {
+    "editor.maxTokenizationLineLength": 2500,
+    "editor.defaultFormatter": "biomejs.biome",
+  },
+  "[typescript]": {
+    "editor.maxTokenizationLineLength": 2500,
+    "editor.defaultFormatter": "biomejs.biome",
+  },
+  "[html]": {
+    "editor.maxTokenizationLineLength": 2500,
+    "editor.defaultFormatter": "biomejs.biome",
+  },
+  "[css]": {
+    "editor.maxTokenizationLineLength": 2500,
+    "editor.defaultFormatter": "biomejs.biome",
+  }
 }

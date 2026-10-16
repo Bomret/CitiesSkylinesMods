@@ -1,18 +1,9 @@
 {
   "tasks": [
     {
-      "args": ["build"],
-      "command": "dotnet",
-      "group": {
-        "isDefault": true,
-        "kind": "build"
-      },
-      "label": "build",
-      "problemMatcher": "$msCompile",
-      "type": "process"
-    },
-    {
-      "command": ["npm install && dotnet restore"],
+      "command": [
+        "pnpm install"
+      ],
       "group": "none",
       "label": "Restore Dependencies",
       "presentation": {
@@ -24,7 +15,9 @@
         "reveal": "always",
         "showReuseMessage": false
       },
-      "problemMatcher": ["$msCompile"],
+      "problemMatcher": [
+        "$msCompile"
+      ],
       "runOptions": {
         "runOn": "folderOpen"
       },

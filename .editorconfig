@@ -24,11 +24,20 @@ indent_size = 2
 [*.{cs,vb}]
 indent_style = tab
 
+# IDE0058: Expression value is never used
+csharp_style_unused_value_expression_statement_preference = unused_local_variable
+
 # IDE0160: Convert to block-scoped namespace
 csharp_style_namespace_declarations = file_scoped:warning
 
+# MA0048: File name must match type name
+dotnet_diagnostic.MA0048.severity = none
+
 # IDE0010: Add missing cases to switch statement
 dotnet_diagnostic.IDE0010.severity = none
+
+# CA1711: Identifiers should not have incorrect suffix
+dotnet_diagnostic.CA1711.severity = none
 
 # IDE0046: Use conditional expression for return
 dotnet_diagnostic.IDE0046.severity = none
@@ -48,8 +57,32 @@ dotnet_diagnostic.VSTHRD200.severity = none
 # S103: Split this $LENGTH characters long line (which is greater than 200 authorized)
 dotnet_diagnostic.S103.severity = none
 
+# S109: Split this $LENGTH characters long line (which is greater than 200 authorized)
+dotnet_diagnostic.S109.severity = none
+
 # S3604: Use "Async" suffix in names of methods that return an awaitable type
 dotnet_diagnostic.S3604.severity = none
+
+# CA1716: Identifiers should not match keywords
+dotnet_diagnostic.CA1716.severity = none
+
+# CA1034: Nested types should not be visible
+dotnet_diagnostic.CA1034.severity = none
+
+# CA2201: Do not raise reserved exception types
+dotnet_diagnostic.CA2201.severity = none
+
+# S2302: "nameof" should be used
+dotnet_diagnostic.S2302.severity = none
+
+# S3604: Member initializer values should not be redundant
+dotnet_diagnostic.S3604.severity = none
+
+# S4023: Interfaces should not be empty
+dotnet_diagnostic.S4023.severity = none
+
+# S4144: Methods should not have identical implementations
+dotnet_diagnostic.S4144.severity = none
 
 # CA1031: Modify '$METHODNAME' to catch a more specific allowed exception type, or rethrow the exception 
 dotnet_diagnostic.CA1031.severity = none
@@ -92,3 +125,13 @@ dotnet_naming_rule.private_fields_underscored.severity = error
 dotnet_naming_rule.private_static_fields_none.symbols = private_static_fields
 dotnet_naming_rule.private_static_fields_none.style = underscored
 dotnet_naming_rule.private_static_fields_none.severity = none
+
+# Verify settings
+[*.{received,verified}.{json,txt,xml}]
+charset = "utf-8-bom"
+end_of_line = lf
+indent_size = unset
+indent_style = unset
+insert_final_newline = false
+tab_width = unset
+trim_trailing_whitespace = false

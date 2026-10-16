@@ -1,13 +1,14 @@
 {
   "recommendations": [
-    "ms-azuretools.vscode-azurefunctions",
-    "ms-dotnettools.csharp",
+    "biomejs.biome",
     "christian-kohler.path-intellisense",
     "dotjoshjohnson.xml",
     "EditorConfig.EditorConfig",
-    "josefpihrt-vscode.roslynator",
+    "fernandoescolar.vscode-solution-explorer",
+    "Gruntfuggly.todo-tree",
     "ms-dotnettools.csdevkit",
     "pflannery.vscode-versionlens",
+    "streetsidesoftware.code-spell-checker-german",
     "tintoy.msbuild-project-tools"
   ]
 }
