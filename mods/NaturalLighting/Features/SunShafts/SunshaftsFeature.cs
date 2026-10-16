@@ -72,9 +72,10 @@ namespace NaturalLighting.Features.SunShafts
 		}
 
 		/// <summary>
-		/// Finds the main camera and directional sun light in the scene, keeping a cached one only while
-		/// it is still alive. Runs on every enable, so objects destroyed with a previous level are found
-		/// again. This method is idempotent and can be called multiple times safely.
+		/// Finds the main camera, keeping a cached one only while it is still alive, and takes the sun
+		/// light the game itself provides through <see cref="DayNightProperties.sunLightSource"/>.
+		/// Runs on every enable, so objects destroyed with a previous level are found again.
+		/// This method is idempotent and can be called multiple times safely.
 		/// </summary>
 		void InitializeComponents()
 		{
@@ -83,20 +84,9 @@ namespace NaturalLighting.Features.SunShafts
 				_mainCamera = Camera.main ?? Object.FindObjectOfType<Camera>();
 			}
 
-			if (_sunLight == null)
-			{
-				var lights = Object.FindObjectsOfType<Light>();
-
-				foreach (var light in lights)
-				{
-					// Find the main directional light (sun)
-					if (light.type == LightType.Directional && light.name == "Directional Light")
-					{
-						_sunLight = light;
-						break;
-					}
-				}
-			}
+			// Unity's == null also treats a day-night object destroyed with a previous level as missing.
+			var dayNightProperties = DayNightProperties.instance;
+			_sunLight = dayNightProperties != null ? dayNightProperties.sunLightSource : null;
 
 			if (_mainCamera != null && _sunLight != null)
 			{
