@@ -26,3 +26,8 @@ None: the repository has no test suite.
 
 ### Deployment
 Posture `manual`, 2 targets (`naturallighting`, `removechirper`). See `docs/agents/deployment.md`.
+
+## Invariants
+
+`docs/invariants.md` holds the rules the mods must never break. Read it before you change how a feature
+loads, unloads, or finds scene objects.

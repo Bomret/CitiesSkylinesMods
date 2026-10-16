@@ -12,8 +12,8 @@ namespace NaturalLighting.Features.ChromaticAberration
 	/// radially from the center of the screen, creating a subtle optical distortion that enhances
 	/// visual realism when used appropriately.
 	/// 
-	/// The feature follows the same pattern as SunShaftsFeature, using lazy initialization and
-	/// a separate image effect component for the actual rendering.
+	/// The feature follows the same pattern as SunShaftsFeature: it looks up the camera on every enable
+	/// and uses a separate image effect component for the actual rendering.
 	/// </summary>
 	sealed class ChromaticAberrationFeature : Feature<ModSettings>
 	{
@@ -26,7 +26,6 @@ namespace NaturalLighting.Features.ChromaticAberration
 
 		// State tracking
 		bool _currentChromaticAberrationEnabled;
-		bool _isInitialized;
 
 		/// <summary>
 		/// Initializes a new instance of the ChromaticAberrationFeature class.
@@ -99,9 +98,8 @@ namespace NaturalLighting.Features.ChromaticAberration
 		}
 
 		/// <summary>
-		/// Lazily initializes Unity components required for chromatic aberration rendering.
-		/// Finds the main camera in the scene and loads the shader.
-		/// Sets _isInitialized to true only when all components are successfully found.
+		/// Finds the main camera in the scene, keeping a cached one only while it is still alive.
+		/// Runs on every enable, so a camera destroyed with a previous level is found again.
 		/// This method is idempotent and can be called multiple times safely.
 		/// </summary>
 		void InitializeComponents()
@@ -113,7 +111,6 @@ namespace NaturalLighting.Features.ChromaticAberration
 
 			if (_mainCamera != null)
 			{
-				_isInitialized = true;
 				Logger.LogFormat(LogType.Log, "[NaturalLighting] ChromaticAberration: Initialized - Camera: Found");
 			}
 			else
@@ -125,7 +122,7 @@ namespace NaturalLighting.Features.ChromaticAberration
 		/// <summary>
 		/// Loads the chromatic aberration shader from the mod's assets.
 		/// Creates a Material instance from the loaded shader for use in image effects.
-		/// Uses lazy loading - only loads shaders when first needed.
+		/// Loads the shader only while no material exists.
 		/// </summary>
 		void LoadChromaticAberrationShader()
 		{
@@ -169,7 +166,7 @@ namespace NaturalLighting.Features.ChromaticAberration
 			InitializeComponents();
 			LoadChromaticAberrationShader();
 
-			if (_isInitialized)
+			if (_mainCamera != null)
 			{
 				ConfigureChromaticAberration();
 			}

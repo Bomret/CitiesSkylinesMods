@@ -6,7 +6,7 @@ namespace NaturalLighting.Features.SunShafts
 {
 	/// <summary>
 	/// Manages volumetric sunshaft rendering effects for the Natural Lighting mod.
-	/// Provides lazy initialization of Unity components and shaders, enabling/disabling
+	/// Looks up the Unity components on every enable, loads shaders when needed, and enables/disables
 	/// sunshaft image effects based on user settings.
 	/// </summary>
 	sealed class SunshaftsFeature : Feature<ModSettings>
@@ -15,7 +15,6 @@ namespace NaturalLighting.Features.SunShafts
 		Light _sunLight;
 
 		bool _currentSunshaftsEnabled;
-		bool _isInitialized;
 
 		Material _sunShaftShaderMaterial;
 		SunShaftsEffect _sunShaftsComponent;
@@ -73,10 +72,9 @@ namespace NaturalLighting.Features.SunShafts
 		}
 
 		/// <summary>
-		/// Lazily initializes Unity components required for sunshaft rendering.
-		/// Finds the main camera and directional sun light in the scene.
-		/// Sets _isInitialized to true only when both components are successfully found.
-		/// This method is idempotent and can be called multiple times safely.
+		/// Finds the main camera and directional sun light in the scene, keeping a cached one only while
+		/// it is still alive. Runs on every enable, so objects destroyed with a previous level are found
+		/// again. This method is idempotent and can be called multiple times safely.
 		/// </summary>
 		void InitializeComponents()
 		{
@@ -102,7 +100,6 @@ namespace NaturalLighting.Features.SunShafts
 
 			if (_mainCamera != null && _sunLight != null)
 			{
-				_isInitialized = true;
 				Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Initialized - Camera: Found, Sun Light: Found (name: '{0}')",
 					_sunLight.name);
 			}
@@ -116,7 +113,7 @@ namespace NaturalLighting.Features.SunShafts
 		/// <summary>
 		/// Loads the custom sunshaft composite shader from the mod's shader bundle.
 		/// Creates a Material instance from the loaded shader for use in image effects.
-		/// Uses lazy loading - only loads shaders when first needed.
+		/// Loads the shader only while no material exists.
 		/// </summary>
 		void LoadSunshaftShaders()
 		{
@@ -248,22 +245,19 @@ namespace NaturalLighting.Features.SunShafts
 
 		/// <summary>
 		/// Enables sunshaft rendering by initializing required components and applying image effects.
-		/// Uses lazy loading for components and shaders - only initializes when actually needed.
+		/// Looks up the components on every call, so a camera or light destroyed with a previous level
+		/// is replaced. Loads shaders only while no material exists.
 		/// Validates all prerequisites before enabling the effects.
 		/// </summary>
 		void EnableSunshafts()
 		{
 			Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts.EnableSunshafts: Enabled");
 
-			if (!_isInitialized)
-			{
-				Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Initializing components for first use");
-				InitializeComponents();
-			}
+			InitializeComponents();
 
 			if (_sunShaftShaderMaterial == null)
 			{
-				Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Loading shaders for first use");
+				Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Loading shaders");
 				LoadSunshaftShaders();
 			}
 
@@ -273,7 +267,6 @@ namespace NaturalLighting.Features.SunShafts
 
 				_mainCamera = null;
 				_sunLight = null;
-				_isInitialized = false;
 
 				return;
 			}
@@ -295,7 +288,6 @@ namespace NaturalLighting.Features.SunShafts
 			DisableSunshafts();
 			CleanupShaders();
 
-			_isInitialized = false;
 			_mainCamera = null;
 			_sunLight = null;
 		}
