@@ -27,8 +27,8 @@ One workspace per mod (`NaturalLighting`, `RemoveChirper`), package names `natur
     `DeployToLocalModDirectory` target copies the build into the game's local mods directory.
   - Release — `pnpm --filter <package> run release`: semantic-release with `semantic-release-monorepo`
     (`release.config.cjs`). It bumps the version in `package.json` and the `.csproj`, runs `publish`,
-    writes `CHANGELOG.md`, and commits. Its last plugin is `@semantic-release/github`, while `origin` is
-    Codeberg.
+    writes `CHANGELOG.md`, and commits. Its last plugin is `@semantic-release/github`, which publishes the
+    GitHub release on `origin`.
 
 ## `libs/Common` — shared C# library
 

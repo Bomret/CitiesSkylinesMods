@@ -1,7 +1,5 @@
 # Cities Skylines Mods
 
-[![Test](https://github.com/Bomret/CitiesSkylinesMods/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Bomret/CitiesSkylinesMods/actions/workflows/test.yml)
-
 This is a monorepo containing the source code for all my mods and their dependencies for the game Cities: Skylines by Colossal Order.
 
 Currently available mods:

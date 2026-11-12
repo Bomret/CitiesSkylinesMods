@@ -3,10 +3,10 @@
 ## Agent skills
 
 ### Slice store
-Codeberg Issues on `bomret/CitiesSkylinesMods`, through `tea`. See `docs/agents/issue-tracker.md`.
+GitHub Issues on `bomret/CitiesSkylinesMods`, through `gh`. See `docs/agents/issue-tracker.md`.
 
 ### Code host
-Codeberg (`bomret/CitiesSkylinesMods`) through `tea`, base branch `main`, pull requests open as drafts.
+GitHub (`bomret/CitiesSkylinesMods`) through `gh`, base branch `main`, pull requests open as drafts.
 See `docs/agents/code-management.md`.
 
 ### Documentation
@@ -14,7 +14,8 @@ In-repo `AGENTS.md` hierarchy, written to the controlled writing standard. See
 `docs/agents/documentation.md`.
 
 ### Knowledge base
-Codeberg wiki for players and developers, in English, sent only by `/superdev:publish-kb`. See
+GitHub wiki for players and developers, in English, sent only by `/superdev:publish-kb`. Its
+commands are unset until the wiki holds a first page. See
 `docs/agents/knowledge-base.md`.
 
 ### Toolchain
