@@ -40,9 +40,6 @@ namespace NaturalLighting.Features.SunShafts
 		static readonly int SunColorPropertyId = Shader.PropertyToID("_SunColor");
 		static readonly int ColorBufferPropertyId = Shader.PropertyToID("_ColorBuffer");
 
-		// Pre-calculated Vector4 patterns to avoid allocations
-		static readonly Vector4 BLUR_RADIUS_BASE_PATTERN = new Vector4(1f, 1f, 0f, 0f);
-
 		/// <summary>
 		/// Initializes the sun shafts image effect with the specified parameters.
 		/// This method caches the camera and sun light components.
@@ -70,23 +67,11 @@ namespace NaturalLighting.Features.SunShafts
 		}
 
 		/// <summary>
-		/// Creates a blur radius Vector4 by multiplying the base pattern with the given radius.
-		/// This avoids allocation by reusing the static base pattern (1, 1, 0, 0).
+		/// Creates the value of the shader's blur radius parameter.
 		/// </summary>
 		/// <param name="radius">Blur radius value to apply</param>
-		/// <returns>Vector4 suitable for shader blur radius parameter</returns>
-		static Vector4 CreateBlurRadiusVector(float radius)
-		{
-			return BLUR_RADIUS_BASE_PATTERN * radius;
-		}
-
-		/// <summary>
-		/// Creates a dynamic blur radius Vector4 for iterative blur operations.
-		/// Used when the radius needs to be calculated per iteration.
-		/// </summary>
-		/// <param name="radius">Dynamic blur radius value</param>
 		/// <returns>Vector4 with radius in X and Y components, zeros in Z and W</returns>
-		static Vector4 CreateDynamicBlurRadiusVector(float radius)
+		static Vector4 CreateBlurRadiusVector(float radius)
 		{
 			return new Vector4(radius, radius, 0f, 0f);
 		}
@@ -167,12 +152,8 @@ namespace NaturalLighting.Features.SunShafts
 				return 0f;
 			}
 
-			if (position >= 0f && position <= 1f)
-			{
-				return 1f;
-			}
-
-			var distancePastEdge = position < 0f ? -position : position - 1f;
+			// Zero on screen, where both terms are at most 0, so the smoothstep returns 1
+			var distancePastEdge = Mathf.Max(0f, Mathf.Max(-position, position - 1f));
 
 			return Mathf.SmoothStep(0f, 1f, 1f - distancePastEdge / margin);
 		}
@@ -279,7 +260,7 @@ namespace NaturalLighting.Features.SunShafts
 		RenderTexture ExecuteBlurIterations(RenderTexture brightPass, RenderTexture blurTexture1, RenderTexture blurTexture2, int iterations, float blurStep)
 		{
 			var baseBlurRadius = _blurRadius * SunShaftsEffectConstants.BLUR_RESOLUTION_SCALE;
-			_sunShaftsMaterial.SetVector(BlurRadiusPropertyId, CreateDynamicBlurRadiusVector(baseBlurRadius));
+			_sunShaftsMaterial.SetVector(BlurRadiusPropertyId, CreateBlurRadiusVector(baseBlurRadius));
 
 			var currentSource = brightPass;
 			var currentTarget = blurTexture1;
@@ -291,7 +272,7 @@ namespace NaturalLighting.Features.SunShafts
 
 				// Calculate progressive blur radius
 				var dynamicBlurRadius = blurStep * (i * 2f + 1f);
-				_sunShaftsMaterial.SetVector(BlurRadiusPropertyId, CreateDynamicBlurRadiusVector(dynamicBlurRadius));
+				_sunShaftsMaterial.SetVector(BlurRadiusPropertyId, CreateBlurRadiusVector(dynamicBlurRadius));
 
 				// Ping-pong between textures for second pass
 				currentSource = currentTarget;
@@ -301,7 +282,7 @@ namespace NaturalLighting.Features.SunShafts
 
 				// Prepare blur radius for next iteration
 				var nextBlurRadius = blurStep * (i * 2f + 2f);
-				_sunShaftsMaterial.SetVector(BlurRadiusPropertyId, CreateDynamicBlurRadiusVector(nextBlurRadius));
+				_sunShaftsMaterial.SetVector(BlurRadiusPropertyId, CreateBlurRadiusVector(nextBlurRadius));
 
 				var tempSwap = currentSource;
 				currentSource = currentTarget;
