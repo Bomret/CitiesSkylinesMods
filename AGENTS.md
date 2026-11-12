@@ -14,8 +14,7 @@ In-repo `AGENTS.md` hierarchy, written to the controlled writing standard. See
 `docs/agents/documentation.md`.
 
 ### Knowledge base
-GitHub wiki for players and developers, in English, sent only by `/superdev:publish-kb`. Its
-commands are unset until the wiki holds a first page. See
+GitHub wiki for players and developers, in English, sent only by `/superdev:publish-kb`. See
 `docs/agents/knowledge-base.md`.
 
 ### Toolchain

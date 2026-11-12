@@ -32,7 +32,8 @@ A living skeleton. `/superdev:document` extends it.
   compatibility with other mods. Parent: `Home`, section `Player Guide`.
 - **`Remove Chirper`.** One subject a player looks up: what the mod removes and how to use it. Parent:
   `Home`, section `Player Guide`.
-- **`Troubleshooting`.** Known problems and their fixes. Parent: `Home`, section `Player Guide`.
+- **`Troubleshooting`.** `(aggregate)`: one `## <problem>` section per known problem and its fix, contributed
+  by the scope that found it. Parent: `Home`, section `Player Guide`.
 - **`Architecture`.** How the mods, `libs/Common`, and the feature lifecycle fit together and why.
   Parent: `Home`, section `Developer Docs`.
 - **`Shader pipeline`.** How the Unity project builds the shader bundle and how the mod loads it. Parent:
@@ -92,6 +93,111 @@ written for.
   the new tree equals the cloned one.
 - If `gh` is missing or not logged in, or the wiki cannot be cloned, `/superdev:publish-kb` **leaves every
   page staged**, reports why, and deletes nothing. A later run retries exactly the pages that did not land.
+
+## Commands
+
+The **backend command contract** (ADR 0069) `scripts/publish-kb.js` runs. Each command runs as
+`sh -c <template> sh <path>`: `$1` names a JSON file holding `title`, `bodyFile` (`create` and `update`),
+the `find` result's fields under `found` (`read`, `update`, and `delete`), and the `knowledge-base`
+section of `.superdev/info.json` under `operator` (ADR 0207). Every command reads its values from that
+file with `jq`. `find` emits the page's `sub_url`, and `/superdev:publish-kb` fills a `parent-link`
+target's `{sub_url}` from it (`sub_url` is the contract's optional named `find` key, ADR 0168). `find`
+answers exit 3 only when the clone succeeded and holds no file for the title; any other failure answers
+exit 2, "could not answer," so a page never gets created from a clone that failed. Every failure exit
+writes its cause to stderr.
+
+Every template opens with the same lines: check the `gh` login for `github.com`, read the title, shallow-clone
+the wiki without a checkout into a temporary directory that is removed on exit, and derive the page file from the title. So
+each one stands alone under the bound below. The templates use POSIX `sh` and options every platform's
+tools accept.
+
+Every command below runs under a **30-second bound** (ADR 0130), or whatever
+`knowledge-base.timeoutMs` of `.superdev/info.json` names. `scripts/publish-kb.js` applies it at the spawn.
+A command killed at the bound leaves its page staged and **stops the run**: the remaining pages are
+reported untried and stay staged for the next one.
+
+### find
+
+```sh
+gh auth status --hostname github.com >/dev/null 2>&1 || { echo "superdev: gh is missing or not logged in to github.com; run: gh auth login --hostname github.com" >&2; exit 2; }
+dir=$(mktemp -d) || { echo "superdev: cannot create a temporary directory" >&2; exit 2; }; trap 'rm -rf "$dir"' EXIT
+title=$(jq -er '.title | select(type == "string" and length > 0)' "$1") || { echo "superdev: the values file holds no title" >&2; exit 2; }
+case "$title" in */*) echo "superdev: the title holds /, which a wiki file name cannot: $title" >&2; exit 2 ;; esac
+file="$(printf '%s' "$title" | tr ' ' '-').md"
+GIT_TERMINAL_PROMPT=0 git -c credential.helper= -c credential.helper='!gh auth git-credential' clone -q --depth 1 --no-checkout https://github.com/bomret/CitiesSkylinesMods.wiki.git "$dir/w" 2>"$dir/err" || { echo "superdev: cannot clone https://github.com/bomret/CitiesSkylinesMods.wiki.git: $(cat "$dir/err"); check the wiki is enabled and holds a page" >&2; exit 2; }
+git -C "$dir/w" cat-file -e "HEAD:$file" 2>/dev/null || exit 3
+jq -cn --arg s "${file%.md}" '{sub_url: $s}'
+```
+
+### read
+
+```sh
+gh auth status --hostname github.com >/dev/null 2>&1 || { echo "superdev: gh is missing or not logged in to github.com; run: gh auth login --hostname github.com" >&2; exit 2; }
+dir=$(mktemp -d) || { echo "superdev: cannot create a temporary directory" >&2; exit 2; }; trap 'rm -rf "$dir"' EXIT
+title=$(jq -er '.title | select(type == "string" and length > 0)' "$1") || { echo "superdev: the values file holds no title" >&2; exit 2; }
+case "$title" in */*) echo "superdev: the title holds /, which a wiki file name cannot: $title" >&2; exit 2 ;; esac
+file="$(printf '%s' "$title" | tr ' ' '-').md"
+GIT_TERMINAL_PROMPT=0 git -c credential.helper= -c credential.helper='!gh auth git-credential' clone -q --depth 1 --no-checkout https://github.com/bomret/CitiesSkylinesMods.wiki.git "$dir/w" 2>"$dir/err" || { echo "superdev: cannot clone https://github.com/bomret/CitiesSkylinesMods.wiki.git: $(cat "$dir/err"); check the wiki is enabled and holds a page" >&2; exit 2; }
+git -C "$dir/w" cat-file blob "HEAD:$file" 2>"$dir/err" || { echo "superdev: cannot read the wiki file $file: $(cat "$dir/err")" >&2; exit 1; }
+```
+
+### create
+
+```sh
+gh auth status --hostname github.com >/dev/null 2>&1 || { echo "superdev: gh is missing or not logged in to github.com; run: gh auth login --hostname github.com" >&2; exit 2; }
+dir=$(mktemp -d) || { echo "superdev: cannot create a temporary directory" >&2; exit 2; }; trap 'rm -rf "$dir"' EXIT
+title=$(jq -er '.title | select(type == "string" and length > 0)' "$1") || { echo "superdev: the values file holds no title" >&2; exit 2; }
+case "$title" in */*) echo "superdev: the title holds /, which a wiki file name cannot: $title" >&2; exit 2 ;; esac
+file="$(printf '%s' "$title" | tr ' ' '-').md"
+GIT_TERMINAL_PROMPT=0 git -c credential.helper= -c credential.helper='!gh auth git-credential' clone -q --depth 1 --no-checkout https://github.com/bomret/CitiesSkylinesMods.wiki.git "$dir/w" 2>"$dir/err" || { echo "superdev: cannot clone https://github.com/bomret/CitiesSkylinesMods.wiki.git: $(cat "$dir/err"); check the wiki is enabled and holds a page" >&2; exit 2; }
+body=$(jq -er '.bodyFile' "$1") || { echo "superdev: the values file holds no bodyFile" >&2; exit 1; }
+blob=$(git -C "$dir/w" hash-object -w -- "$body" 2>"$dir/err") || { echo "superdev: cannot store $body: $(cat "$dir/err")" >&2; exit 1; }
+git -C "$dir/w" ls-tree -z HEAD >"$dir/tree" || { echo "superdev: cannot list the wiki tree" >&2; exit 1; }
+tree=$({ tr '\000' '\n' <"$dir/tree" | f="$file" awk '{ n = $0; sub(/^[^\t]*\t/, "", n); if (n != ENVIRON["f"]) print }'; printf '100644 blob %s\t%s\n' "$blob" "$file"; } | tr '\n' '\000' | git -C "$dir/w" mktree -z) || { echo "superdev: cannot build the wiki tree for $file" >&2; exit 1; }
+[ "$tree" = "$(git -C "$dir/w" rev-parse 'HEAD^{tree}')" ] && exit 0
+login=$(gh api --hostname github.com user --jq .login 2>"$dir/err") && [ -n "$login" ] || { echo "superdev: cannot look up the gh user on github.com: $(cat "$dir/err")" >&2; exit 1; }
+commit=$(git -C "$dir/w" -c user.name="$login" -c user.email="$login@users.noreply.github.com" commit-tree "$tree" -p HEAD -m "superdev: publish" 2>"$dir/err") && git -C "$dir/w" update-ref HEAD "$commit" 2>"$dir/err" || { echo "superdev: git commit failed: $(cat "$dir/err")" >&2; exit 1; }
+GIT_TERMINAL_PROMPT=0 git -C "$dir/w" -c credential.helper= -c credential.helper='!gh auth git-credential' push -q origin HEAD 2>"$dir/err" || { echo "superdev: git push failed: $(cat "$dir/err")" >&2; exit 1; }
+```
+
+### update
+
+```sh
+gh auth status --hostname github.com >/dev/null 2>&1 || { echo "superdev: gh is missing or not logged in to github.com; run: gh auth login --hostname github.com" >&2; exit 2; }
+dir=$(mktemp -d) || { echo "superdev: cannot create a temporary directory" >&2; exit 2; }; trap 'rm -rf "$dir"' EXIT
+title=$(jq -er '.title | select(type == "string" and length > 0)' "$1") || { echo "superdev: the values file holds no title" >&2; exit 2; }
+case "$title" in */*) echo "superdev: the title holds /, which a wiki file name cannot: $title" >&2; exit 2 ;; esac
+file="$(printf '%s' "$title" | tr ' ' '-').md"
+GIT_TERMINAL_PROMPT=0 git -c credential.helper= -c credential.helper='!gh auth git-credential' clone -q --depth 1 --no-checkout https://github.com/bomret/CitiesSkylinesMods.wiki.git "$dir/w" 2>"$dir/err" || { echo "superdev: cannot clone https://github.com/bomret/CitiesSkylinesMods.wiki.git: $(cat "$dir/err"); check the wiki is enabled and holds a page" >&2; exit 2; }
+git -C "$dir/w" cat-file -e "HEAD:$file" 2>/dev/null || { echo "superdev: the wiki holds no file $file to update" >&2; exit 1; }
+body=$(jq -er '.bodyFile' "$1") || { echo "superdev: the values file holds no bodyFile" >&2; exit 1; }
+blob=$(git -C "$dir/w" hash-object -w -- "$body" 2>"$dir/err") || { echo "superdev: cannot store $body: $(cat "$dir/err")" >&2; exit 1; }
+git -C "$dir/w" ls-tree -z HEAD >"$dir/tree" || { echo "superdev: cannot list the wiki tree" >&2; exit 1; }
+tree=$({ tr '\000' '\n' <"$dir/tree" | f="$file" awk '{ n = $0; sub(/^[^\t]*\t/, "", n); if (n != ENVIRON["f"]) print }'; printf '100644 blob %s\t%s\n' "$blob" "$file"; } | tr '\n' '\000' | git -C "$dir/w" mktree -z) || { echo "superdev: cannot build the wiki tree for $file" >&2; exit 1; }
+[ "$tree" = "$(git -C "$dir/w" rev-parse 'HEAD^{tree}')" ] && exit 0
+login=$(gh api --hostname github.com user --jq .login 2>"$dir/err") && [ -n "$login" ] || { echo "superdev: cannot look up the gh user on github.com: $(cat "$dir/err")" >&2; exit 1; }
+commit=$(git -C "$dir/w" -c user.name="$login" -c user.email="$login@users.noreply.github.com" commit-tree "$tree" -p HEAD -m "superdev: publish" 2>"$dir/err") && git -C "$dir/w" update-ref HEAD "$commit" 2>"$dir/err" || { echo "superdev: git commit failed: $(cat "$dir/err")" >&2; exit 1; }
+GIT_TERMINAL_PROMPT=0 git -C "$dir/w" -c credential.helper= -c credential.helper='!gh auth git-credential' push -q origin HEAD 2>"$dir/err" || { echo "superdev: git push failed: $(cat "$dir/err")" >&2; exit 1; }
+```
+
+### delete
+
+```sh
+gh auth status --hostname github.com >/dev/null 2>&1 || { echo "superdev: gh is missing or not logged in to github.com; run: gh auth login --hostname github.com" >&2; exit 2; }
+dir=$(mktemp -d) || { echo "superdev: cannot create a temporary directory" >&2; exit 2; }; trap 'rm -rf "$dir"' EXIT
+title=$(jq -er '.title | select(type == "string" and length > 0)' "$1") || { echo "superdev: the values file holds no title" >&2; exit 2; }
+case "$title" in */*) echo "superdev: the title holds /, which a wiki file name cannot: $title" >&2; exit 2 ;; esac
+file="$(printf '%s' "$title" | tr ' ' '-').md"
+GIT_TERMINAL_PROMPT=0 git -c credential.helper= -c credential.helper='!gh auth git-credential' clone -q --depth 1 --no-checkout https://github.com/bomret/CitiesSkylinesMods.wiki.git "$dir/w" 2>"$dir/err" || { echo "superdev: cannot clone https://github.com/bomret/CitiesSkylinesMods.wiki.git: $(cat "$dir/err"); check the wiki is enabled and holds a page" >&2; exit 2; }
+git -C "$dir/w" cat-file -e "HEAD:$file" 2>/dev/null || { echo "superdev: the wiki holds no file $file to delete" >&2; exit 1; }
+git -C "$dir/w" ls-tree -z HEAD >"$dir/tree" || { echo "superdev: cannot list the wiki tree" >&2; exit 1; }
+tree=$(tr '\000' '\n' <"$dir/tree" | f="$file" awk '{ n = $0; sub(/^[^\t]*\t/, "", n); if (n != ENVIRON["f"]) print }' | tr '\n' '\000' | git -C "$dir/w" mktree -z) || { echo "superdev: cannot remove $file from the wiki tree" >&2; exit 1; }
+login=$(gh api --hostname github.com user --jq .login 2>"$dir/err") && [ -n "$login" ] || { echo "superdev: cannot look up the gh user on github.com: $(cat "$dir/err")" >&2; exit 1; }
+commit=$(git -C "$dir/w" -c user.name="$login" -c user.email="$login@users.noreply.github.com" commit-tree "$tree" -p HEAD -m "superdev: publish" 2>"$dir/err") && git -C "$dir/w" update-ref HEAD "$commit" 2>"$dir/err" || { echo "superdev: git commit failed: $(cat "$dir/err")" >&2; exit 1; }
+GIT_TERMINAL_PROMPT=0 git -C "$dir/w" -c credential.helper= -c credential.helper='!gh auth git-credential' push -q origin HEAD 2>"$dir/err" || { echo "superdev: git push failed: $(cat "$dir/err")" >&2; exit 1; }
+```
+
+Human-consumption first: shape pages around the audience, write in the language above, follow the outline.
 
 ## superdev usage
 
