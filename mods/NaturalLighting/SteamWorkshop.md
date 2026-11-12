@@ -9,7 +9,7 @@ This mod is a "no-frills", "no performance impact", "no configuration needed" at
 
 It is a replacement for Daylight Classic and Softer Shadows but made for the current version of the game (1.19.2-f3) and having some of the features removed that targeted the version of the game available in their day and age that work a bit janky in the current version or look out of place nowadays (in my opinion).
 
-The mod provides translations for all it's settings menu items in all the languages supported by the game. If you find an incorrect translation, please leave a comment below or open an issue on GitHub, linked below.
+The mod provides translations for all it's settings menu items in these languages: German, English, Spanish, French, Korean, Polish, Portuguese, Russian, and Simplified Chinese. If you find an incorrect translation, please leave a comment below or open an issue on GitHub, linked below.
 
 [h2]Features[/h2]
 All individual features of this mod can be enabled/disabled in-game in Options > Mod Settings > Natural Lighting.
@@ -27,7 +27,7 @@ This mod includes the option to use a dedicated LUT for the best experience. You
 This mod includes the option to use a sun shafts or "god rays" effect. If you look at the sun in-game and it's light gets occluded by in-game objects, like trees and buildings, the sun shafts will follow this occlusion. Effect is only active when the sun is visible in the game.
 
 [h3]Chromatic Aberration (default: off)[/h3]
-This mod includes the option to use a chromatic aberration effect. This shifts the color channels slightly for elements that are in the mid to center screen space to mimic a camera lense effect.
+This mod includes the option to use a chromatic aberration effect. This shifts the color channels slightly radially from the center of the screen to mimic a camera lens effect.
 This effect is off by default.
 
 [h2]Compatibility[/h2]

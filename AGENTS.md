@@ -1,19 +1,21 @@
 # Cities: Skylines Mods
 
-A monorepo of C# mods for Cities: Skylines (Windows and macOS only), built for .NET Framework 3.5 against
-the game's managed assemblies.
+A monorepo of C# mods for Cities: Skylines. The game runs on Windows and macOS only. The mods target .NET
+Framework 3.5 and compile against the game's managed assemblies. Each mod has a `GameMod` class that
+implements the game's `IUserMod` interface, which is the entry point the game loads.
 
 ## Structure
 
-- `mods/NaturalLighting`: the Natural Lighting mod. One `Feature<ModSettings>` subclass per effect in
-  `Features/`, the settings in `Settings/`, translations in `Assets/Locales/`, and the prebuilt shader
-  bundles in `Assets/Shaders/<Windows|macOS>/`.
-- `mods/RemoveChirper`: the Remove Chirper mod, a single `GameMod` class.
-- `libs/Common`: the code both mods share: the `Feature<TSettings>` lifecycle base class, the settings
-  store, the shader, LUT, and mod providers, the service provider, and translations.
+- `mods/NaturalLighting`: the Natural Lighting mod. Each effect is a `Feature<ModSettings>` subclass in
+  `Features/`. The settings are in `Settings/` and the translations are in `Assets/Locales/`.
+  The prebuilt shader bundles are in `Assets/Shaders/<Windows|macOS>/`.
+- `mods/RemoveChirper`: the Remove Chirper mod. It consists of a single `GameMod` class.
+- `libs/Common`: the shared library. It holds the `Feature<TSettings>` base class, which defines the
+  lifecycle of one effect. It also holds the settings store, the service provider, the translations, and
+  the providers for shaders, color lookup tables (LUTs), and mods.
 - `unity/NaturalLighting`: the Unity 5.6.7f1 project that compiles the shaders into the bundles.
-- `docs/agents/`: the superdev configuration files listed below. `docs/invariants.md`: the invariant
-  register.
+- `docs/agents/`: the superdev configuration files that the sections below index.
+- `docs/invariants.md`: the register of rules the mods must never break.
 
 ## Where to read
 
