@@ -42,8 +42,9 @@ GitHub wiki for players and developers, in English, sent only by `/superdev:publ
 `docs/agents/knowledge-base.md`.
 
 ### Toolchain
-pnpm workspace plus .NET (`dotnet build CitiesSkylinesMods.slnx`), per-mod `publish` and `release`
-scripts, Unity 5.6.7f1 for the shader bundle. See `docs/agents/toolchain.md`.
+mise (`mise.toml`) for the Node.js and .NET SDK versions and the tasks, .NET
+(`dotnet build CitiesSkylinesMods.slnx`), per-mod `publish:<mod>` and `release:<mod>` mise tasks, npm for
+the release and commit-hook dev dependencies, Unity 5.6.7f1 for the shader bundle. See `docs/agents/toolchain.md`.
 
 ### Verification
 No test suite. The verification command is `dotnet build CitiesSkylinesMods.slnx`. See

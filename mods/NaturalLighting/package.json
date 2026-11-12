@@ -1,9 +1,5 @@
 {
   "name": "naturallighting",
   "version": "1.4.0",
-  "scripts": {
-    "publish": "rimraf ./publish && dotnet publish --configuration Release --no-dependencies --nologo --output ./publish",
-    "release": "semantic-release -e semantic-release-monorepo --no-ci"
-  },
   "private": true
 }

@@ -52,7 +52,7 @@ module.exports = {
     [
       '@semantic-release/exec',
       {
-        publishCmd: 'npm run publish'
+        publishCmd: `mise run publish:${name}`
       },
     ],
     '@semantic-release/release-notes-generator',

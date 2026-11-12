@@ -2,7 +2,7 @@
   "tasks": [
     {
       "command": [
-        "pnpm install"
+        "mise install && mise run setup"
       ],
       "group": "none",
       "label": "Restore Dependencies",

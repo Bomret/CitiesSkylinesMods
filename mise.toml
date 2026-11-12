@@ -1,0 +1,38 @@
+[tools]
+node = "lts"
+dotnet = "10"
+
+[env]
+_.path = ["{{config_root}}/node_modules/.bin"]
+
+[tasks.setup]
+description = "Install the npm dev dependencies, the commit hook, and the .NET packages and tools"
+run = ["npm ci", "dotnet restore", "dotnet tool restore"]
+
+[tasks."publish:naturallighting"]
+description = "Build NaturalLighting in Release and copy it into the game's local Mods folder"
+dir = "{{config_root}}/mods/NaturalLighting"
+run = [
+  "node -e \"require('fs').rmSync('publish', { recursive: true, force: true })\"",
+  "dotnet publish --configuration Release --no-dependencies --nologo --output ./publish",
+]
+
+[tasks."publish:removechirper"]
+description = "Build RemoveChirper in Release and copy it into the game's local Mods folder"
+dir = "{{config_root}}/mods/RemoveChirper"
+run = [
+  "node -e \"require('fs').rmSync('publish', { recursive: true, force: true })\"",
+  "dotnet publish --configuration Release --no-dependencies --nologo --output ./publish",
+]
+
+[tasks."release:naturallighting"]
+description = "Cut a NaturalLighting release with semantic-release (pushes to origin)"
+depends = ["setup"]
+dir = "{{config_root}}/mods/NaturalLighting"
+run = "semantic-release -e semantic-release-monorepo --no-ci"
+
+[tasks."release:removechirper"]
+description = "Cut a RemoveChirper release with semantic-release (pushes to origin)"
+depends = ["setup"]
+dir = "{{config_root}}/mods/RemoveChirper"
+run = "semantic-release -e semantic-release-monorepo --no-ci"
