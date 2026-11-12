@@ -19,7 +19,6 @@ namespace NaturalLighting.Features.SunShafts
 	{
 		// Core rendering components
 		Light _sunLight;                                      // The directional light representing the sun
-		Transform _sunTransform;                              // Transform used for sun position calculations
 		Material _sunShaftsMaterial;                          // Material containing the sun shafts shader
 		ILogger _logger;                                      // Logger for error reporting
 
@@ -34,16 +33,15 @@ namespace NaturalLighting.Features.SunShafts
 		float _blurRadius;                                    // Base blur radius for radial blur
 		int _blurIterations;                                  // Number of blur iterations to perform
 
-		// Cached shader parameters to avoid redundant GPU calls
-		Vector4 _cachedSunPosition;
-		Vector4 _cachedBlurRadius;
-		Vector4 _cachedSunThreshold;
-		Vector4 _cachedSunColor;
-		Vector4 _cachedThresholdVector;
+		// Shader property ids, named after the uniforms in SunShafts.shader
+		static readonly int SunPositionPropertyId = Shader.PropertyToID("_SunPosition");
+		static readonly int BlurRadiusPropertyId = Shader.PropertyToID("_BlurRadius4");
+		static readonly int SunThresholdPropertyId = Shader.PropertyToID("_SunThreshold");
+		static readonly int SunColorPropertyId = Shader.PropertyToID("_SunColor");
+		static readonly int ColorBufferPropertyId = Shader.PropertyToID("_ColorBuffer");
 
 		// Pre-calculated Vector4 patterns to avoid allocations
 		static readonly Vector4 BLUR_RADIUS_BASE_PATTERN = new Vector4(1f, 1f, 0f, 0f);
-		float _lastThreshold = float.MinValue;
 
 		/// <summary>
 		/// Initializes the sun shafts image effect with the specified parameters.
@@ -51,13 +49,11 @@ namespace NaturalLighting.Features.SunShafts
 		/// Effect parameters are automatically loaded from SunShaftsEffectConstants.
 		/// </summary>
 		/// <param name="sunLight">The directional light representing the sun</param>
-		/// <param name="sunTransform">Transform used for sun position calculations</param>
 		/// <param name="sunShaftsMaterial">Material containing the optimized sun shafts shader</param>
 		/// <param name="logger">Logger instance for error reporting</param>
-		public void Initialize(Light sunLight, Transform sunTransform, Material sunShaftsMaterial, ILogger logger)
+		public void Initialize(Light sunLight, Material sunShaftsMaterial, ILogger logger)
 		{
 			_sunLight = sunLight;
-			_sunTransform = sunTransform;
 			_sunShaftsMaterial = sunShaftsMaterial;
 			_logger = logger;
 
@@ -71,22 +67,6 @@ namespace NaturalLighting.Features.SunShafts
 			_camera = GetComponent<Camera>();
 			_cameraTransform = _camera.transform;
 			_sunLightTransform = _sunLight.transform;
-		}
-
-		/// <summary>
-		/// Returns a cached Vector4 containing the threshold value in all components.
-		/// Only recreates the vector when the threshold value changes to avoid allocations.
-		/// </summary>
-		/// <returns>Vector4 with threshold value in all components (threshold, threshold, threshold, threshold)</returns>
-		Vector4 GetCachedThresholdVector()
-		{
-			if (_lastThreshold != _threshold)
-			{
-				_cachedThresholdVector = new Vector4(_threshold, _threshold, _threshold, _threshold);
-				_lastThreshold = _threshold;
-			}
-
-			return _cachedThresholdVector;
 		}
 
 		/// <summary>
@@ -112,62 +92,6 @@ namespace NaturalLighting.Features.SunShafts
 		}
 
 		/// <summary>
-		/// Sets the sun position shader parameter only if it has changed since the last call.
-		/// This optimization avoids redundant GPU driver calls that can impact performance.
-		/// </summary>
-		/// <param name="newSunPosition">New sun position vector to set</param>
-		void SetSunPositionIfChanged(Vector4 newSunPosition)
-		{
-			if (_cachedSunPosition != newSunPosition)
-			{
-				_cachedSunPosition = newSunPosition;
-				_sunShaftsMaterial.SetVector("_SunPosition", newSunPosition);
-			}
-		}
-
-		/// <summary>
-		/// Sets the blur radius shader parameter only if it has changed since the last call.
-		/// Reduces GPU driver overhead by avoiding redundant parameter updates.
-		/// </summary>
-		/// <param name="newBlurRadius">New blur radius vector to set</param>
-		void SetBlurRadiusIfChanged(Vector4 newBlurRadius)
-		{
-			if (_cachedBlurRadius != newBlurRadius)
-			{
-				_cachedBlurRadius = newBlurRadius;
-				_sunShaftsMaterial.SetVector("_BlurRadius4", newBlurRadius);
-			}
-		}
-
-		/// <summary>
-		/// Sets the sun threshold shader parameter only if it has changed since the last call.
-		/// Optimizes performance by caching the threshold vector between frames.
-		/// </summary>
-		/// <param name="newSunThreshold">New sun threshold vector to set</param>
-		void SetSunThresholdIfChanged(Vector4 newSunThreshold)
-		{
-			if (_cachedSunThreshold != newSunThreshold)
-			{
-				_cachedSunThreshold = newSunThreshold;
-				_sunShaftsMaterial.SetVector("_SunThreshold", newSunThreshold);
-			}
-		}
-
-		/// <summary>
-		/// Sets the sun color shader parameter only if it has changed since the last call.
-		/// Prevents unnecessary GPU state changes when the sun color remains constant.
-		/// </summary>
-		/// <param name="newSunColor">New sun color vector to set</param>
-		void SetSunColorIfChanged(Vector4 newSunColor)
-		{
-			if (_cachedSunColor != newSunColor)
-			{
-				_cachedSunColor = newSunColor;
-				_sunShaftsMaterial.SetVector("_SunColor", newSunColor);
-			}
-		}
-
-		/// <summary>
 		/// Unity's image effect entry point. Called automatically for each frame when attached to a Camera.
 		/// Orchestrates the entire sun shafts rendering pipeline with error handling and early exits.
 		/// </summary>
@@ -183,11 +107,9 @@ namespace NaturalLighting.Features.SunShafts
 					return;
 				}
 
-				// Position sun transform relative to camera for depth calculations
-				_sunTransform.position = _cameraTransform.position - _sunLightTransform.forward * SunShaftsEffectConstants.SUN_DISTANCE;
-
-				// Convert sun world position to screen space
-				var sunScreenPosition = _camera.WorldToViewportPoint(_sunTransform.position);
+				// Place the sun at a fixed distance from the camera and convert it to screen space
+				var sunScreenPosition = _camera.WorldToViewportPoint(
+					_cameraTransform.position - _sunLightTransform.forward * SunShaftsEffectConstants.SUN_DISTANCE);
 
 				// Enable depth texture for bright pass filtering
 				_camera.depthTextureMode |= DepthTextureMode.Depth;
@@ -334,13 +256,12 @@ namespace NaturalLighting.Features.SunShafts
 		/// <param name="sunScreenPosition">Sun position in screen space for parameter calculation</param>
 		void ExecuteBrightPass(RenderTexture source, RenderTexture brightPass, Vector3 sunScreenPosition)
 		{
-			// Configure shader parameters (cached to avoid redundant GPU calls)
 			var sunPosition = new Vector4(sunScreenPosition.x, sunScreenPosition.y, sunScreenPosition.z, SunShaftsEffectConstants.SUN_MAX_RADIUS);
-			var sunThreshold = GetCachedThresholdVector();
+			var sunThreshold = new Vector4(_threshold, _threshold, _threshold, _threshold);
 
-			SetBlurRadiusIfChanged(CreateBlurRadiusVector(_blurRadius));
-			SetSunPositionIfChanged(sunPosition);
-			SetSunThresholdIfChanged(sunThreshold);
+			_sunShaftsMaterial.SetVector(BlurRadiusPropertyId, CreateBlurRadiusVector(_blurRadius));
+			_sunShaftsMaterial.SetVector(SunPositionPropertyId, sunPosition);
+			_sunShaftsMaterial.SetVector(SunThresholdPropertyId, sunThreshold);
 
 			Graphics.Blit(source, brightPass, _sunShaftsMaterial, SunShaftsEffectConstants.SHADER_PASS_BRIGHT_PASS);
 		}
@@ -358,7 +279,7 @@ namespace NaturalLighting.Features.SunShafts
 		RenderTexture ExecuteBlurIterations(RenderTexture brightPass, RenderTexture blurTexture1, RenderTexture blurTexture2, int iterations, float blurStep)
 		{
 			var baseBlurRadius = _blurRadius * SunShaftsEffectConstants.BLUR_RESOLUTION_SCALE;
-			SetBlurRadiusIfChanged(CreateDynamicBlurRadiusVector(baseBlurRadius));
+			_sunShaftsMaterial.SetVector(BlurRadiusPropertyId, CreateDynamicBlurRadiusVector(baseBlurRadius));
 
 			var currentSource = brightPass;
 			var currentTarget = blurTexture1;
@@ -370,10 +291,9 @@ namespace NaturalLighting.Features.SunShafts
 
 				// Calculate progressive blur radius
 				var dynamicBlurRadius = blurStep * (i * 2f + 1f);
-				SetBlurRadiusIfChanged(CreateDynamicBlurRadiusVector(dynamicBlurRadius));
+				_sunShaftsMaterial.SetVector(BlurRadiusPropertyId, CreateDynamicBlurRadiusVector(dynamicBlurRadius));
 
 				// Ping-pong between textures for second pass
-				var tempSwap = currentSource;
 				currentSource = currentTarget;
 				currentTarget = (currentTarget == blurTexture1) ? blurTexture2 : blurTexture1;
 
@@ -381,9 +301,9 @@ namespace NaturalLighting.Features.SunShafts
 
 				// Prepare blur radius for next iteration
 				var nextBlurRadius = blurStep * (i * 2f + 2f);
-				SetBlurRadiusIfChanged(CreateDynamicBlurRadiusVector(nextBlurRadius));
+				_sunShaftsMaterial.SetVector(BlurRadiusPropertyId, CreateDynamicBlurRadiusVector(nextBlurRadius));
 
-				tempSwap = currentSource;
+				var tempSwap = currentSource;
 				currentSource = currentTarget;
 				currentTarget = tempSwap;
 			}
@@ -402,9 +322,8 @@ namespace NaturalLighting.Features.SunShafts
 		void ExecuteFinalComposite(RenderTexture source, RenderTexture destination, RenderTexture blurredTexture, float intensity)
 		{
 			var sunColor = (Vector4)_sunLight.color * intensity;
-			SetSunColorIfChanged(sunColor);
-
-			_sunShaftsMaterial.SetTexture("_ColorBuffer", blurredTexture);
+			_sunShaftsMaterial.SetVector(SunColorPropertyId, sunColor);
+			_sunShaftsMaterial.SetTexture(ColorBufferPropertyId, blurredTexture);
 			Graphics.Blit(source, destination, _sunShaftsMaterial, SunShaftsEffectConstants.SHADER_PASS_SCREEN_BLEND);
 		}
 	}

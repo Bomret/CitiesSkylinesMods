@@ -18,7 +18,6 @@ namespace NaturalLighting.Features.SunShafts
 
 		Material _sunShaftShaderMaterial;
 		SunShaftsEffect _sunShaftsComponent;
-		GameObject _sunTransformObj;
 
 		IShaderProvider _shaderProvider;
 
@@ -154,7 +153,7 @@ namespace NaturalLighting.Features.SunShafts
 		/// <summary>
 		/// Adds the SunShaftsImageEffect component to the main camera and configures it
 		/// with the loaded shader material and scene lighting information.
-		/// Handles cleanup of existing components before creating new ones.
+		/// Skips the add while an effect is still alive on the camera.
 		/// </summary>
 		void AddSunshaftsImageEffect()
 		{
@@ -164,7 +163,8 @@ namespace NaturalLighting.Features.SunShafts
 				return;
 			}
 
-			if (_sunShaftsComponent != null && _sunTransformObj != null)
+			// Unity's == null also treats an effect destroyed with the camera on a level load as missing.
+			if (_sunShaftsComponent != null)
 			{
 				Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Image effect already active, skipping");
 				return;
@@ -172,24 +172,9 @@ namespace NaturalLighting.Features.SunShafts
 
 			try
 			{
-				if (_sunShaftsComponent != null)
-				{
-					Object.DestroyImmediate(_sunShaftsComponent);
-					_sunShaftsComponent = null;
-				}
-
-				if (_sunTransformObj != null)
-				{
-					Object.DestroyImmediate(_sunTransformObj);
-					_sunTransformObj = null;
-				}
-
 				_sunShaftsComponent = _mainCamera.gameObject.AddComponent<SunShaftsEffect>();
 
-				_sunTransformObj = new GameObject("SunTransform");
-				var sunTransform = _sunTransformObj.transform;
-
-				_sunShaftsComponent.Initialize(_sunLight, sunTransform, _sunShaftShaderMaterial, Logger);
+				_sunShaftsComponent.Initialize(_sunLight, _sunShaftShaderMaterial, Logger);
 
 				Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Added custom image effect");
 			}
@@ -284,7 +269,7 @@ namespace NaturalLighting.Features.SunShafts
 
 		/// <summary>
 		/// Disables sunshaft rendering by removing image effect components from the camera.
-		/// Cleans up Unity GameObjects and components to prevent memory leaks.
+		/// Destroys the effect component to prevent memory leaks.
 		/// </summary>
 		void DisableSunshafts()
 		{
@@ -292,12 +277,6 @@ namespace NaturalLighting.Features.SunShafts
 			{
 				Object.DestroyImmediate(_sunShaftsComponent);
 				_sunShaftsComponent = null;
-			}
-
-			if (_sunTransformObj != null)
-			{
-				Object.DestroyImmediate(_sunTransformObj);
-				_sunTransformObj = null;
 			}
 
 			Logger.LogFormat(LogType.Log, "[NaturalLighting] Sunshafts: Disabled image effect");
