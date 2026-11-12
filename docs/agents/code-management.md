@@ -67,7 +67,7 @@ have run. The merge call below degrades the same way: print the exact `tea api` 
 ## Edit the pull request body
 
 A run that resolves a deferred finding after `/superdev:submit-pr` opened the pull request rebuilds that
-pull request's `## Deferred to a plan` section (`references/scope-mode.md`'s `## Deferred findings`,
+pull request's `## Deferred to a plan` section (`references/scope-findings.md`'s `## Deferred findings`,
 ADR 0121). Only an open pull request is edited.
 
 - **Read it**: `tea api '/repos/{owner}/{repo}/pulls/<index>'` with `--login <login> --repo <owner>/<repo>`,
