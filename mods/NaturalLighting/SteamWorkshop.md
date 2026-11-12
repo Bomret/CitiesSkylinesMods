@@ -24,7 +24,7 @@ Softens the shadows on buildings so they don't look so harsh anymore.
 This mod includes the option to use a dedicated LUT for the best experience. You can enable/disable that option anytime in-game. But you can of course also use any other LUT you like.
 
 [h3]Sun Shafts (default: on)[/h3]
-This mod includes the option to use a sun shafts or "god rays" effect. If you look at the sun in-game and it's light gets occluded by in-game objects, like trees and buildings, the sun shafts will follow this occlusion. Effect is only active when the sun is visible in the game.
+This mod includes the option to use a sun shafts or "god rays" effect. If you look at the sun in-game and it's light gets occluded by in-game objects, like trees and buildings, the sun shafts will follow this occlusion. The rays fade out smoothly as the sun leaves the screen.
 
 [h3]Chromatic Aberration (default: off)[/h3]
 This mod includes the option to use a chromatic aberration effect. This shifts the color channels slightly radially from the center of the screen to mimic a camera lens effect.
