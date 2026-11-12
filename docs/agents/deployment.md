@@ -35,8 +35,8 @@ repository deploys nothing yet.
 
 | Name | Command | Read-only reach |
 |---|---|---|
-| `naturallighting` | `pnpm --filter naturallighting run release`, then upload the mod from the game's Content Manager to the Steam Workshop | https://steamcommunity.com/sharedfiles/filedetails/?id=3145348939 |
-| `removechirper` | `pnpm --filter removechirper run release`, then upload the mod from the game's Content Manager to the Steam Workshop | https://steamcommunity.com/sharedfiles/filedetails/?id=3134254484 |
+| `naturallighting` | `mise run release:naturallighting`, then upload the mod from the game's Content Manager to the Steam Workshop | https://steamcommunity.com/sharedfiles/filedetails/?id=3145348939 |
+| `removechirper` | `mise run release:removechirper`, then upload the mod from the game's Content Manager to the Steam Workshop | https://steamcommunity.com/sharedfiles/filedetails/?id=3134254484 |
 
 Under `auto`, a target's command runs in a tree detached at the merge commit that can still carry ignored
 files from the run — installed dependencies, build output — so the command must not rely on their

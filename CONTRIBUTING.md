@@ -45,7 +45,7 @@ If you then still feel the need to ask a question and need clarification, we rec
 
 - Open an [Issue](https://github.com/Bomret/CitiesSkylinesMods/issues/new).
 - Provide as much context as you can about what you're running into.
-- Provide project and platform versions (Node.js, pnpm, .NET SDK), depending on what seems relevant.
+- Provide project and platform versions (mise, Node.js, .NET SDK), depending on what seems relevant.
 
 We will then take care of the issue as soon as possible.
 
@@ -126,7 +126,7 @@ You can use either [Visual Studio](https://visualstudio.microsoft.com/) or [Visu
 
 **Note:** While development can be done on any platform, Cities: Skylines is only available on Windows and macOS, so mods can only be tested on these platforms.
 
-The command-line build uses the [.NET SDK](https://dotnet.microsoft.com/en-us/download). The package manager [pnpm](https://pnpm.io/) runs the per-mod scripts.
+The command-line build uses the [.NET SDK](https://dotnet.microsoft.com/en-us/download). [mise](https://mise.jdx.dev/) installs the pinned Node.js and .NET SDK versions and runs the per-mod tasks.
 
 #### Folders
 
@@ -140,22 +140,24 @@ The command-line build uses the [.NET SDK](https://dotnet.microsoft.com/en-us/do
 
 Make sure the following Software Development Kits and utility applications are installed on your system.
 
-- [Node LTS](https://nodejs.org/en)
-- [.NET SDK LTS](https://dotnet.microsoft.com/en-us/download)
-- [Powershell](https://learn.microsoft.com/de-de/powershell/scripting/install/installing-powershell)
+- [mise](https://mise.jdx.dev/getting-started.html)
 - [Git](https://git-scm.com/downloads)
 
 ##### Initial Development Setup
 
-- execute `./setup-dev.ps1` in the root dir of the repository
+Run these in the root folder of the repository:
+
+- `mise trust`
+- `mise install` installs Node.js and the .NET SDK that `mise.toml` pins.
+- `mise run setup` installs the npm dev dependencies and the commit message hook, and restores the .NET packages and tools.
 
 #### Commands
 
 - `dotnet build CitiesSkylinesMods.slnx`
   - Compiles all projects. The build needs Cities: Skylines installed through Steam, because the mods reference the game's assemblies.
-- `pnpm --filter <package> run publish`
-  - Compiles one mod in Release mode into a `publish` folder inside the mod's folder. The script then copies the build to the game's local mods directory. The packages are `naturallighting` and `removechirper`.
-- `pnpm --filter <package> run release`
+- `mise run publish:<package>`
+  - Compiles one mod in Release mode into a `publish` folder inside the mod's folder. The build then copies it to the game's local mods directory. The packages are `naturallighting` and `removechirper`.
+- `mise run release:<package>`
   - Cuts a release of one mod. Maintainers run it, because it pushes to `origin`. See the toolchain notes in `docs/agents/toolchain.md`.
 
 ### Improving The Documentation

@@ -1,6 +1,5 @@
 {
   "name": "@bomret/cities-skylines-mods",
-  "packageManager": "pnpm@10.33.0",
   "dependencies": {
     "@commitlint/cli": "20.5.0",
     "@commitlint/config-conventional": "20.5.0",
@@ -9,7 +8,6 @@
     "@semantic-release/exec": "7.1.0",
     "@semantic-release/git": "10.0.1",
     "husky": "9.1.7",
-    "rimraf": "6.1.3",
     "semantic-release": "25.0.3",
     "semantic-release-monorepo": "8.0.2"
   },
@@ -18,8 +16,7 @@
     "url": "git+https://github.com/Bomret/CitiesSkylinesMods.git"
   },
   "scripts": {
-    "prepare": "husky",
-    "postinstall": "dotnet restore && dotnet tool restore"
+    "prepare": "husky"
   },
   "version": "0.0.0",
   "private": true
