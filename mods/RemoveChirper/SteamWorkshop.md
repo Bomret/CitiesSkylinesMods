@@ -24,6 +24,6 @@ Should be compatible with any other mod.
 
 [h2]Source Code[/h2]
 The source code of all my mods is available on
-[url=https://github.com/Bomret/CitiesSkylinesMods/tree/main/mods/NaturalLighting][img]https://i.imgur.com/DczUXYq.png[/img][/url]
+[url=https://github.com/Bomret/CitiesSkylinesMods/tree/main/mods/RemoveChirper][img]https://i.imgur.com/DczUXYq.png[/img][/url]
 
 Feel free to report any issues and feedback there or here on Steam.

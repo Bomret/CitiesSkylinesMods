@@ -27,8 +27,11 @@ One workspace per mod (`NaturalLighting`, `RemoveChirper`), package names `natur
     `DeployToLocalModDirectory` target copies the build into the game's local mods directory.
   - Release — `pnpm --filter <package> run release`: semantic-release with `semantic-release-monorepo`
     (`release.config.cjs`). It bumps the version in `package.json` and the `.csproj`, runs `publish`,
-    writes `CHANGELOG.md`, and commits. Its last plugin is `@semantic-release/github`, while `origin` is
-    Codeberg.
+    writes `CHANGELOG.md`, and commits. Its last plugin is `@semantic-release/github`, which publishes the
+    GitHub release on `origin`.
+  - Choose between them: run `publish` to test a build in the game, and run `release` only to ship a
+    version. `release` creates a tagged commit and a GitHub release on `origin`, so it needs push access to
+    the repository. Players receive the mod only after the manual Steam Workshop upload that follows.
 
 ## `libs/Common` — shared C# library
 
@@ -39,6 +42,7 @@ commands of its own.
 
 Holds the shader sources (`Assets/Shaders/*.shader`) for the NaturalLighting mod.
 
-- Shader bundle build — Unity editor menu **NaturalLighting → Build Natural Lighting Shader Bundle**
+- Shader bundle build — Unity editor menu **NaturalLighting**, entry **Build Natural Lighting Shader Bundle (All Platforms)**, or the entry
+  **Build Natural Lighting Shader Bundle (Current Platform Only)**
   (`Assets/Editor/SunShaftsBuilder.cs`). Output: `Assets/StreamingAssets/<Windows|macOS>/naturallighting`.
   Copy each bundle by hand to `mods/NaturalLighting/Assets/Shaders/<Windows|macOS>/`.
