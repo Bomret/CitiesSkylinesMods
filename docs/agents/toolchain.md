@@ -39,6 +39,6 @@ commands of its own.
 
 Holds the shader sources (`Assets/Shaders/*.shader`) for the NaturalLighting mod.
 
-- Shader bundle build — Unity editor menu **NaturalLighting → Build Natural Lighting Shader Bundle**
+- Shader bundle build — Unity editor menu **NaturalLighting → Build Natural Lighting Shader Bundle (All Platforms)** or **(Current Platform Only)**
   (`Assets/Editor/SunShaftsBuilder.cs`). Output: `Assets/StreamingAssets/<Windows|macOS>/naturallighting`.
   Copy each bundle by hand to `mods/NaturalLighting/Assets/Shaders/<Windows|macOS>/`.

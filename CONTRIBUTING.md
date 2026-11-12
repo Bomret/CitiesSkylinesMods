@@ -126,18 +126,19 @@ You can use either [Visual Studio](https://visualstudio.microsoft.com/) or [Visu
 
 **Note:** While development can be done on any platform, Cities: Skylines is only available on Windows and macOS, so mods can only be tested on these platforms.
 
-The CLI build system is based on [Node](https://nodejs.org/en) and [Turbo](https://turbo.build/repo).
+The CLI build uses the [.NET SDK](https://dotnet.microsoft.com/en-us/download), and [pnpm](https://pnpm.io/) runs the per-mod scripts.
 
 #### Folders
 
 - **mods**: Source code for all my mods.
 - **libs**: Shared class libraries used by the mods.
+- **unity**: The Unity project that builds the shader bundles.
 
 #### Prerequisites for Visual Studio Code
 
 > ⚠️ If you're using Visual Studio on Windows, you don't need these prerequisites. Just make sure you have .NET Framework 3.5 installed on your machine.
 
-Make sure the following Software Development Kits and utility applications are installed on your system or use the provided [Dev Container](https://containers.dev/) in Visual Studio Code.
+Make sure the following Software Development Kits and utility applications are installed on your system.
 
 - [Node LTS](https://nodejs.org/en)
 - [.NET SDK LTS](https://dotnet.microsoft.com/en-us/download)
@@ -148,18 +149,12 @@ Make sure the following Software Development Kits and utility applications are i
 
 - execute `./setup-dev.ps1` in the root dir of the repository
 
-#### Turbo Repo
+#### Commands
 
-- Turbo is an incremental bundle and build system
-- for the central management of all projects in the [Monorepo] (https://en.wikipedia.org/wiki/Monorepo)
-- [Documentation] (https://turbo.build/repo)
-
-#### npm Scripts
-
-- `npm run build`
-  - Compiles all projects
-- `npm run publish`
-  - Compiles all projects in Release mode and packs them neatly into .zip files in a `publish` folder inside the project's folder (requires [7-zip](https://7-zip.org/) to be installed).
+- `dotnet build CitiesSkylinesMods.slnx`
+  - Compiles all projects. Needs Cities: Skylines installed through Steam, because the mods reference the game's assemblies.
+- `pnpm --filter <package> run publish`
+  - Compiles one mod in Release mode into a `publish` folder inside the mod's folder and copies it to the game's local mods directory. The packages are `naturallighting` and `removechirper`.
 
 ### Improving The Documentation
 
