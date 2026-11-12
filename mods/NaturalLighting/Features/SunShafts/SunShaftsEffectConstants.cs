@@ -29,12 +29,11 @@ namespace NaturalLighting.Features.SunShafts
 		public const int SHADER_PASS_RADIAL_BLUR = 1;               // Pass 1: Radial blur iterations
 		public const int SHADER_PASS_BRIGHT_PASS = 2;               // Pass 2: Bright pass with depth texture
 
-		// Blur iteration limits
-		public const int MIN_BLUR_ITERATIONS = 1;                   // Minimum blur iterations allowed
-		public const int MAX_BLUR_ITERATIONS = 4;                   // Maximum blur iterations allowed
+		// Off-screen fade window
+		public const float SUN_FADE_MARGIN = 0.3f;                  // Viewport units past each screen edge across which the effect fades out
 
 		// RenderTexture configuration constants
 		public const int RENDERTEXTURE_DEPTH_BUFFER = 0;            // No depth buffer for RenderTextures
-		public const int INVALID_TEXTURE_SIZE = -1;                 // Invalid texture size marker
+		public const int RESOLUTION_DIVISOR = 4;                    // Render textures are a quarter of the source size
 	}
 }

@@ -19,7 +19,6 @@ namespace NaturalLighting.Features.SunShafts
 	{
 		// Core rendering components
 		Light _sunLight;                                      // The directional light representing the sun
-		Transform _sunTransform;                              // Transform used for sun position calculations
 		Material _sunShaftsMaterial;                          // Material containing the sun shafts shader
 		ILogger _logger;                                      // Logger for error reporting
 
@@ -34,40 +33,24 @@ namespace NaturalLighting.Features.SunShafts
 		float _blurRadius;                                    // Base blur radius for radial blur
 		int _blurIterations;                                  // Number of blur iterations to perform
 
-		// Quality and optimization systems
-		DistanceBasedQualityScaling _distanceOptimization;   // Adaptive quality system based on sun distance
-
-		// RenderTexture pooling to eliminate per-frame allocations
-		RenderTexture _pooledBrightPass;
-		RenderTexture _pooledBlurTexture1;
-		RenderTexture _pooledBlurTexture2;
-		int _lastPooledWidth = SunShaftsEffectConstants.INVALID_TEXTURE_SIZE;
-		int _lastPooledHeight = SunShaftsEffectConstants.INVALID_TEXTURE_SIZE;
-
-		// Cached shader parameters to avoid redundant GPU calls
-		Vector4 _cachedSunPosition;
-		Vector4 _cachedBlurRadius;
-		Vector4 _cachedSunThreshold;
-		Vector4 _cachedSunColor;
-		Vector4 _cachedThresholdVector;
-
-		// Pre-calculated Vector4 patterns to avoid allocations
-		static readonly Vector4 BLUR_RADIUS_BASE_PATTERN = new Vector4(1f, 1f, 0f, 0f);
-		float _lastThreshold = float.MinValue;
+		// Shader property ids, named after the uniforms in SunShafts.shader
+		static readonly int SunPositionPropertyId = Shader.PropertyToID("_SunPosition");
+		static readonly int BlurRadiusPropertyId = Shader.PropertyToID("_BlurRadius4");
+		static readonly int SunThresholdPropertyId = Shader.PropertyToID("_SunThreshold");
+		static readonly int SunColorPropertyId = Shader.PropertyToID("_SunColor");
+		static readonly int ColorBufferPropertyId = Shader.PropertyToID("_ColorBuffer");
 
 		/// <summary>
 		/// Initializes the sun shafts image effect with the specified parameters.
-		/// This method caches components and sets up the distance-based quality optimization system.
+		/// This method caches the camera and sun light components.
 		/// Effect parameters are automatically loaded from SunShaftsEffectConstants.
 		/// </summary>
 		/// <param name="sunLight">The directional light representing the sun</param>
-		/// <param name="sunTransform">Transform used for sun position calculations</param>
 		/// <param name="sunShaftsMaterial">Material containing the optimized sun shafts shader</param>
 		/// <param name="logger">Logger instance for error reporting</param>
-		public void Initialize(Light sunLight, Transform sunTransform, Material sunShaftsMaterial, ILogger logger)
+		public void Initialize(Light sunLight, Material sunShaftsMaterial, ILogger logger)
 		{
 			_sunLight = sunLight;
-			_sunTransform = sunTransform;
 			_sunShaftsMaterial = sunShaftsMaterial;
 			_logger = logger;
 
@@ -77,8 +60,6 @@ namespace NaturalLighting.Features.SunShafts
 			_blurRadius = SunShaftsEffectConstants.DEFAULT_BLUR_RADIUS;
 			_blurIterations = SunShaftsEffectConstants.DEFAULT_BLUR_ITERATIONS;
 
-			_distanceOptimization = new DistanceBasedQualityScaling();
-
 			// Cache components to eliminate repeated lookups
 			_camera = GetComponent<Camera>();
 			_cameraTransform = _camera.transform;
@@ -86,159 +67,13 @@ namespace NaturalLighting.Features.SunShafts
 		}
 
 		/// <summary>
-		/// Ensures that pooled RenderTextures are available and correctly sized for the current resolution.
-		/// Only recreates textures when dimensions change to avoid unnecessary GPU memory allocations.
-		/// </summary>
-		/// <param name="width">Required texture width</param>
-		/// <param name="height">Required texture height</param>
-		void EnsurePooledTextures(int width, int height)
-		{
-			// Recreate textures only when dimensions change
-			if (_lastPooledWidth != width || _lastPooledHeight != height)
-			{
-				ReleasePooledTextures();
-
-				_pooledBrightPass = new RenderTexture(width, height, SunShaftsEffectConstants.RENDERTEXTURE_DEPTH_BUFFER) { filterMode = FilterMode.Bilinear };
-				_pooledBlurTexture1 = new RenderTexture(width, height, SunShaftsEffectConstants.RENDERTEXTURE_DEPTH_BUFFER) { filterMode = FilterMode.Bilinear };
-				_pooledBlurTexture2 = new RenderTexture(width, height, SunShaftsEffectConstants.RENDERTEXTURE_DEPTH_BUFFER) { filterMode = FilterMode.Bilinear };
-
-				_lastPooledWidth = width;
-				_lastPooledHeight = height;
-			}
-		}
-
-		/// <summary>
-		/// Releases all pooled RenderTextures and resets their size tracking.
-		/// Called when textures need to be recreated or during cleanup.
-		/// </summary>
-		void ReleasePooledTextures()
-		{
-			if (_pooledBrightPass != null)
-			{
-				_pooledBrightPass.Release();
-				DestroyImmediate(_pooledBrightPass);
-				_pooledBrightPass = null;
-			}
-
-			if (_pooledBlurTexture1 != null)
-			{
-				_pooledBlurTexture1.Release();
-				DestroyImmediate(_pooledBlurTexture1);
-				_pooledBlurTexture1 = null;
-			}
-
-			if (_pooledBlurTexture2 != null)
-			{
-				_pooledBlurTexture2.Release();
-				DestroyImmediate(_pooledBlurTexture2);
-				_pooledBlurTexture2 = null;
-			}
-
-			_lastPooledWidth = SunShaftsEffectConstants.INVALID_TEXTURE_SIZE;
-			_lastPooledHeight = SunShaftsEffectConstants.INVALID_TEXTURE_SIZE;
-		}
-
-		/// <summary>
-		/// Unity lifecycle method called when the component is destroyed.
-		/// Ensures proper cleanup of pooled RenderTextures to prevent memory leaks.
-		/// </summary>
-		void OnDestroy()
-		{
-			ReleasePooledTextures();
-		}
-
-		/// <summary>
-		/// Returns a cached Vector4 containing the threshold value in all components.
-		/// Only recreates the vector when the threshold value changes to avoid allocations.
-		/// </summary>
-		/// <returns>Vector4 with threshold value in all components (threshold, threshold, threshold, threshold)</returns>
-		Vector4 GetCachedThresholdVector()
-		{
-			if (_lastThreshold != _threshold)
-			{
-				_cachedThresholdVector = new Vector4(_threshold, _threshold, _threshold, _threshold);
-				_lastThreshold = _threshold;
-			}
-
-			return _cachedThresholdVector;
-		}
-
-		/// <summary>
-		/// Creates a blur radius Vector4 by multiplying the base pattern with the given radius.
-		/// This avoids allocation by reusing the static base pattern (1, 1, 0, 0).
+		/// Creates the value of the shader's blur radius parameter.
 		/// </summary>
 		/// <param name="radius">Blur radius value to apply</param>
-		/// <returns>Vector4 suitable for shader blur radius parameter</returns>
+		/// <returns>Vector4 with radius in X and Y components, zeros in Z and W</returns>
 		static Vector4 CreateBlurRadiusVector(float radius)
 		{
-			return BLUR_RADIUS_BASE_PATTERN * radius;
-		}
-
-		/// <summary>
-		/// Creates a dynamic blur radius Vector4 for iterative blur operations.
-		/// Used when the radius needs to be calculated per iteration.
-		/// </summary>
-		/// <param name="radius">Dynamic blur radius value</param>
-		/// <returns>Vector4 with radius in X and Y components, zeros in Z and W</returns>
-		static Vector4 CreateDynamicBlurRadiusVector(float radius)
-		{
 			return new Vector4(radius, radius, 0f, 0f);
-		}
-
-		/// <summary>
-		/// Sets the sun position shader parameter only if it has changed since the last call.
-		/// This optimization avoids redundant GPU driver calls that can impact performance.
-		/// </summary>
-		/// <param name="newSunPosition">New sun position vector to set</param>
-		void SetSunPositionIfChanged(Vector4 newSunPosition)
-		{
-			if (_cachedSunPosition != newSunPosition)
-			{
-				_cachedSunPosition = newSunPosition;
-				_sunShaftsMaterial.SetVector("_SunPosition", newSunPosition);
-			}
-		}
-
-		/// <summary>
-		/// Sets the blur radius shader parameter only if it has changed since the last call.
-		/// Reduces GPU driver overhead by avoiding redundant parameter updates.
-		/// </summary>
-		/// <param name="newBlurRadius">New blur radius vector to set</param>
-		void SetBlurRadiusIfChanged(Vector4 newBlurRadius)
-		{
-			if (_cachedBlurRadius != newBlurRadius)
-			{
-				_cachedBlurRadius = newBlurRadius;
-				_sunShaftsMaterial.SetVector("_BlurRadius4", newBlurRadius);
-			}
-		}
-
-		/// <summary>
-		/// Sets the sun threshold shader parameter only if it has changed since the last call.
-		/// Optimizes performance by caching the threshold vector between frames.
-		/// </summary>
-		/// <param name="newSunThreshold">New sun threshold vector to set</param>
-		void SetSunThresholdIfChanged(Vector4 newSunThreshold)
-		{
-			if (_cachedSunThreshold != newSunThreshold)
-			{
-				_cachedSunThreshold = newSunThreshold;
-				_sunShaftsMaterial.SetVector("_SunThreshold", newSunThreshold);
-			}
-		}
-
-		/// <summary>
-		/// Sets the sun color shader parameter only if it has changed since the last call.
-		/// Prevents unnecessary GPU state changes when the sun color remains constant.
-		/// </summary>
-		/// <param name="newSunColor">New sun color vector to set</param>
-		void SetSunColorIfChanged(Vector4 newSunColor)
-		{
-			if (_cachedSunColor != newSunColor)
-			{
-				_cachedSunColor = newSunColor;
-				_sunShaftsMaterial.SetVector("_SunColor", newSunColor);
-			}
 		}
 
 		/// <summary>
@@ -251,31 +86,31 @@ namespace NaturalLighting.Features.SunShafts
 		{
 			try
 			{
-				if (_camera == null)
+				if (_camera == null || _sunLight == null)
 				{
 					Graphics.Blit(source, destination);
 					return;
 				}
 
-				// Position sun transform relative to camera for depth calculations
-				_sunTransform.position = _cameraTransform.position - _sunLightTransform.forward * SunShaftsEffectConstants.SUN_DISTANCE;
-
-				// Convert sun world position to screen space
-				var sunScreenPosition = _camera.WorldToViewportPoint(_sunTransform.position);
+				// Place the sun at a fixed distance from the camera and convert it to screen space
+				var sunScreenPosition = _camera.WorldToViewportPoint(
+					_cameraTransform.position - _sunLightTransform.forward * SunShaftsEffectConstants.SUN_DISTANCE);
 
 				// Enable depth texture for bright pass filtering
 				_camera.depthTextureMode |= DepthTextureMode.Depth;
 
-				if (sunScreenPosition.z <= 0 ||
-					!_distanceOptimization.TryCalculateQualitySettings(sunScreenPosition, _blurIterations, out var quality) ||
-					!quality.HasValue)
+				var fade = CalculateScreenEdgeFade(sunScreenPosition);
+				var rtWidth = source.width / SunShaftsEffectConstants.RESOLUTION_DIVISOR;
+				var rtHeight = source.height / SunShaftsEffectConstants.RESOLUTION_DIVISOR;
+
+				if (fade <= 0f || rtWidth <= 0 || rtHeight <= 0)
 				{
-					// Sun not visible or quality settings disable effect
+					// Sun behind the camera, outside the fade window, or screen too small for the buffers
 					Graphics.Blit(source, destination);
 					return;
 				}
 
-				ApplySunShaftsEffect(source, destination, sunScreenPosition, quality.Value);
+				ApplySunShaftsEffect(source, destination, sunScreenPosition, rtWidth, rtHeight, _intensity * fade);
 			}
 			catch (Exception err)
 			{
@@ -285,33 +120,112 @@ namespace NaturalLighting.Features.SunShafts
 		}
 
 		/// <summary>
-		/// Executes the complete sun shafts rendering pipeline with the specified quality settings.
+		/// Returns the factor that fades the effect out as the sun leaves the screen.
+		/// It is 1 while the sun is on screen, falls with a smoothstep to 0 across
+		/// <see cref="SunShaftsEffectConstants.SUN_FADE_MARGIN"/> past each edge, and takes the smaller
+		/// per-axis factor at a corner. It is 0 for a sun behind the camera and for a non-finite position:
+		/// every comparison is written so that NaN fails it.
+		/// </summary>
+		/// <param name="sunScreenPosition">Sun position in viewport coordinates</param>
+		/// <returns>Fade factor between 0 and 1</returns>
+		static float CalculateScreenEdgeFade(Vector3 sunScreenPosition)
+		{
+			if (!(sunScreenPosition.z > 0f))
+			{
+				return 0f;
+			}
+
+			return Mathf.Min(CalculateAxisFade(sunScreenPosition.x), CalculateAxisFade(sunScreenPosition.y));
+		}
+
+		/// <summary>
+		/// Returns the fade factor along one viewport axis.
+		/// </summary>
+		/// <param name="position">Viewport coordinate on one axis</param>
+		/// <returns>1 inside [0, 1], 0 outside the fade window, and a smoothstep in between</returns>
+		static float CalculateAxisFade(float position)
+		{
+			const float margin = SunShaftsEffectConstants.SUN_FADE_MARGIN;
+
+			if (!(position >= -margin && position <= 1f + margin))
+			{
+				return 0f;
+			}
+
+			// Zero on screen, where both terms are at most 0, so the smoothstep returns 1
+			var distancePastEdge = Mathf.Max(0f, Mathf.Max(-position, position - 1f));
+
+			return Mathf.SmoothStep(0f, 1f, 1f - distancePastEdge / margin);
+		}
+
+		/// <summary>
+		/// Acquires a temporary render texture and sets its sampler state, since the pool may return a texture
+		/// another user left with a different filter or wrap mode. Clamp makes blur samples past the edge
+		/// continue the edge texels toward an off-screen sun instead of wrapping in the opposite edge.
+		/// </summary>
+		/// <param name="width">Texture width</param>
+		/// <param name="height">Texture height</param>
+		/// <returns>A temporary render texture the caller releases with <see cref="RenderTexture.ReleaseTemporary"/></returns>
+		static RenderTexture AcquireTexture(int width, int height)
+		{
+			var texture = RenderTexture.GetTemporary(width, height, SunShaftsEffectConstants.RENDERTEXTURE_DEPTH_BUFFER);
+			texture.filterMode = FilterMode.Bilinear;
+			texture.wrapMode = TextureWrapMode.Clamp;
+
+			return texture;
+		}
+
+		/// <summary>
+		/// Executes the complete sun shafts rendering pipeline at the fixed quarter resolution.
 		/// Coordinates the three main phases: bright pass, blur iterations, and final composite.
+		/// Every render texture it acquires is released once the composite is done, also when a pass throws.
 		/// </summary>
 		/// <param name="source">Source render texture from the camera</param>
 		/// <param name="destination">Destination render texture for the final composite</param>
 		/// <param name="sunScreenPosition">Sun position in screen space coordinates</param>
-		/// <param name="quality">Quality settings determining resolution and iteration count</param>
-		void ApplySunShaftsEffect(RenderTexture source, RenderTexture destination, Vector3 sunScreenPosition, QualitySettings quality)
+		/// <param name="rtWidth">Width of the intermediate render textures</param>
+		/// <param name="rtHeight">Height of the intermediate render textures</param>
+		/// <param name="intensity">Effect intensity, already multiplied by the screen edge fade</param>
+		void ApplySunShaftsEffect(RenderTexture source, RenderTexture destination, Vector3 sunScreenPosition, int rtWidth, int rtHeight, float intensity)
 		{
-			var rtWidth = source.width / quality.ResolutionDivisor;
-			var rtHeight = source.height / quality.ResolutionDivisor;
-			var iterations = quality.BlurIterations;
-			var intensity = _intensity * quality.IntensityMultiplier;
+			RenderTexture brightPass = null;
+			RenderTexture blurTexture1 = null;
+			RenderTexture blurTexture2 = null;
 
-			EnsurePooledTextures(rtWidth, rtHeight);
+			try
+			{
+				brightPass = AcquireTexture(rtWidth, rtHeight);
+				blurTexture1 = AcquireTexture(rtWidth, rtHeight);
+				blurTexture2 = AcquireTexture(rtWidth, rtHeight);
 
-			var blurStep = _blurRadius * SunShaftsEffectConstants.BLUR_SCALE_FACTOR;
+				var blurStep = _blurRadius * SunShaftsEffectConstants.BLUR_SCALE_FACTOR;
 
-			// Phase 1: Extract bright areas with depth filtering
-			ExecuteBrightPass(source, sunScreenPosition);
+				// Phase 1: Extract bright areas with depth filtering
+				ExecuteBrightPass(source, brightPass, sunScreenPosition);
 
-			// Phase 2: Apply progressive radial blur
-			iterations = Mathf.Clamp(iterations, SunShaftsEffectConstants.MIN_BLUR_ITERATIONS, SunShaftsEffectConstants.MAX_BLUR_ITERATIONS);
-			var blurredTexture = ExecuteBlurIterations(iterations, blurStep);
+				// Phase 2: Apply progressive radial blur
+				var blurredTexture = ExecuteBlurIterations(brightPass, blurTexture1, blurTexture2, _blurIterations, blurStep);
 
-			// Phase 3: Composite with original image
-			ExecuteFinalComposite(source, destination, blurredTexture, intensity);
+				// Phase 3: Composite with original image
+				ExecuteFinalComposite(source, destination, blurredTexture, intensity);
+			}
+			finally
+			{
+				if (brightPass != null)
+				{
+					RenderTexture.ReleaseTemporary(brightPass);
+				}
+
+				if (blurTexture1 != null)
+				{
+					RenderTexture.ReleaseTemporary(blurTexture1);
+				}
+
+				if (blurTexture2 != null)
+				{
+					RenderTexture.ReleaseTemporary(blurTexture2);
+				}
+			}
 		}
 
 		/// <summary>
@@ -319,34 +233,37 @@ namespace NaturalLighting.Features.SunShafts
 		/// Uses depth texture information to enhance the effect and sets up shader parameters.
 		/// </summary>
 		/// <param name="source">Source render texture to extract bright areas from</param>
+		/// <param name="brightPass">Render texture that receives the bright areas</param>
 		/// <param name="sunScreenPosition">Sun position in screen space for parameter calculation</param>
-		void ExecuteBrightPass(RenderTexture source, Vector3 sunScreenPosition)
+		void ExecuteBrightPass(RenderTexture source, RenderTexture brightPass, Vector3 sunScreenPosition)
 		{
-			// Configure shader parameters (cached to avoid redundant GPU calls)
 			var sunPosition = new Vector4(sunScreenPosition.x, sunScreenPosition.y, sunScreenPosition.z, SunShaftsEffectConstants.SUN_MAX_RADIUS);
-			var sunThreshold = GetCachedThresholdVector();
+			var sunThreshold = new Vector4(_threshold, _threshold, _threshold, _threshold);
 
-			SetBlurRadiusIfChanged(CreateBlurRadiusVector(_blurRadius));
-			SetSunPositionIfChanged(sunPosition);
-			SetSunThresholdIfChanged(sunThreshold);
+			_sunShaftsMaterial.SetVector(BlurRadiusPropertyId, CreateBlurRadiusVector(_blurRadius));
+			_sunShaftsMaterial.SetVector(SunPositionPropertyId, sunPosition);
+			_sunShaftsMaterial.SetVector(SunThresholdPropertyId, sunThreshold);
 
-			Graphics.Blit(source, _pooledBrightPass, _sunShaftsMaterial, SunShaftsEffectConstants.SHADER_PASS_BRIGHT_PASS);
+			Graphics.Blit(source, brightPass, _sunShaftsMaterial, SunShaftsEffectConstants.SHADER_PASS_BRIGHT_PASS);
 		}
 
 		/// <summary>
-		/// Executes the iterative radial blur phase using a ping-pong technique between pooled textures.
+		/// Executes the iterative radial blur phase using a ping-pong technique between two blur textures.
 		/// Applies progressively stronger blur with each iteration to create the volumetric sun shafts effect.
 		/// </summary>
-		/// <param name="iterations">Number of blur iterations to perform (clamped between MIN_BLUR_ITERATIONS and MAX_BLUR_ITERATIONS)</param>
+		/// <param name="brightPass">Bright pass result the first blur reads</param>
+		/// <param name="blurTexture1">First ping-pong texture</param>
+		/// <param name="blurTexture2">Second ping-pong texture</param>
+		/// <param name="iterations">Number of blur iterations to perform</param>
 		/// <param name="blurStep">Base blur step size for each iteration</param>
 		/// <returns>Final blurred texture ready for compositing</returns>
-		RenderTexture ExecuteBlurIterations(int iterations, float blurStep)
+		RenderTexture ExecuteBlurIterations(RenderTexture brightPass, RenderTexture blurTexture1, RenderTexture blurTexture2, int iterations, float blurStep)
 		{
 			var baseBlurRadius = _blurRadius * SunShaftsEffectConstants.BLUR_RESOLUTION_SCALE;
-			SetBlurRadiusIfChanged(CreateDynamicBlurRadiusVector(baseBlurRadius));
+			_sunShaftsMaterial.SetVector(BlurRadiusPropertyId, CreateBlurRadiusVector(baseBlurRadius));
 
-			var currentSource = _pooledBrightPass;
-			var currentTarget = _pooledBlurTexture1;
+			var currentSource = brightPass;
+			var currentTarget = blurTexture1;
 
 			for (var i = 0; i < iterations; i++)
 			{
@@ -355,20 +272,19 @@ namespace NaturalLighting.Features.SunShafts
 
 				// Calculate progressive blur radius
 				var dynamicBlurRadius = blurStep * (i * 2f + 1f);
-				SetBlurRadiusIfChanged(CreateDynamicBlurRadiusVector(dynamicBlurRadius));
+				_sunShaftsMaterial.SetVector(BlurRadiusPropertyId, CreateBlurRadiusVector(dynamicBlurRadius));
 
 				// Ping-pong between textures for second pass
-				var tempSwap = currentSource;
 				currentSource = currentTarget;
-				currentTarget = (currentTarget == _pooledBlurTexture1) ? _pooledBlurTexture2 : _pooledBlurTexture1;
+				currentTarget = (currentTarget == blurTexture1) ? blurTexture2 : blurTexture1;
 
 				Graphics.Blit(currentSource, currentTarget, _sunShaftsMaterial, SunShaftsEffectConstants.SHADER_PASS_RADIAL_BLUR);
 
 				// Prepare blur radius for next iteration
 				var nextBlurRadius = blurStep * (i * 2f + 2f);
-				SetBlurRadiusIfChanged(CreateDynamicBlurRadiusVector(nextBlurRadius));
+				_sunShaftsMaterial.SetVector(BlurRadiusPropertyId, CreateBlurRadiusVector(nextBlurRadius));
 
-				tempSwap = currentSource;
+				var tempSwap = currentSource;
 				currentSource = currentTarget;
 				currentTarget = tempSwap;
 			}
@@ -387,9 +303,8 @@ namespace NaturalLighting.Features.SunShafts
 		void ExecuteFinalComposite(RenderTexture source, RenderTexture destination, RenderTexture blurredTexture, float intensity)
 		{
 			var sunColor = (Vector4)_sunLight.color * intensity;
-			SetSunColorIfChanged(sunColor);
-
-			_sunShaftsMaterial.SetTexture("_ColorBuffer", blurredTexture);
+			_sunShaftsMaterial.SetVector(SunColorPropertyId, sunColor);
+			_sunShaftsMaterial.SetTexture(ColorBufferPropertyId, blurredTexture);
 			Graphics.Blit(source, destination, _sunShaftsMaterial, SunShaftsEffectConstants.SHADER_PASS_SCREEN_BLEND);
 		}
 	}
