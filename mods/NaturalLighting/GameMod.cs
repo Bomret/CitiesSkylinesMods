@@ -47,6 +47,7 @@ namespace NaturalLighting
 		static readonly Dictionary<string, string> IncompatibleMods = new Dictionary<string, string>
 		{
 			{"530871278", "Daylight Classic"},
+			{"643364914", "Softer Shadows"},
 			{"1794015399", "Render It!"},
 			{"2983036781", "Lumina"},
 			{"933513277", "Sun Shafts"},
