@@ -13,3 +13,15 @@ inside Cities: Skylines, and Unity's engine semantics have no test seam outside 
 repository holds no tests. The solution build compiles every mod and runs the
 `Microsoft.Extensions.StaticAnalysis` analyzers, which is the only automated check. It needs the game's
 managed assemblies (`mods/Directory.Build.props`). Behavior is verified by hand in game.
+
+## Prepare command
+
+`dotnet restore CitiesSkylinesMods.slnx`
+
+## CI
+
+`none`
+
+## Verify skill
+
+`none`

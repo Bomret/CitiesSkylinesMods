@@ -21,8 +21,8 @@ never proposes `auto`: the operator picks `auto` themselves.
 
 **A repository carrying no `docs/agents/deployment.md` reads as posture `none`.**
 
-`/superdev:ship` reads the posture from this document's own `Posture:` line, in this `## Posture`
-section. **A document carrying no such line reads as posture `none`**, the same as a repository carrying
+`/superdev:ship` reads the posture from the first line anywhere in this document that reads `Posture:` with a valid
+value (`none`, `manual`, or `auto`). **A document carrying no such line reads as posture `none`**, the same as a repository carrying
 no `docs/agents/deployment.md` at all.
 
 Posture: `manual`

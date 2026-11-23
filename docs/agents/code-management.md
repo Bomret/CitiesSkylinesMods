@@ -29,14 +29,18 @@ Do not fail. Push the branch, then print the compare URL
 (`https://github.com/bomret/CitiesSkylinesMods/compare/<base>...<scope-branch>?expand=1`) and the exact
 `gh pr create ...` command the user can run once `gh` is available.
 The merge call below degrades the same way: print the exact `gh pr merge`/REST call and merge nothing.
+The check-status read below degrades the same way: print the exact `gh api` calls and judge nothing.
 
 ## Merge
 
 - **Read the pull request**: `gh pr view <number> --json state,mergeable,headRefOid,mergeCommit` (or
   `GET /repos/bomret/CitiesSkylinesMods/pulls/<pull_number>` for `state`, `merged`, `merge_commit_sha`, `head.sha`,
-  and `mergeable`). GitHub computes `mergeable` asynchronously and answers `null` while it does;
-  re-read up to 3 times with a short pause and, if it is still `null`, report it as **unknown** — never
-  as mergeable.
+  and `mergeable`). GitHub computes `mergeable` asynchronously: while it does, REST answers `null` and
+  `gh pr view --json mergeable` answers `UNKNOWN`. Both read as not yet known: re-read up to 3 times with a short
+  pause and, if it is still not known, report it as **unknown** — never as mergeable.
+- **Read the draft state**: `gh pr view <number> --json isDraft --jq .isDraft` prints `true` for a draft.
+- **Mark ready**: `gh pr ready <number>` takes a draft pull request out of draft. GitHub refuses to merge a
+  draft, so `/superdev:ship` calls it before the merge under the merge consent.
 - **Merge it, pinned**: `gh pr merge --squash --match-head-commit <tested-tip-sha> <number>` (or
   `PUT /repos/bomret/CitiesSkylinesMods/pulls/<pull_number>/merge` with
   `{ "merge_method": "squash", "commit_title": "<pr-title>", "sha": "<tested-tip-sha>" }`).
@@ -50,9 +54,27 @@ The merge call below degrades the same way: print the exact `gh pr merge`/REST c
   Leaving `state=open` off would surface closed and merged pull requests too, including an old one left
   over from a reused branch name — never widen the filter to catch one of those.
 - **`<tested-tip-sha>` above is never read from the host.** It is the local scope-branch tip
-  `scope.js suite reusable` just accepted, resolved with `git rev-parse <branch>` in the scope checkout.
+  `scope.js suite reusable` just accepted, the carry covered, ship's own local run passed, or whose named checks
+  `scope.js ci` judged green, resolved with `git rev-parse <branch>` in the scope checkout.
   `/superdev:ship` reads the pull request's own `head.sha` only to decide whether to push and to refuse
   when it still differs from that tip after pushing, never as the merge's own pin.
+
+## Check status
+
+`/superdev:ship`, `/superdev:review`, and `/superdev:setup` read the latest check status of one commit through this
+call, and `scope.js ci` judges it against the named checks the `## CI` section of `docs/agents/verification.md` lists (ADR 0255).
+The read emits one `name<TAB>state<TAB>link` line per latest check run and per latest commit-status context, across
+every page:
+
+- **Check runs**: `gh api --paginate 'repos/bomret/CitiesSkylinesMods/commits/<sha>/check-runs?per_page=100' --jq '.check_runs[] | [.name, (if .status == "completed" then .conclusion else .status end), (.html_url // .details_url // "")] | @tsv'`.
+  The endpoint's default `filter=latest` keeps the latest run per name, and `--paginate` follows every page.
+- **Commit statuses**: `gh api --paginate 'repos/bomret/CitiesSkylinesMods/commits/<sha>/status?per_page=100' --jq '.statuses[] | [.context, .state, (.target_url // "")] | @tsv'`.
+  The combined status holds the latest status per context.
+- **Read into a file, then judge.** `c=$(mktemp) && gh api … > "$c" && gh api … >> "$c" && node
+  "${CLAUDE_PLUGIN_ROOT}/scripts/scope.js" ci --sha <sha> < "$c"`. A pipe drops the read's exit status, so a failed
+  read would reach the verdict as empty input. No `gh`, no login, a 401, 403, or 404, or a network error ends the chain
+  at the failed read with its error: report it, and pass nothing to `scope.js ci`.
+- Nothing here waits for a check, re-reads it on a timer, or starts, re-runs, or cancels a CI run.
 
 ## Edit the pull request body
 
